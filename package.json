@@ -1,0 +1,17 @@
+{
+  "name": "mdtalk",
+  "version": "0.1.0",
+  "description": "MDファイル内で設計書を対話的に育てるCLIツール（AIは注釈の挿入のみ）",
+  "bin": {
+    "mdtalk": "./mdtalk.js"
+  },
+  "type": "commonjs",
+  "main": "mdtalk.js",
+  "scripts": {
+    "test": "node --test test/unit.test.js test/integration.test.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}
