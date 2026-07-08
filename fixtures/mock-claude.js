@@ -7,6 +7,9 @@
  * MDTALK_CLAUDE_CMD="node <abs>/mock-claude.js" のように指定して使う。
  * 実 claude / ネットワークは不要。
  *
+ * 注意: このヘルパは `test/` の外（fixtures/）に置く。`node --test` が
+ * `test/**` の .js を自動的にテストとして拾い、stdin 待ちでハングするのを避けるため。
+ *
  * 制御用環境変数:
  *   MDTALK_MOCK_SKELETON=1   8節スケルトンを {"skeleton":"..."} で返す
  *   MDTALK_MOCK_FIND=<text>  行番号付きスナップショットから <text> を含む行を探し、

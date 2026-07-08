@@ -8,7 +8,7 @@
   "type": "commonjs",
   "main": "mdtalk.js",
   "scripts": {
-    "test": "node --test test/unit.test.js test/integration.test.js"
+    "test": "node --test"
   },
   "engines": {
     "node": ">=20"

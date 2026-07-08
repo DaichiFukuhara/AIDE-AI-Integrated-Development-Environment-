@@ -8,7 +8,7 @@ const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 
 const MDTALK = path.join(__dirname, '..', 'mdtalk.js');
-const MOCK = path.join(__dirname, 'mock-claude.js');
+const MOCK = path.join(__dirname, '..', 'fixtures', 'mock-claude.js');
 
 function mkTmp() {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'mdtalk-'));
