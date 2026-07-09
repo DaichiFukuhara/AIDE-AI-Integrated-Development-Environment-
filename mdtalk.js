@@ -20,6 +20,9 @@ const util = require('node:util');
 
 const STATE_VERSION = 1;
 const DEFAULT_MODEL = 'sonnet';
+const DEFAULT_MODEL_MINUTES = 'haiku';
+const DEFAULT_MODEL_SUMMARY = 'opus';
+const VALID_ROLES = new Set(['dialogue', 'minutes', 'summary']);
 const DEFAULT_INTERVAL = 1500;
 const DEFAULT_MAX_NOTES = 3;
 const DEFAULT_TIMEOUT_MS = 120000;
@@ -142,10 +145,12 @@ function lcsMatchedNewIndices(a, b) {
 function humanChangedLineNumbers(oldLines, newLines) {
   const matched = lcsMatchedNewIndices(oldLines, newLines);
   const aiFlag = markAiAnnotationLines(newLines);
+  const header = protocolHeaderRange(newLines);
   const out = [];
   for (let idx = 0; idx < newLines.length; idx++) {
     if (matched.has(idx)) continue;
     if (aiFlag[idx]) continue;
+    if (header && idx >= header.start && idx <= header.end) continue; // ヘッダ内は対象外
     if (newLines[idx].trim() === '') continue; // 空行の追加は無視
     out.push(idx + 1);
   }
@@ -168,7 +173,7 @@ function paragraphFingerprint(text) {
 
 function isParagraphContentLine(line) {
   const trimmed = line.trim();
-  return trimmed !== '' && !/^@ai:/.test(trimmed) && !/^<!--\s*done:/.test(trimmed);
+  return trimmed !== '' && !/^@ai(?::|\()/.test(trimmed) && !/^<!--\s*done:/.test(trimmed);
 }
 
 /** idx の行が属する段落（連続する非空行）の境界を返す。 */
@@ -223,11 +228,34 @@ function formatAnnotationLines(insertion, dateStr) {
 // ディレクティブ（@ai:）
 // ---------------------------------------------------------------------------
 
+/**
+ * `@ai:` / `@ai(...)` ディレクティブ行を抽出する。
+ * - `@ai: 指示` → dialogue（役割・モデル指定なし）
+ * - `@ai(summary): 指示` → summary タスク（kind='summary'）
+ * - `@ai(<モデル名>): 指示` → その1回だけ dialogue 呼び出しのモデルを差し替える
+ * done 変換テキスト(doneText)はカッコ含め元の指定を残す。
+ */
 function findDirectives(lines) {
   const out = [];
   for (let i = 0; i < lines.length; i++) {
-    const m = lines[i].match(/^@ai:\s?(.*)$/);
-    if (m) out.push({ index: i, instruction: m[1].trim(), raw: lines[i] });
+    const m = lines[i].match(/^@ai(?:\(([^)]*)\))?:\s?(.*)$/);
+    if (!m) continue;
+    const paren = m[1];
+    const instruction = m[2].trim();
+    let kind = 'dialogue';
+    let modelOverride = null;
+    let doneText = instruction;
+    if (paren !== undefined) {
+      const p = paren.trim();
+      if (p === 'summary') {
+        kind = 'summary';
+      } else {
+        // summary 以外はモデル名として dialogue 呼び出しに1回だけ適用。
+        modelOverride = p;
+      }
+      doneText = `(${paren}): ${instruction}`;
+    }
+    out.push({ index: i, instruction, raw: lines[i], kind, modelOverride, doneText });
   }
   return out;
 }
@@ -243,7 +271,7 @@ function findDirectives(lines) {
  * - 既に注釈済みの段落フィンガープリントは抑制。
  */
 function applyWrite(text, opts) {
-  const { insertions = [], directives = [], eol, dateStr } = opts;
+  const { insertions = [], directives = [], references = [], eol, dateStr } = opts;
   const lines = splitLines(text);
   const fpSet = new Set(opts.annotatedFingerprints || []);
   const edits = [];
@@ -253,7 +281,8 @@ function applyWrite(text, opts) {
   const newFingerprints = [];
 
   for (const d of directives) {
-    edits.push({ at: d.index, kind: 'replace', line: `<!-- done: ${d.instruction} -->` });
+    const doneText = d.doneText != null ? d.doneText : d.instruction;
+    edits.push({ at: d.index, kind: 'replace', line: `<!-- done: ${doneText} -->` });
   }
 
   for (const ins of insertions) {
@@ -267,7 +296,16 @@ function applyWrite(text, opts) {
     newFingerprints.push(fp);
     const block = formatAnnotationLines(ins, dateStr);
     edits.push({ at: bounds.end + 1, kind: 'insert', lines: ['', ...block] });
-    applied.push({ type: ins.type });
+    applied.push({ type: ins.type, text: ins.text });
+  }
+
+  // summary の参照 blockquote（章末尾）。フィンガープリント抑制は行わない。
+  for (const ref of references) {
+    const idx = matchAnchor(lines, ref.anchorLine, ref.anchorText);
+    if (idx < 0) continue;
+    const bounds = paragraphBounds(lines, idx);
+    const block = formatAnnotationLines({ type: 'structure', text: ref.text }, dateStr);
+    edits.push({ at: bounds.end + 1, kind: 'insert', lines: ['', ...block] });
   }
 
   // 下→上に適用。同一 at は replace を先に。
@@ -294,15 +332,80 @@ function hasProtocolHeader(text) {
   return /^\s*<!--\s*mdtalk\b/.test(text);
 }
 
-function protocolHeaderLines() {
+/** 先頭のプロトコルヘッダ（HTMLコメント）の行範囲 {start, end}（両端含む）。無ければ null。 */
+function protocolHeaderRange(lines) {
+  let start = -1;
+  for (let i = 0; i < lines.length; i++) {
+    if (/^\s*<!--\s*mdtalk\b/.test(lines[i])) { start = i; break; }
+    if (lines[i].trim() !== '') break; // ヘッダは先頭（空行のみ許容）
+  }
+  if (start < 0) return null;
+  for (let j = start; j < lines.length; j++) {
+    if (/-->/.test(lines[j])) return { start, end: j };
+  }
+  return null;
+}
+
+function protocolHeaderLines(models) {
+  const md = models || {
+    dialogue: DEFAULT_MODEL,
+    minutes: DEFAULT_MODEL_MINUTES,
+    summary: DEFAULT_MODEL_SUMMARY,
+  };
   return [
     '<!-- mdtalk protocol',
     'マーカー: ❓=質問 / 💬=コメント / ➕=展開 / 🔀=別視点 / 🧭=整理',
     '人間→AI: 行頭 `@ai:` で指示（例: `@ai: この節を整理して`）。処理後 `<!-- done: ... -->` になる。',
+    '役割別モデル: `@ai(summary): まとめて` で章を清書、`@ai(opus): 指示` で1回だけモデル差し替え。',
     '約束: AIは注釈blockquoteの挿入のみ行い、人間が書いた文は不変のまま。',
     'このファイルを編集するAIは注釈blockquoteの追加のみ行うこと。',
+    `mdtalk-models: dialogue=${md.dialogue} minutes=${md.minutes} summary=${md.summary}`,
     '-->',
   ];
+}
+
+/** `mdtalk-models: dialogue=.. minutes=.. summary=..` の値部分をパースする。 */
+function parseModelsSpec(spec) {
+  const models = {};
+  const warnings = [];
+  const tokens = String(spec).trim().split(/\s+/).filter(Boolean);
+  for (const tok of tokens) {
+    const eq = tok.indexOf('=');
+    if (eq < 0) { warnings.push(tok); continue; }
+    const role = tok.slice(0, eq).trim();
+    const model = tok.slice(eq + 1).trim();
+    if (!VALID_ROLES.has(role) || model === '') { warnings.push(tok); continue; }
+    models[role] = model;
+  }
+  return { models, warnings };
+}
+
+/** プロトコルヘッダ内の `mdtalk-models:` 行から役割別モデル指定を取り出す。 */
+function parseModelsHeader(text, log) {
+  const lines = splitLines(text);
+  const range = protocolHeaderRange(lines);
+  if (!range) return {};
+  for (let i = range.start; i <= range.end; i++) {
+    const m = lines[i].match(/^\s*mdtalk-models:\s*(.*)$/);
+    if (!m) continue;
+    const { models, warnings } = parseModelsSpec(m[1]);
+    if (warnings.length && log) {
+      log.warn(`mdtalk-models: 不正なトークンを無視します: ${warnings.join(' ')}`);
+    }
+    return models;
+  }
+  return {};
+}
+
+/** ファイル内指定 > CLI > 既定値 の優先順で役割別モデルを解決する。 */
+function resolveModels(cli, header) {
+  const h = header || {};
+  const c = cli || {};
+  return {
+    dialogue: h.dialogue || c.model || DEFAULT_MODEL,
+    minutes: h.minutes || c.modelMinutes || DEFAULT_MODEL_MINUTES,
+    summary: h.summary || c.modelSummary || DEFAULT_MODEL_SUMMARY,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -412,6 +515,181 @@ function buildInitPrompt() {
   ].join('\n');
 }
 
+const MINUTES_SCHEMA = '応答は次のJSONのみ（前後に文章やコードフェンスを付けない）: {"minutes":"<Markdownエントリ本文>"}';
+const SUMMARY_SCHEMA = '応答は次のJSONのみ（前後に文章やコードフェンスを付けない）: {"summary":"<Markdown章本文>"}';
+
+/** 議事録プロンプトを組み立てる。 */
+function buildMinutesPrompt(opts) {
+  const { humanLines = [], insertedNotes = [], recentEntries = [] } = opts;
+  return [
+    'あなたは設計対話の議事録を書くAIです。今回のサイクルの変更点を簡潔な議事メモにまとめてください。',
+    '規範: 箇条書き中心。決定事項・未解決の問い・次の論点を拾う。全文の要約や長文は書かない。',
+    '',
+    '## 今回、人間が書いた/変えた行',
+    humanLines.length ? humanLines.map((l) => `- ${l}`).join('\n') : '（なし）',
+    '',
+    '## 今回、AIが挿入した注釈',
+    insertedNotes.length
+      ? insertedNotes.map((n) => `- ${markerFor(n.type)} ${n.text || ''}`).join('\n')
+      : '（なし）',
+    '',
+    '## 直近の議事録（継続性の参考）',
+    recentEntries.length ? recentEntries.join('\n\n') : '（なし）',
+    '',
+    '## 応答スキーマ',
+    MINUTES_SCHEMA,
+  ].join('\n');
+}
+
+/** 章まとめプロンプトを組み立てる。 */
+function buildSummaryPrompt(opts) {
+  const { instruction, chapterName, chapterText, headings } = opts;
+  return [
+    'あなたは設計書の1つの章を清書するAIです。人間の文とAIとの対話（注釈blockquote）を材料に、',
+    '章を読みやすい設計文書としてまとめてください。',
+    '規範: 章本文のMarkdownのみを出力する（章見出し ## は付けない）。人間の意図を保ちつつ整理する。',
+    '',
+    '## まとめ指示',
+    instruction || '（指示なし。この章をまとめて）',
+    '',
+    `## 対象の章: ${chapterName}`,
+    chapterText,
+    '',
+    '## ファイル全体の見出し一覧（文脈用）',
+    headings || '（なし）',
+    '',
+    '## 応答スキーマ',
+    SUMMARY_SCHEMA,
+  ].join('\n');
+}
+
+/**
+ * dirIndex の行が属する章（直前の `##` 見出しから次の `##` 見出しの手前まで）。
+ * 見出しが無ければファイル全体（name='(全体)'）。行番号は 0 始まり両端含む。
+ */
+function extractChapter(lines, dirIndex) {
+  let start = -1;
+  for (let i = dirIndex; i >= 0; i--) {
+    if (/^##\s/.test(lines[i])) { start = i; break; }
+  }
+  if (start < 0) {
+    return { name: '(全体)', startLine: 0, endLine: lines.length - 1, wholeFile: true };
+  }
+  let end = lines.length - 1;
+  for (let j = start + 1; j < lines.length; j++) {
+    if (/^##\s/.test(lines[j])) { end = j - 1; break; }
+  }
+  const name = lines[start].replace(/^##\s+/, '').trim();
+  return { name, startLine: start, endLine: end, wholeFile: false };
+}
+
+/** 範囲内の最後の非空行を参照アンカーとして返す。 */
+function lastContentAnchor(lines, start, end) {
+  for (let i = end; i >= start; i--) {
+    if (lines[i].trim() !== '') return { line: i + 1, text: lines[i].slice(0, 20) };
+  }
+  return null;
+}
+
+/**
+ * summary ファイルに章セクションを追加/置換する（章単位で冪等）。
+ * 同じ `## <章名>` があれば次の `##` 見出し手前まで置換、なければ末尾へ追記。
+ */
+function upsertSummarySection(existingText, name, body, eol) {
+  const bodyLines = splitLines(String(body).replace(/\r\n|\r/g, '\n'));
+  const section = ['## ' + name, '', ...bodyLines];
+  while (section.length && section[section.length - 1].trim() === '') section.pop();
+
+  if (!existingText || existingText.trim() === '') {
+    return joinLines(section, eol) + eol;
+  }
+
+  const lines = splitLines(existingText);
+  let start = -1;
+  for (let i = 0; i < lines.length; i++) {
+    if (/^##\s/.test(lines[i]) && lines[i].replace(/^##\s+/, '').trim() === name) {
+      start = i;
+      break;
+    }
+  }
+
+  if (start < 0) {
+    const base = splitLines(existingText.replace(/(\r\n|\r|\n)+$/, ''));
+    return joinLines([...base, '', ...section], eol) + eol;
+  }
+
+  let end = lines.length;
+  for (let j = start + 1; j < lines.length; j++) {
+    if (/^##\s/.test(lines[j])) { end = j; break; }
+  }
+  const before = lines.slice(0, start);
+  const after = lines.slice(end);
+  while (before.length && before[before.length - 1].trim() === '') before.pop();
+  while (after.length && after[0].trim() === '') after.shift();
+  const merged = [];
+  if (before.length) merged.push(...before, '');
+  merged.push(...section);
+  if (after.length) merged.push('', ...after);
+  return joinLines(merged, eol) + eol;
+}
+
+/** 議事録ファイルへ日時見出し付きエントリを追記する（追記のみ）。 */
+function appendMinutes(file, body, dateStr) {
+  let eol = '\n';
+  let prefix = '';
+  if (fs.existsSync(file)) {
+    const existing = fs.readFileSync(file, 'utf8');
+    eol = detectEOL(existing);
+    prefix = existing.replace(/(\r\n|\r|\n)+$/, '');
+    if (prefix !== '') prefix += eol + eol;
+  }
+  const bodyNorm = String(body).replace(/\r\n|\r|\n/g, eol);
+  const entry = `## ${dateStr}${eol}${eol}${bodyNorm}${eol}`;
+  fs.writeFileSync(file, prefix + entry);
+}
+
+/** 議事録ファイル末尾から直近 n エントリを返す。 */
+function readRecentMinutes(file, n) {
+  try {
+    if (!fs.existsSync(file)) return [];
+    const lines = splitLines(fs.readFileSync(file, 'utf8'));
+    const idxs = [];
+    for (let i = 0; i < lines.length; i++) if (/^##\s/.test(lines[i])) idxs.push(i);
+    const entries = [];
+    for (let k = 0; k < idxs.length; k++) {
+      const s = idxs[k];
+      const e = k + 1 < idxs.length ? idxs[k + 1] : lines.length;
+      entries.push(lines.slice(s, e).join('\n').trim());
+    }
+    return entries.slice(-n);
+  } catch (_) {
+    return [];
+  }
+}
+
+/** 対象ファイルと同ディレクトリの `<base><suffix>` パスを返す。 */
+function siblingPath(targetFile, suffix) {
+  const dir = path.dirname(path.resolve(targetFile));
+  const base = path.basename(targetFile);
+  const ext = path.extname(base);
+  const stem = ext ? base.slice(0, -ext.length) : base;
+  return path.join(dir, stem + suffix);
+}
+
+function validateMinutes(obj) {
+  if (!obj || typeof obj !== 'object' || typeof obj.minutes !== 'string') {
+    throw new Error('minutes is not a string');
+  }
+  return obj.minutes;
+}
+
+function validateSummary(obj) {
+  if (!obj || typeof obj !== 'object' || typeof obj.summary !== 'string') {
+    throw new Error('summary is not a string');
+  }
+  return obj.summary;
+}
+
 // ---------------------------------------------------------------------------
 // claude 呼び出し
 // ---------------------------------------------------------------------------
@@ -472,10 +750,14 @@ function parseClaudeResponse(out) {
 }
 
 function parseInner(s) {
-  let t = String(s).trim();
-  const fence = t.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (fence) t = fence[1].trim();
-  return JSON.parse(t);
+  const t = String(s).trim();
+  // まず全体を JSON として試す（フェンスなし応答）。
+  try { return JSON.parse(t); } catch (_) {}
+  // フェンス付き応答: 貪欲マッチで「最後の ```」を閉じとみなす
+  // （JSON 文字列内にコードフェンスが含まれるケースで途中切りしない）。
+  const fence = t.match(/```(?:json)?\s*([\s\S]*)```/);
+  if (fence) return JSON.parse(fence[1].trim());
+  return JSON.parse(t); // 元のエラーを投げ直す
 }
 
 /** insertions 応答の検証。妥当なら正規化した配列を返し、不正なら throw。 */
@@ -562,6 +844,9 @@ function parseCliArgs(argv) {
     allowPositionals: true,
     options: {
       model: { type: 'string', default: DEFAULT_MODEL },
+      'model-minutes': { type: 'string', default: DEFAULT_MODEL_MINUTES },
+      'model-summary': { type: 'string', default: DEFAULT_MODEL_SUMMARY },
+      'no-minutes': { type: 'boolean', default: false },
       once: { type: 'boolean', default: false },
       interval: { type: 'string', default: String(DEFAULT_INTERVAL) },
       'max-notes': { type: 'string', default: String(DEFAULT_MAX_NOTES) },
@@ -572,6 +857,9 @@ function parseCliArgs(argv) {
   return {
     file: positionals[0],
     model: values.model,
+    modelMinutes: values['model-minutes'],
+    modelSummary: values['model-summary'],
+    noMinutes: values['no-minutes'],
     once: values.once,
     interval: parseInt(values.interval, 10) || DEFAULT_INTERVAL,
     maxNotes: parseInt(values['max-notes'], 10) || DEFAULT_MAX_NOTES,
@@ -601,8 +889,8 @@ function makeLogger(quiet) {
  * @returns {{ ok: true, insertions } | { ok: false, reason }}
  * ClaudeNotFoundError / timeout は上位へ伝播しないよう扱う（timeout は skip）。
  */
-async function requestInsertions(ctx, promptText) {
-  const call = (p) => callClaudeRaw({ promptText: p, model: ctx.model, timeoutMs: ctx.timeoutMs });
+async function requestInsertions(ctx, promptText, model) {
+  const call = (p) => callClaudeRaw({ promptText: p, model: model || ctx.model, timeoutMs: ctx.timeoutMs });
   let firstOut;
   try {
     const r = await call(promptText);
@@ -634,26 +922,52 @@ async function processAnnotations(ctx, state, currentText) {
   const lines = splitLines(currentText);
   const oldLines = splitLines(state.snapshot || '');
   const changedLines = humanChangedLineNumbers(oldLines, lines);
-  const directives = findDirectives(lines);
+  const allDirectives = findDirectives(lines);
 
-  if (changedLines.length === 0 && directives.length === 0) {
+  // 役割別モデル解決（ファイル内 > CLI > 既定）。
+  const headerModels = parseModelsHeader(currentText, ctx.log);
+  const models = resolveModels(ctx.cli, headerModels);
+
+  const summaryDirectives = allDirectives.filter((d) => d.kind === 'summary');
+  const dialogueDirectives = allDirectives.filter((d) => d.kind !== 'summary');
+  const summaryLineSet = new Set(summaryDirectives.map((d) => d.index + 1));
+  // summary 指示行は dialogue の変更行（プロンプト）から除外する。
+  const dialogueChangedLines = changedLines.filter((n) => !summaryLineSet.has(n));
+
+  const hasDialogueWork = dialogueChangedLines.length > 0 || dialogueDirectives.length > 0;
+  const hasSummaryWork = summaryDirectives.length > 0;
+  if (!hasDialogueWork && !hasSummaryWork) {
     return { status: 'nochange' };
   }
 
   const eol = detectEOL(currentText);
-  const { prompt, truncated } = buildPrompt({
-    lines, changedLines, directives, maxNotes: ctx.maxNotes,
-  });
-  if (truncated && !state.warnedLargeFile) {
-    ctx.log.warn('ファイルが100KBを超えるため切り詰めて送信します。');
-    state.warnedLargeFile = true;
+  const started = Date.now();
+
+  // --- dialogue（注釈ループ） ---
+  let insertions = [];
+  let dialogueModel = models.dialogue;
+  if (hasDialogueWork) {
+    const { prompt, truncated } = buildPrompt({
+      lines, changedLines: dialogueChangedLines, directives: dialogueDirectives, maxNotes: ctx.maxNotes,
+    });
+    if (truncated && !state.warnedLargeFile) {
+      ctx.log.warn('ファイルが100KBを超えるため切り詰めて送信します。');
+      state.warnedLargeFile = true;
+    }
+    const override = (dialogueDirectives.find((d) => d.modelOverride) || {}).modelOverride;
+    dialogueModel = override || models.dialogue;
+    const res = await requestInsertions(ctx, prompt, dialogueModel);
+    if (!res.ok) {
+      ctx.log.warn(`サイクルをスキップ（${res.reason}）。`);
+      return { status: 'skipped', reason: res.reason };
+    }
+    insertions = res.insertions.slice(0, ctx.maxNotes);
   }
 
-  const started = Date.now();
-  const res = await requestInsertions(ctx, prompt);
-  if (!res.ok) {
-    ctx.log.warn(`サイクルをスキップ（${res.reason}）。`);
-    return { status: 'skipped', reason: res.reason };
+  // --- summary（章まとめ・dialogue とは独立。失敗しても消費しない） ---
+  let summaryOut = { consumed: [], references: [] };
+  if (hasSummaryWork) {
+    summaryOut = await processSummaries(ctx, models, lines, summaryDirectives);
   }
 
   // 適用直前に再読込しレースを検出
@@ -663,10 +977,11 @@ async function processAnnotations(ctx, state, currentText) {
     return { status: 'raced' };
   }
 
-  let insertions = res.insertions.slice(0, ctx.maxNotes);
+  const consumedDirectives = dialogueDirectives.concat(summaryOut.consumed);
   const result = applyWrite(currentText, {
     insertions,
-    directives,
+    directives: consumedDirectives,
+    references: summaryOut.references,
     eol,
     dateStr: formatDate(new Date()),
     annotatedFingerprints: state.annotatedFingerprints || [],
@@ -691,16 +1006,94 @@ async function processAnnotations(ctx, state, currentText) {
     state.lastProcessedHash = sha256(currentText);
   }
 
-  const counts = {};
-  for (const a of result.applied) counts[a.type] = (counts[a.type] || 0) + 1;
-  const countStr = Object.entries(counts)
-    .map(([t, n]) => `${markerFor(t)}×${n}`).join(' ');
-  const secs = ((Date.now() - started) / 1000).toFixed(1);
-  ctx.log.info(
-    `+${result.applied.length} notes${countStr ? ' (' + countStr + ')' : ''} model=${ctx.model} ${secs}s`
-  );
+  if (hasDialogueWork) {
+    const counts = {};
+    for (const a of result.applied) counts[a.type] = (counts[a.type] || 0) + 1;
+    const countStr = Object.entries(counts)
+      .map(([t, n]) => `${markerFor(t)}×${n}`).join(' ');
+    const secs = ((Date.now() - started) / 1000).toFixed(1);
+    ctx.log.info(
+      `+${result.applied.length} notes${countStr ? ' (' + countStr + ')' : ''} model=${dialogueModel} ${secs}s`
+    );
+  }
+
+  // --- minutes（挿入を適用した or @ai を消費したときのみ。失敗は警告のみ） ---
+  const minutesTrigger = !ctx.cli.noMinutes && changedFile &&
+    (result.applied.length > 0 || dialogueDirectives.length > 0);
+  if (minutesTrigger) {
+    try {
+      await generateMinutes(ctx, models, {
+        humanLines: dialogueChangedLines.map((n) => lines[n - 1]).filter((l) => l != null),
+        insertedNotes: result.applied,
+        dateStr: formatDate(new Date()),
+      });
+    } catch (e) {
+      ctx.log.warn(`minutes 失敗（${e.code || e.message}）。議事録は今回スキップします。`);
+    }
+  }
 
   return { status: 'ok', applied: result.applied.length, text: result.text };
+}
+
+/**
+ * summary 指示を逐次処理する。成功した指示は done 消費対象＋章末尾の参照 blockquote を返す。
+ * 失敗（応答不正・書き込み失敗など）は警告ログのみで消費しない（次サイクルで再試行）。
+ */
+async function processSummaries(ctx, models, lines, summaryDirectives) {
+  const consumed = [];
+  const references = [];
+  const headings = headingList(lines);
+  for (const d of summaryDirectives) {
+    const ch = extractChapter(lines, d.index);
+    const chapterText = lines.slice(ch.startLine, ch.endLine + 1).join('\n');
+    const prompt = buildSummaryPrompt({
+      instruction: d.instruction, chapterName: ch.name, chapterText, headings,
+    });
+    let body;
+    try {
+      const r = await callClaudeRaw({ promptText: prompt, model: models.summary, timeoutMs: ctx.timeoutMs });
+      body = validateSummary(parseClaudeResponse(r.out));
+    } catch (e) {
+      ctx.log.warn(`summary 失敗（${e.code || e.message}）。指示は消費せず次サイクルで再試行します。`);
+      continue;
+    }
+    let existing = null;
+    try {
+      if (fs.existsSync(ctx.summaryFile)) existing = fs.readFileSync(ctx.summaryFile, 'utf8');
+    } catch (_) { existing = null; }
+    const seol = existing ? detectEOL(existing) : '\n';
+    try {
+      fs.writeFileSync(ctx.summaryFile, upsertSummarySection(existing, ch.name, body, seol));
+    } catch (e) {
+      ctx.log.warn(`summary ファイル書き込み失敗: ${e.message}`);
+      continue;
+    }
+    ctx.log.info(`summary model=${models.summary} → ${path.basename(ctx.summaryFile)}「${ch.name}」`);
+    consumed.push(d);
+    const anchor = lastContentAnchor(lines, ch.startLine, ch.endLine);
+    if (anchor) {
+      references.push({
+        anchorLine: anchor.line,
+        anchorText: anchor.text,
+        text: `まとめを ${path.basename(ctx.summaryFile)}「${ch.name}」に書きました`,
+      });
+    }
+  }
+  return { consumed, references };
+}
+
+/** 議事録を1回生成して minutes ファイルへ追記する。失敗は呼び出し側で捕捉。 */
+async function generateMinutes(ctx, models, opts) {
+  const recentEntries = readRecentMinutes(ctx.minutesFile, 2);
+  const prompt = buildMinutesPrompt({
+    humanLines: opts.humanLines,
+    insertedNotes: opts.insertedNotes,
+    recentEntries,
+  });
+  const r = await callClaudeRaw({ promptText: prompt, model: models.minutes, timeoutMs: ctx.timeoutMs });
+  const body = validateMinutes(parseClaudeResponse(r.out));
+  appendMinutes(ctx.minutesFile, body, opts.dateStr);
+  ctx.log.info(`minutes model=${models.minutes} → ${path.basename(ctx.minutesFile)}`);
 }
 
 /** --init / 空ファイル: スケルトン提案を1回挿入。 */
@@ -718,7 +1111,7 @@ async function processInit(ctx, state, currentText) {
   }
   const skeleton = obj && typeof obj.skeleton === 'string' ? obj.skeleton : null;
 
-  const headerLines = protocolHeaderLines();
+  const headerLines = protocolHeaderLines(ctx.startupModels);
   let outLines = [...headerLines, ''];
   if (skeleton) {
     outLines = outLines.concat(splitLines(skeleton.replace(/\r\n|\r/g, '\n')));
@@ -736,7 +1129,11 @@ async function processInit(ctx, state, currentText) {
   state.lastWrittenHash = h;
   state.lastProcessedHash = h;
   state.initialized = true;
-  ctx.log.info('設計書スケルトンを挿入しました。');
+  if (skeleton) {
+    ctx.log.info('設計書スケルトンを挿入しました。');
+  } else {
+    ctx.log.info('プロトコルヘッダのみ挿入しました。');
+  }
   return { status: 'init', text };
 }
 
@@ -745,7 +1142,7 @@ function ensureInitialized(ctx, state) {
   let currentText = readTargetText(ctx.targetFile);
   const eol = detectEOL(currentText || '\n');
   if (!hasProtocolHeader(currentText)) {
-    const headerLines = protocolHeaderLines();
+    const headerLines = protocolHeaderLines(ctx.startupModels);
     const body = currentText === '' ? [] : splitLines(currentText);
     const outLines = body.length ? [...headerLines, '', ...body] : [...headerLines, ''];
     currentText = joinLines(outLines, eol);
@@ -791,9 +1188,19 @@ function prepareContext(opts, log) {
   }
   state.pid = process.pid;
 
+  const cli = {
+    model: opts.model,
+    modelMinutes: opts.modelMinutes,
+    modelSummary: opts.modelSummary,
+    noMinutes: opts.noMinutes,
+  };
   const ctx = {
     targetFile, stateDir, stateFile,
     model: opts.model,
+    cli,
+    minutesFile: siblingPath(targetFile, '.minutes.md'),
+    summaryFile: siblingPath(targetFile, '.summary.md'),
+    startupModels: resolveModels(cli, {}),
     maxNotes: opts.maxNotes,
     interval: opts.interval,
     timeoutMs: DEFAULT_TIMEOUT_MS,
@@ -1017,11 +1424,23 @@ module.exports = {
   findDirectives,
   applyWrite,
   hasProtocolHeader,
+  protocolHeaderRange,
   protocolHeaderLines,
+  parseModelsSpec,
+  parseModelsHeader,
+  resolveModels,
   buildPrompt,
   buildInitPrompt,
+  buildMinutesPrompt,
+  buildSummaryPrompt,
+  extractChapter,
+  lastContentAnchor,
+  upsertSummarySection,
+  siblingPath,
   parseClaudeResponse,
   validateInsertions,
+  validateMinutes,
+  validateSummary,
   statePaths,
   main,
   MARKERS,

@@ -21,7 +21,31 @@
  *   MDTALK_MOCK_BAD=always   常に不正 JSON を返す
  *   MDTALK_MOCK_BADFIRST=1   RETRY-SCHEMA-STRICT を含まない初回のみ不正 JSON
  *   MDTALK_MOCK_TIMEOUT=1    応答せずハングする
+ *   MDTALK_MOCK_MINUTES=<text>   minutes 応答本文（既定 '議事メモ'）
+ *   MDTALK_MOCK_SUMMARY=<text>   summary 応答本文（既定 '# まとめ'）
+ *   MDTALK_MOCK_MINUTES_BAD=1    minutes 要求に不正 JSON を返す
+ *   MDTALK_MOCK_SUMMARY_BAD=1    summary 要求に不正 JSON を返す
+ *   MDTALK_MOCK_LOG=<file>       呼び出しごとに {role, model} を1行 JSON で追記
+ *
+ * 役割判定: プロンプト（stdin）中の応答スキーマ・マーカーで dialogue /
+ * minutes / summary / skeleton を見分ける。
  */
+
+const fs = require('fs');
+
+function argModel() {
+  const a = process.argv;
+  const i = a.indexOf('--model');
+  return i >= 0 && i + 1 < a.length ? a[i + 1] : null;
+}
+
+function logCall(role) {
+  const f = process.env.MDTALK_MOCK_LOG;
+  if (!f) return;
+  try {
+    fs.appendFileSync(f, JSON.stringify({ role, model: argModel() }) + '\n');
+  } catch (_) { /* ignore */ }
+}
 
 function readStdin() {
   return new Promise((resolve) => {
@@ -67,10 +91,34 @@ async function main() {
     return;
   }
   if (process.env.MDTALK_MOCK_SKELETON === '1') {
+    logCall('skeleton');
     process.stdout.write(JSON.stringify({ skeleton: SKELETON }));
     return;
   }
 
+  // minutes / summary はスキーマ・マーカーで判別（dialogue より先に処理）。
+  if (stdin.includes('{"minutes"')) {
+    logCall('minutes');
+    if (process.env.MDTALK_MOCK_MINUTES_BAD === '1') {
+      process.stdout.write('これはJSONではありません。');
+      return;
+    }
+    const text = process.env.MDTALK_MOCK_MINUTES || '議事メモ';
+    process.stdout.write(JSON.stringify({ minutes: text }));
+    return;
+  }
+  if (stdin.includes('{"summary"')) {
+    logCall('summary');
+    if (process.env.MDTALK_MOCK_SUMMARY_BAD === '1') {
+      process.stdout.write('これはJSONではありません。');
+      return;
+    }
+    const text = process.env.MDTALK_MOCK_SUMMARY || '# まとめ';
+    process.stdout.write(JSON.stringify({ summary: text }));
+    return;
+  }
+
+  logCall('dialogue');
   let good;
   if (process.env.MDTALK_MOCK_FIND) good = buildFind(stdin);
   else if (process.env.MDTALK_MOCK_OUT) good = process.env.MDTALK_MOCK_OUT;

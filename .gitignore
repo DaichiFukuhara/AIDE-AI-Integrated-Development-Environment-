@@ -1,0 +1,9 @@
+# mdtalk 実行時生成の state
+.mdtalk/
+
+# node
+node_modules/
+
+# 動作確認用スクラッチ（mdtalk を試したファイル）
+/test.md
+/design.md

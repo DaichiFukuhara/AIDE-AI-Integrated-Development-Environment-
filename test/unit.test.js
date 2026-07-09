@@ -173,8 +173,140 @@ test('parseClaudeResponse は envelope/コードフェンスから取り出す',
     m.parseClaudeResponse('```json\n{"insertions":[]}\n```'), { insertions: [] });
 });
 
+test('parseClaudeResponse は JSON 文字列内のコードフェンスで途中切りしない', () => {
+  // skeleton 本文に ``` を含む応答（実 claude で観測されたケース）
+  const skeleton = '## シグネチャ\n\n```\nfn foo()\n```\n\n本文';
+  const inner = JSON.stringify({ skeleton });
+  const fenced = '```json\n' + inner + '\n```';
+  assert.deepStrictEqual(m.parseClaudeResponse(fenced), { skeleton });
+  // envelope 経由でも同様
+  assert.deepStrictEqual(
+    m.parseClaudeResponse(JSON.stringify({ type: 'result', result: fenced })),
+    { skeleton });
+});
+
 test('hasProtocolHeader / protocolHeaderLines', () => {
   assert.strictEqual(m.hasProtocolHeader('<!-- mdtalk protocol\n-->\n本文'), true);
   assert.strictEqual(m.hasProtocolHeader('本文'), false);
   assert.ok(m.protocolHeaderLines()[0].startsWith('<!-- mdtalk'));
+});
+
+// ---------------------------------------------------------------------------
+// マルチモデル役割分担
+// ---------------------------------------------------------------------------
+
+test('protocolHeaderLines は mdtalk-models 行を含む（既定・指定）', () => {
+  const def = m.protocolHeaderLines();
+  assert.ok(def.some((l) => l === 'mdtalk-models: dialogue=sonnet minutes=haiku summary=opus'));
+  const custom = m.protocolHeaderLines({ dialogue: 'opus', minutes: 'sonnet', summary: 'fable' });
+  assert.ok(custom.some((l) => l === 'mdtalk-models: dialogue=opus minutes=sonnet summary=fable'));
+});
+
+test('parseModelsSpec は役割=モデルを解釈し不正トークンを警告に回す', () => {
+  const ok = m.parseModelsSpec('dialogue=sonnet minutes=haiku summary=opus');
+  assert.deepStrictEqual(ok.models, { dialogue: 'sonnet', minutes: 'haiku', summary: 'opus' });
+  assert.strictEqual(ok.warnings.length, 0);
+  const partial = m.parseModelsSpec('summary=fable');
+  assert.deepStrictEqual(partial.models, { summary: 'fable' });
+  const bad = m.parseModelsSpec('garbage badrole=x dialogue=');
+  assert.deepStrictEqual(bad.models, {});
+  assert.strictEqual(bad.warnings.length, 3);
+});
+
+test('parseModelsHeader はヘッダ内の mdtalk-models 行のみ拾う', () => {
+  const text = [
+    '<!-- mdtalk protocol',
+    'mdtalk-models: dialogue=opus summary=fable',
+    '-->',
+    '',
+    '# 本文',
+    'mdtalk-models: dialogue=これは本文なので無視',
+  ].join('\n');
+  assert.deepStrictEqual(m.parseModelsHeader(text), { dialogue: 'opus', summary: 'fable' });
+  assert.deepStrictEqual(m.parseModelsHeader('# ヘッダ無し'), {});
+});
+
+test('resolveModels は ファイル内 > CLI > 既定 の優先順', () => {
+  const cli = { model: 'sonnet', modelMinutes: 'haiku', modelSummary: 'opus' };
+  // 既定（ヘッダ空）
+  assert.deepStrictEqual(m.resolveModels(cli, {}), {
+    dialogue: 'sonnet', minutes: 'haiku', summary: 'opus',
+  });
+  // ファイル内がCLIより優先
+  assert.deepStrictEqual(m.resolveModels(cli, { dialogue: 'opus' }), {
+    dialogue: 'opus', minutes: 'haiku', summary: 'opus',
+  });
+  // CLI未指定は既定
+  assert.deepStrictEqual(m.resolveModels({}, {}), {
+    dialogue: 'sonnet', minutes: 'haiku', summary: 'opus',
+  });
+});
+
+test('findDirectives は @ai(summary) / @ai(モデル名) / @ai: を判別', () => {
+  const lines = [
+    '@ai: 整理して',
+    '@ai(summary): この章をまとめて',
+    '@ai(opus): 反論だけほしい',
+  ];
+  const d = m.findDirectives(lines);
+  assert.strictEqual(d.length, 3);
+  // 既存 @ai: は dialogue、modelOverride なし
+  assert.strictEqual(d[0].kind, 'dialogue');
+  assert.strictEqual(d[0].modelOverride, null);
+  assert.strictEqual(d[0].doneText, '整理して');
+  // summary 役割
+  assert.strictEqual(d[1].kind, 'summary');
+  assert.strictEqual(d[1].doneText, '(summary): この章をまとめて');
+  // モデル名指定は dialogue + modelOverride
+  assert.strictEqual(d[2].kind, 'dialogue');
+  assert.strictEqual(d[2].modelOverride, 'opus');
+  assert.strictEqual(d[2].doneText, '(opus): 反論だけほしい');
+});
+
+test('extractChapter は ## 見出しで章境界を特定、見出し無しは(全体)', () => {
+  const lines = [
+    '# タイトル', '', '## 章A', '本文A1', '本文A2', '', '## 章B', '本文B',
+  ];
+  const chA = m.extractChapter(lines, 4); // 本文A2
+  assert.strictEqual(chA.name, '章A');
+  assert.strictEqual(chA.startLine, 2);
+  assert.strictEqual(chA.endLine, 5); // 空行まで、## 章B の手前
+  const chB = m.extractChapter(lines, 7);
+  assert.strictEqual(chB.name, '章B');
+  assert.strictEqual(chB.endLine, 7);
+  const whole = m.extractChapter(['前文', '本文'], 1);
+  assert.strictEqual(whole.name, '(全体)');
+  assert.strictEqual(whole.startLine, 0);
+  assert.strictEqual(whole.endLine, 1);
+});
+
+test('upsertSummarySection は同章を置換し他章を保持、新章は追記', () => {
+  const first = m.upsertSummarySection(null, '章A', 'まとめA-v1', '\n');
+  assert.ok(first.includes('## 章A'));
+  assert.ok(first.includes('まとめA-v1'));
+  // 別章を追記
+  const two = m.upsertSummarySection(first, '章B', 'まとめB', '\n');
+  assert.ok(two.includes('## 章A') && two.includes('## 章B'));
+  // 章A を置換、章B は保持
+  const replaced = m.upsertSummarySection(two, '章A', 'まとめA-v2', '\n');
+  assert.ok(replaced.includes('まとめA-v2'));
+  assert.ok(!replaced.includes('まとめA-v1'), '旧章A本文は消える');
+  assert.ok(replaced.includes('まとめB'), '章B は保持');
+  // 章A セクションは1つだけ
+  assert.strictEqual((replaced.match(/^## 章A$/gm) || []).length, 1);
+});
+
+test('siblingPath は <base>.minutes.md / .summary.md を作る', () => {
+  const mp = m.siblingPath('/x/y/design.md', '.minutes.md');
+  const sp = m.siblingPath('/x/y/design.md', '.summary.md');
+  assert.ok(mp.replace(/\\/g, '/').endsWith('/x/y/design.minutes.md'));
+  assert.ok(sp.replace(/\\/g, '/').endsWith('/x/y/design.summary.md'));
+});
+
+test('validateMinutes / validateSummary は文字列のみ許可', () => {
+  assert.strictEqual(m.validateMinutes({ minutes: 'x' }), 'x');
+  assert.throws(() => m.validateMinutes({}));
+  assert.throws(() => m.validateMinutes({ minutes: 1 }));
+  assert.strictEqual(m.validateSummary({ summary: 'y' }), 'y');
+  assert.throws(() => m.validateSummary({}));
 });

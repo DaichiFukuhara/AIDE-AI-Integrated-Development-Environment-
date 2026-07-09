@@ -1,9 +1,10 @@
 {
-  "name": "mdtalk",
-  "version": "0.1.0",
-  "description": "MDファイル内で設計書を対話的に育てるCLIツール（AIは注釈の挿入のみ）",
+  "name": "aide",
+  "version": "0.2.0",
+  "description": "AIDE — レーン分割・並列設計オーケストレーション（mdtalk: レーン内対話 / aide: 観察・アクセプト・統合）",
   "bin": {
-    "mdtalk": "./mdtalk.js"
+    "mdtalk": "./mdtalk.js",
+    "aide": "./aide.js"
   },
   "type": "commonjs",
   "main": "mdtalk.js",
