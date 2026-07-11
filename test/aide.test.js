@@ -82,6 +82,28 @@ test('stripLaneScaffold は先頭の aide/mdtalk コメントだけ剥がす', (
   assert.ok(out.includes('<!-- done: 指示 -->'), '本文中のコメントは残る');
 });
 
+test('parseBackendResponse はログ混じりの codex 風出力から JSON を抽出する', () => {
+  // codex exec はバナー・進行ログのあとに最終メッセージを stdout へ出す
+  const noisy = [
+    'OpenAI Codex v0.142.5',
+    'workdir: C:\\tmp\\x',
+    'model: gpt-x',
+    'thinking {深さ: 3} ...',
+    '{"verdict":"pass","conflicts":[],"separability":{"ok":true,"detail":"依存は {口} で明示"},"report":"# ok"}',
+    'tokens used: 1234',
+  ].join('\n');
+  const obj = aide.parseBackendResponse(noisy);
+  assert.strictEqual(obj.verdict, 'pass');
+  assert.ok(obj.separability.ok);
+  // 純粋な JSON / claude envelope は従来どおり
+  assert.deepStrictEqual(aide.parseBackendResponse('{"verdict":"fail"}'), { verdict: 'fail' });
+  assert.deepStrictEqual(
+    aide.parseBackendResponse(JSON.stringify({ type: 'result', result: '{"verdict":"pass"}' })),
+    { verdict: 'pass' });
+  // JSON が無ければ throw
+  assert.throws(() => aide.parseBackendResponse('ただの文章'));
+});
+
 test('formatEntry / parsePoolEntries / rebuildPool の往復', () => {
   const e1 = aide.formatEntry(
     { id: 'aaaaaaaa', lane: 'lanes/a.md', section: '(全体)', accepted: 'D', report: 'reports/a-1.md' },

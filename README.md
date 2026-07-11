@@ -177,8 +177,12 @@ aide status                      # 全体状況
   条件です（`--force` で強行可）。マージボタンを持つのは常に人間です。
 - 統合済み/差し戻しエントリは `design/pool-archive.md` に監査証跡として残ります。
 - バックエンドは環境変数で差し替え可能:
-  `AIDE_OBSERVER_CMD`（既定 `codex exec -`）/
-  `AIDE_MASTER_CMD`（既定 `claude -p --model opus --output-format json`）
+  `AIDE_OBSERVER_CMD`（既定 `codex exec --skip-git-repo-check --ephemeral --color never -`）/
+  `AIDE_MASTER_CMD`（既定 `claude -p --model opus --output-format json`）。
+  応答は stdout に JSON が含まれていれば良く、ログやバナーが混ざっていてもパースできます
+  （最後に現れるトップレベルの JSON オブジェクトを抽出）。
+  実 Codex ＋ 実 Claude Opus での通し確認（observe→accept→integrate）は
+  2026-07-10 に動作確認済みです
 
 ## テスト
 
@@ -192,4 +196,5 @@ node --test
 ## スコープ外（v0）
 
 複数ファイル/ディレクトリ監視、エディタ拡張、git 連携、注釈へのスレッド返信、
-i18n、Windows ネイティブ対応（WSL は対象）。
+i18n。（mdtalk の常駐監視は Windows では保証外ですが、aide のバックエンド呼び出しは
+Windows ネイティブに対応しており、WSL は不要です。）

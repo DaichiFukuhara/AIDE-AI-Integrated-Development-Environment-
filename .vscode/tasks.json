@@ -1,0 +1,67 @@
+{
+  // AIDE のボタン群。レーンファイル（design/lanes/*.md）を開いた状態で
+  // Ctrl+Shift+B → observe、または Ctrl+Shift+P → "Tasks: Run Task" から選択。
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "aide: observe（このレーンを観察）",
+      "type": "shell",
+      "command": "node",
+      "args": ["${workspaceFolder}/aide.js", "observe", "${file}"],
+      "group": { "kind": "build", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "aide: accept（このレーン全体）",
+      "type": "shell",
+      "command": "node",
+      "args": ["${workspaceFolder}/aide.js", "accept", "${file}"],
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "aide: accept --section（見出しを指定）",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/aide.js", "accept", "${file}",
+        "--section", "${input:sectionName}"
+      ],
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "aide: integrate（プールを master へ統合）",
+      "type": "shell",
+      "command": "node",
+      "args": ["${workspaceFolder}/aide.js", "integrate"],
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "aide: status（全体状況）",
+      "type": "shell",
+      "command": "node",
+      "args": ["${workspaceFolder}/aide.js", "status"],
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "mdtalk: このファイルを監視（常駐）",
+      "type": "shell",
+      "command": "node",
+      "args": ["${workspaceFolder}/mdtalk.js", "${file}"],
+      "isBackground": true,
+      "presentation": { "reveal": "always", "panel": "dedicated" },
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "sectionName",
+      "type": "promptString",
+      "description": "アクセプトする見出し（例: 認証フロー）"
+    }
+  ]
+}

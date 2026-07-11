@@ -1,0 +1,46 @@
+{
+  "name": "aide-buttons",
+  "displayName": "AIDE Buttons",
+  "description": "AIDE のレーン操作ボタン: 見出しごとの Approve、Codex 観察、mdtalk 監視の開始/停止",
+  "version": "0.1.0",
+  "publisher": "daichi",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./extension.js",
+  "activationEvents": [
+    "onLanguage:markdown"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "aide.observeLane",
+        "title": "AIDE: このレーンを観察 (observe)"
+      },
+      {
+        "command": "aide.approveSection",
+        "title": "AIDE: セクションをアクセプト (accept --section)"
+      },
+      {
+        "command": "aide.approveLane",
+        "title": "AIDE: レーン全体をアクセプト (accept)"
+      },
+      {
+        "command": "aide.integrate",
+        "title": "AIDE: プールを master へ統合 (integrate)"
+      },
+      {
+        "command": "aide.status",
+        "title": "AIDE: 全体状況 (status)"
+      },
+      {
+        "command": "aide.watchToggle",
+        "title": "AIDE: AI対話（mdtalk 監視）の開始/停止"
+      }
+    ]
+  }
+}

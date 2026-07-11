@@ -168,9 +168,15 @@ design/
 - 差し戻しの扱い: pool から外し `pool-archive.md` に `status: bounced` ＋
   理由付きで記録（レーンファイルには書き込まない——レーンの所有権は
   レーンAI＋人間にあるため）。人間がレポートを見てレーンで対話を続ける
-- バックエンド接続: 環境変数 `AIDE_OBSERVER_CMD`（既定 `codex exec -`）/
+- バックエンド接続: 環境変数 `AIDE_OBSERVER_CMD`
+  （既定 `codex exec --skip-git-repo-check --ephemeral --color never -`）/
   `AIDE_MASTER_CMD`（既定 `claude -p --model opus --output-format json`）。
-  引数分割して spawn、プロンプトは stdin 渡し（mdtalk と同方式）
+  引数分割して spawn、プロンプトは stdin 渡し（mdtalk と同方式）。
+  Windows では npm 製 CLI（.cmd）が非シェル spawn で起動できないため、
+  ENOENT/EINVAL 時のみシェル経由で再試行する。応答はログ混じり出力から
+  最後のトップレベル JSON を抽出してパースする（codex exec の進行ログ対策）。
+  実 codex・実 claude opus での通し（observe→accept→integrate）は
+  2026-07-10 に動作確認済み
 - 観察者のコンテキスト: master 全文＋対象レーン全文＋**他レーンは見出しのみ**
   （トークン最適化）
 

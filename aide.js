@@ -26,7 +26,7 @@ const {
 // ---------------------------------------------------------------------------
 
 const DEFAULT_ROOT = 'design';
-const DEFAULT_OBSERVER_CMD = 'codex exec -';
+const DEFAULT_OBSERVER_CMD = 'codex exec --skip-git-repo-check --ephemeral --color never -';
 const DEFAULT_MASTER_CMD = 'claude -p --model opus --output-format json';
 const OBSERVER_TIMEOUT_MS = 180000;
 const MASTER_TIMEOUT_MS = 300000;
@@ -120,16 +120,19 @@ function archiveTemplate() {
 // ---------------------------------------------------------------------------
 
 function callBackend({ cmdStr, promptText, timeoutMs, label, envVar }) {
-  return new Promise((resolve, reject) => {
-    const [cmd, ...args] = tokenizeCmd(cmdStr);
-    const notFound = () => new Error(
-      `${label}コマンドが見つかりません: ${cmd}\n` +
-      `  環境変数 ${envVar} で差し替えできます（現在: ${cmdStr}）`);
+  const attempt = (useShell) => new Promise((resolve, reject) => {
     let child;
     try {
-      child = spawn(cmd, args, { stdio: ['pipe', 'pipe', 'pipe'] });
+      if (useShell) {
+        // Windows: npm 製 CLI の実体は .cmd で、非シェル spawn では起動できない。
+        // その場合のみユーザー指定の文字列をそのままシェルに渡す
+        child = spawn(cmdStr, { shell: true, stdio: ['pipe', 'pipe', 'pipe'] });
+      } else {
+        const [cmd, ...args] = tokenizeCmd(cmdStr);
+        child = spawn(cmd, args, { stdio: ['pipe', 'pipe', 'pipe'] });
+      }
     } catch (e) {
-      reject(e.code === 'ENOENT' ? notFound() : e);
+      reject(e);
       return;
     }
     let out = '';
@@ -140,7 +143,7 @@ function callBackend({ cmdStr, promptText, timeoutMs, label, envVar }) {
       try { child.kill('SIGKILL'); } catch (_) {}
       finish(reject, new Error(`${label}がタイムアウトしました (${timeoutMs}ms)`));
     }, timeoutMs);
-    child.on('error', (e) => finish(reject, e.code === 'ENOENT' ? notFound() : e));
+    child.on('error', (e) => finish(reject, e));
     child.stdout.on('data', (d) => { out += d; });
     child.stderr.on('data', (d) => { err += d; });
     child.on('close', (code) => finish(resolve, { code, out, err }));
@@ -148,6 +151,72 @@ function callBackend({ cmdStr, promptText, timeoutMs, label, envVar }) {
     child.stdin.write(promptText);
     child.stdin.end();
   });
+  const retriable = (e) => e && (e.code === 'ENOENT' || e.code === 'EINVAL');
+  return attempt(false)
+    .catch((e) => {
+      if (process.platform === 'win32' && retriable(e)) return attempt(true);
+      throw e;
+    })
+    .catch((e) => {
+      if (retriable(e)) {
+        throw new Error(
+          `${label}コマンドが見つかりません: ${tokenizeCmd(cmdStr)[0]}\n` +
+          `  環境変数 ${envVar} で差し替えできます（現在: ${cmdStr}）`);
+      }
+      throw e;
+    });
+}
+
+/**
+ * ログやバナーが混ざった出力から、最後に現れる完全な JSON オブジェクトを
+ * 取り出す（codex exec は最終メッセージの前に進行ログを stdout に出す）。
+ */
+function extractJsonObject(text) {
+  const s = String(text);
+  const scanBalanced = (from) => {
+    let depth = 0;
+    let inStr = false;
+    let esc = false;
+    for (let i = from; i < s.length; i++) {
+      const c = s[i];
+      if (inStr) {
+        if (esc) esc = false;
+        else if (c === '\\') esc = true;
+        else if (c === '"') inStr = false;
+        continue;
+      }
+      if (c === '"') inStr = true;
+      else if (c === '{') depth++;
+      else if (c === '}') { depth--; if (depth === 0) return i; }
+    }
+    return -1;
+  };
+  // 先頭から走査し、トップレベルで parse に成功したオブジェクト列の最後を返す
+  // （最終メッセージが一番後ろに出る想定。内側の {…} は読み飛ばす）
+  let last = null;
+  let i = 0;
+  while (i < s.length) {
+    if (s[i] !== '{') { i++; continue; }
+    const end = scanBalanced(i);
+    if (end < 0) { i++; continue; }
+    try {
+      last = JSON.parse(s.slice(i, end + 1));
+      i = end + 1;
+    } catch (_) {
+      i++;
+    }
+  }
+  if (last === null) throw new Error('出力から JSON オブジェクトを抽出できません');
+  return last;
+}
+
+/** バックエンド応答のパース: claude envelope/フェンス → 生JSON抽出の順に試す。 */
+function parseBackendResponse(out) {
+  try {
+    return parseClaudeResponse(out);
+  } catch (_) {
+    return extractJsonObject(out);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -415,7 +484,7 @@ async function cmdObserve(lanePath) {
   });
   let obj;
   try {
-    obj = parseClaudeResponse(res.out);
+    obj = parseBackendResponse(res.out);
   } catch (e) {
     throw new Error(`観察者の応答をJSONとして解釈できません: ${e.message}\n--- 応答先頭 ---\n${String(res.out).slice(0, 400)}`);
   }
@@ -524,7 +593,7 @@ async function cmdIntegrate(root) {
   });
   let obj;
   try {
-    obj = parseClaudeResponse(res.out);
+    obj = parseBackendResponse(res.out);
   } catch (e) {
     throw new Error(`マスターAIの応答をJSONとして解釈できません（master/pool は変更していません）: ${e.message}`);
   }
@@ -656,6 +725,8 @@ async function main(argv) {
 }
 
 module.exports = {
+  extractJsonObject,
+  parseBackendResponse,
   extractSection,
   stripLaneScaffold,
   parsePoolEntries,

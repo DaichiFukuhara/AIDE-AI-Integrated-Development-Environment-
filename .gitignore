@@ -7,3 +7,4 @@ node_modules/
 # 動作確認用スクラッチ（mdtalk を試したファイル）
 /test.md
 /design.md
+/design.minutes.md
