@@ -11,6 +11,7 @@ AIDEの設計レーン、観察、Approve、統合、Markdown上のAI対話をVS
 - 最新レポートやPoolエントリを該当位置で表示
 - Markdownエディタのツールバー、CodeLens、ステータスバーからも操作可能
 - 設計ファイルの変更を検出してサイドバーを自動更新
+- master・pool・最新レポートを `lanes/_knowledge.md` へ自動同期し、レーンAIへ共有
 
 Integrateは`master.md`を書き換える前に確認します。ObserveとIntegrateは進捗通知からキャンセルできます。
 

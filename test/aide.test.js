@@ -137,6 +137,9 @@ test('init はディレクトリ構成とテンプレートを作る', () => {
   }
   assert.ok(fs.existsSync(path.join(d, 'design', 'lanes')));
   assert.ok(fs.existsSync(path.join(d, 'design', 'reports')));
+  const knowledge = path.join(d, 'design', 'lanes', '_knowledge.md');
+  assert.ok(fs.existsSync(knowledge));
+  assert.ok(fs.readFileSync(knowledge, 'utf8').includes('確定済みの共通知識'));
   // 再実行しても既存を壊さない
   fs.writeFileSync(path.join(d, 'design', 'master.md'), 'カスタム');
   assert.strictEqual(run(d, ['init']).status, 0);
@@ -150,6 +153,8 @@ test('lane はレーンファイルを作成する', () => {
   assert.strictEqual(r.status, 0, r.stderr);
   const text = fs.readFileSync(path.join(d, LANE), 'utf8');
   assert.ok(text.includes('# レーン: auth'));
+  const knowledge = fs.readFileSync(path.join(d, 'design', 'lanes', '_knowledge.md'), 'utf8');
+  assert.ok(knowledge.includes('### auth.md'));
   // 二重作成は拒否
   assert.strictEqual(run(d, ['lane', 'auth']).status, 1);
 });
@@ -166,6 +171,8 @@ test('observe はレポートを生成する（verdict/laneHash 付き）', () =
   const calls = fs.readFileSync(logFile, 'utf8').trim().split('\n').map(JSON.parse);
   assert.strictEqual(calls.length, 1);
   assert.strictEqual(calls[0].role, 'observer');
+  const knowledge = fs.readFileSync(path.join(d, 'design', 'lanes', '_knowledge.md'), 'utf8');
+  assert.ok(knowledge.includes('auth.md — pass'));
   // 2回目は連番
   run(d, ['observe', LANE]);
   assert.ok(fs.existsSync(path.join(d, 'design', 'reports', 'auth-2.md')));
@@ -199,6 +206,22 @@ test('accept は合格後にプールへ追加する（メタデータ付き）'
   assert.strictEqual(entries[0].meta.report, 'reports/auth-1.md');
   assert.ok(entries[0].content.includes('JWT'));
   assert.ok(!entries[0].content.includes('aide:lane'), 'スキャフォールドは剥がす');
+  const knowledge = fs.readFileSync(path.join(d, 'design', 'lanes', '_knowledge.md'), 'utf8');
+  assert.ok(knowledge.includes('JWT'), '承認済み・統合待ちの内容が共有知識へ反映される');
+});
+
+test('knowledge は master の手編集を共有知識へ同期する', () => {
+  const d = tmpdir();
+  fs.writeFileSync(path.join(d, 'README.md'), '# 製品概要\n\n共有機能を持つ。\n');
+  fs.writeFileSync(path.join(d, '.aide-context.md'), '# チーム規約\n\nAPIは後方互換にする。\n');
+  run(d, ['init']);
+  fs.appendFileSync(path.join(d, 'design', 'master.md'), '\n共通APIは v2。\n');
+  const r = run(d, ['knowledge']);
+  assert.strictEqual(r.status, 0, r.stderr);
+  const text = fs.readFileSync(path.join(d, 'design', 'lanes', '_knowledge.md'), 'utf8');
+  assert.ok(text.includes('共通APIは v2。'));
+  assert.ok(text.includes('共有機能を持つ。'), 'プロジェクトREADMEも共有される');
+  assert.ok(text.includes('APIは後方互換にする。'), '明示コンテキストも共有される');
 });
 
 test('accept --section はそのセクションだけ積む', () => {
@@ -236,6 +259,8 @@ test('integrate は全件統合し、pool を空にし、archive に証跡を残
   // master が更新される
   const master = fs.readFileSync(path.join(d, 'design', 'master.md'), 'utf8');
   assert.ok(master.includes('マスター設計書（統合済み）'));
+  const knowledge = fs.readFileSync(path.join(d, 'design', 'lanes', '_knowledge.md'), 'utf8');
+  assert.ok(knowledge.includes('マスター設計書（統合済み）'));
   // pool は空になる
   assert.strictEqual(
     aide.parsePoolEntries(fs.readFileSync(path.join(d, 'design', 'pool.md'), 'utf8')).length, 0);

@@ -174,6 +174,7 @@ class AideController implements vscode.Disposable {
   private readonly watchers = new Map<string, ChildProcess>();
   private fileWatcher: vscode.FileSystemWatcher | undefined;
   private readonly refreshDebouncer = new Debouncer(200, () => { void this.refresh(false); });
+  private readonly knowledgeDebouncer = new Debouncer(300, () => { void this.syncKnowledge(); });
   private disposed = false;
 
   constructor(private readonly context: vscode.ExtensionContext) {
@@ -317,6 +318,14 @@ class AideController implements vscode.Disposable {
       await vscode.commands.executeCommand('setContext', 'aide.hasPool', false);
       if (showError) throw error;
       this.output.appendLine(`[warn] 状態取得: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  private async syncKnowledge(): Promise<void> {
+    try {
+      await this.runEngine('aide', ['knowledge', this.designRoot(), '--quiet'], '共有知識の同期', { silent: true });
+    } catch (error) {
+      this.output.appendLine(`[warn] 共有知識の同期: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -530,7 +539,10 @@ class AideController implements vscode.Disposable {
     try {
       const relative = path.relative(folder.uri.fsPath, this.designRoot()).split(path.sep).join('/');
       this.fileWatcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(folder, `${relative}/**/*.md`));
-      const schedule = () => this.refreshDebouncer.schedule();
+      const schedule = (uri: vscode.Uri) => {
+        this.refreshDebouncer.schedule();
+        if (path.basename(uri.fsPath) !== '_knowledge.md') this.knowledgeDebouncer.schedule();
+      };
       this.fileWatcher.onDidCreate(schedule);
       this.fileWatcher.onDidChange(schedule);
       this.fileWatcher.onDidDelete(schedule);

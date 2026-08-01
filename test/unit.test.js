@@ -163,6 +163,30 @@ test('validateInsertions は不正応答を弾く', () => {
   assert.strictEqual(ok.length, 1);
 });
 
+test('buildPrompt は共有知識を参照専用コンテキストとして含める', () => {
+  const out = m.buildPrompt({
+    lines: ['# レーン', '本文'],
+    changedLines: [2],
+    directives: [],
+    maxNotes: 3,
+    sharedKnowledge: '共通APIは v2。',
+    knowledgeChanged: true,
+  });
+  assert.ok(out.prompt.includes('共有知識ルーム'));
+  assert.ok(out.prompt.includes('共通APIは v2。'));
+  assert.ok(out.prompt.includes('anchorLine / anchorText は対象ファイル本文からだけ'));
+  assert.ok(out.prompt.includes('矛盾・不足・反映漏れを再点検'));
+});
+
+test('buildSummaryPrompt は共有知識を整合性確認用に含める', () => {
+  const prompt = m.buildSummaryPrompt({
+    instruction: 'まとめて', chapterName: 'API', chapterText: '本文', headings: '## API',
+    sharedKnowledge: '認証は OAuth 2.1。',
+  });
+  assert.ok(prompt.includes('認証は OAuth 2.1。'));
+  assert.ok(prompt.includes('参照専用'));
+});
+
 test('parseClaudeResponse は envelope/コードフェンスから取り出す', () => {
   assert.deepStrictEqual(
     m.parseClaudeResponse('{"insertions":[]}'), { insertions: [] });

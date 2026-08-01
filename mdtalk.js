@@ -13,6 +13,7 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const { spawn } = require('node:child_process');
 const util = require('node:util');
+const { syncKnowledgeRoomForLane } = require('./knowledge.js');
 
 // ---------------------------------------------------------------------------
 // 定数
@@ -445,7 +446,9 @@ function headingList(lines) {
  * @returns {{ prompt: string, truncated: boolean }}
  */
 function buildPrompt(opts) {
-  const { lines, changedLines, directives, maxNotes } = opts;
+  const {
+    lines, changedLines, directives, maxNotes, sharedKnowledge = '', knowledgeChanged = false,
+  } = opts;
   const fullText = lines.join('\n');
   const large = Buffer.byteLength(fullText, 'utf8') > LARGE_FILE_BYTES;
 
@@ -484,8 +487,17 @@ function buildPrompt(opts) {
     `## 人間が新しく書いた/変えた行番号`,
     changedSection,
     '',
+    '## 共有知識の更新',
+    knowledgeChanged
+      ? '前回の処理後に共有知識が更新された。対象レーンとの矛盾・不足・反映漏れを再点検すること。'
+      : '（更新なし）',
+    '',
     `## 制約`,
     `- 挿入する注釈は最大 ${maxNotes} 件。`,
+    '- 共有知識ルームは参照専用。注釈の anchorLine / anchorText は対象ファイル本文からだけ選ぶ。',
+    '',
+    '## 共有知識ルーム（自動同期・参照専用）',
+    sharedKnowledge || '（AIDE共有知識なし）',
     '',
     `## ファイル本文（行番号付きスナップショット）`,
     snapshotSection,
@@ -543,7 +555,7 @@ function buildMinutesPrompt(opts) {
 
 /** 章まとめプロンプトを組み立てる。 */
 function buildSummaryPrompt(opts) {
-  const { instruction, chapterName, chapterText, headings } = opts;
+  const { instruction, chapterName, chapterText, headings, sharedKnowledge = '' } = opts;
   return [
     'あなたは設計書の1つの章を清書するAIです。人間の文とAIとの対話（注釈blockquote）を材料に、',
     '章を読みやすい設計文書としてまとめてください。',
@@ -557,6 +569,9 @@ function buildSummaryPrompt(opts) {
     '',
     '## ファイル全体の見出し一覧（文脈用）',
     headings || '（なし）',
+    '',
+    '## 共有知識ルーム（整合性確認用・参照専用）',
+    sharedKnowledge || '（AIDE共有知識なし）',
     '',
     '## 応答スキーマ',
     SUMMARY_SCHEMA,
@@ -934,8 +949,17 @@ async function processAnnotations(ctx, state, currentText) {
   // summary 指示行は dialogue の変更行（プロンプト）から除外する。
   const dialogueChangedLines = changedLines.filter((n) => !summaryLineSet.has(n));
 
-  const hasDialogueWork = dialogueChangedLines.length > 0 || dialogueDirectives.length > 0;
   const hasSummaryWork = summaryDirectives.length > 0;
+  let sharedKnowledge = '';
+  try {
+    const knowledge = syncKnowledgeRoomForLane(ctx.targetFile);
+    if (knowledge) sharedKnowledge = knowledge.text;
+  } catch (e) {
+    ctx.log.warn(`共有知識の同期に失敗: ${e.message}`);
+  }
+  const sharedKnowledgeHash = sharedKnowledge ? sha256(sharedKnowledge) : null;
+  const knowledgeChanged = Boolean(sharedKnowledgeHash && sharedKnowledgeHash !== state.sharedKnowledgeHash);
+  const hasDialogueWork = dialogueChangedLines.length > 0 || dialogueDirectives.length > 0 || knowledgeChanged;
   if (!hasDialogueWork && !hasSummaryWork) {
     return { status: 'nochange' };
   }
@@ -949,6 +973,7 @@ async function processAnnotations(ctx, state, currentText) {
   if (hasDialogueWork) {
     const { prompt, truncated } = buildPrompt({
       lines, changedLines: dialogueChangedLines, directives: dialogueDirectives, maxNotes: ctx.maxNotes,
+      sharedKnowledge, knowledgeChanged,
     });
     if (truncated && !state.warnedLargeFile) {
       ctx.log.warn('ファイルが100KBを超えるため切り詰めて送信します。');
@@ -967,7 +992,7 @@ async function processAnnotations(ctx, state, currentText) {
   // --- summary（章まとめ・dialogue とは独立。失敗しても消費しない） ---
   let summaryOut = { consumed: [], references: [] };
   if (hasSummaryWork) {
-    summaryOut = await processSummaries(ctx, models, lines, summaryDirectives);
+    summaryOut = await processSummaries(ctx, models, lines, summaryDirectives, sharedKnowledge);
   }
 
   // 適用直前に再読込しレースを検出
@@ -1005,6 +1030,7 @@ async function processAnnotations(ctx, state, currentText) {
     state.snapshot = currentText;
     state.lastProcessedHash = sha256(currentText);
   }
+  if (sharedKnowledgeHash) state.sharedKnowledgeHash = sharedKnowledgeHash;
 
   if (hasDialogueWork) {
     const counts = {};
@@ -1039,7 +1065,7 @@ async function processAnnotations(ctx, state, currentText) {
  * summary 指示を逐次処理する。成功した指示は done 消費対象＋章末尾の参照 blockquote を返す。
  * 失敗（応答不正・書き込み失敗など）は警告ログのみで消費しない（次サイクルで再試行）。
  */
-async function processSummaries(ctx, models, lines, summaryDirectives) {
+async function processSummaries(ctx, models, lines, summaryDirectives, sharedKnowledge = '') {
   const consumed = [];
   const references = [];
   const headings = headingList(lines);
@@ -1047,7 +1073,7 @@ async function processSummaries(ctx, models, lines, summaryDirectives) {
     const ch = extractChapter(lines, d.index);
     const chapterText = lines.slice(ch.startLine, ch.endLine + 1).join('\n');
     const prompt = buildSummaryPrompt({
-      instruction: d.instruction, chapterName: ch.name, chapterText, headings,
+      instruction: d.instruction, chapterName: ch.name, chapterText, headings, sharedKnowledge,
     });
     let body;
     try {
@@ -1128,6 +1154,10 @@ async function processInit(ctx, state, currentText) {
   state.snapshot = text;
   state.lastWrittenHash = h;
   state.lastProcessedHash = h;
+  try {
+    const knowledge = syncKnowledgeRoomForLane(ctx.targetFile);
+    if (knowledge) state.sharedKnowledgeHash = sha256(knowledge.text);
+  } catch (_) { /* 初期化は共有知識の失敗で止めない */ }
   state.initialized = true;
   if (skeleton) {
     ctx.log.info('設計書スケルトンを挿入しました。');
@@ -1152,6 +1182,10 @@ function ensureInitialized(ctx, state) {
   }
   state.snapshot = currentText;
   state.lastProcessedHash = sha256(currentText);
+  try {
+    const knowledge = syncKnowledgeRoomForLane(ctx.targetFile);
+    if (knowledge) state.sharedKnowledgeHash = sha256(knowledge.text);
+  } catch (_) { /* 初期化は共有知識の失敗で止めない */ }
   state.initialized = true;
   return currentText;
 }
@@ -1219,6 +1253,21 @@ function runWatch(ctx, state) {
   let pending = false;
   let debounceTimer = null;
   let watcher = null;
+  let knowledgeWatcher = null;
+
+  const knowledgeState = () => {
+    try {
+      const knowledge = syncKnowledgeRoomForLane(ctx.targetFile);
+      if (!knowledge) return { file: null, changed: false };
+      return {
+        file: knowledge.file,
+        changed: sha256(knowledge.text) !== state.sharedKnowledgeHash,
+      };
+    } catch (e) {
+      ctx.log.warn(`共有知識の確認に失敗: ${e.message}`);
+      return { file: null, changed: false };
+    }
+  };
 
   const cycle = async () => {
     if (busy) { pending = true; return; }
@@ -1226,9 +1275,10 @@ function runWatch(ctx, state) {
     try {
       const currentText = readTargetText(ctx.targetFile);
       const h = sha256(currentText);
-      if (h === state.lastWrittenHash) {
+      const shared = knowledgeState();
+      if (h === state.lastWrittenHash && !shared.changed) {
         ctx.log.info('自分の書き込みによる変更のためスキップ。');
-      } else if (h === state.lastProcessedHash) {
+      } else if (h === state.lastProcessedHash && !shared.changed) {
         // 実質変更なし
       } else {
         await processAnnotations(ctx, state, currentText);
@@ -1262,8 +1312,24 @@ function runWatch(ctx, state) {
   };
   attach();
 
+  const attachKnowledge = () => {
+    const shared = knowledgeState();
+    if (!shared.file || !fs.existsSync(shared.file)) return;
+    try {
+      knowledgeWatcher = fs.watch(shared.file, () => schedule());
+      knowledgeWatcher.on('error', () => {
+        try { knowledgeWatcher.close(); } catch (_) {}
+        knowledgeWatcher = null;
+      });
+    } catch (_) {
+      knowledgeWatcher = null;
+    }
+  };
+  attachKnowledge();
+
   // ポーリングフォールバック（mtime+size）
   let lastStat = safeStatKey(ctx.targetFile);
+  let lastKnowledgeStat = safeStatKey((knowledgeState().file || ''));
   const poll = setInterval(() => {
     if (!fs.existsSync(ctx.targetFile)) return; // 消えたら次で再アタッチ
     if (!watcher) attach();
@@ -1272,7 +1338,17 @@ function runWatch(ctx, state) {
       lastStat = key;
       schedule();
     }
+    const shared = knowledgeState();
+    if (!knowledgeWatcher && shared.file) attachKnowledge();
+    const knowledgeKey = shared.file ? safeStatKey(shared.file) : null;
+    if (knowledgeKey && knowledgeKey !== lastKnowledgeStat) {
+      lastKnowledgeStat = knowledgeKey;
+      schedule();
+    }
   }, POLL_INTERVAL_MS);
+
+  // 旧バージョンの state には共有知識ハッシュがないため、起動直後に一度再点検する。
+  if (!state.sharedKnowledgeHash && knowledgeState().file) schedule();
 
   let shuttingDown = false;
   function shutdown(code) {
@@ -1281,6 +1357,7 @@ function runWatch(ctx, state) {
     if (debounceTimer) clearTimeout(debounceTimer);
     clearInterval(poll);
     if (watcher) { try { watcher.close(); } catch (_) {} }
+    if (knowledgeWatcher) { try { knowledgeWatcher.close(); } catch (_) {} }
     delete state.pid;
     try { saveState(ctx.stateDir, ctx.stateFile, state); } catch (_) {}
     ctx.log.info('終了します。');
@@ -1371,9 +1448,16 @@ async function main(argv) {
 
     if (opts.once) {
       const h = sha256(currentText);
-      if (h === state.lastWrittenHash) {
+      let knowledgeChanged = false;
+      try {
+        const knowledge = syncKnowledgeRoomForLane(ctx.targetFile);
+        knowledgeChanged = Boolean(knowledge && sha256(knowledge.text) !== state.sharedKnowledgeHash);
+      } catch (e) {
+        log.warn(`共有知識の確認に失敗: ${e.message}`);
+      }
+      if (h === state.lastWrittenHash && !knowledgeChanged) {
         log.info('自分の書き込みによる変更のためスキップ。');
-      } else if (h === state.lastProcessedHash) {
+      } else if (h === state.lastProcessedHash && !knowledgeChanged) {
         log.info('変更なし。');
       } else {
         try {

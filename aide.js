@@ -20,6 +20,9 @@ const { parseArgs } = require('node:util');
 const {
   sha256, tokenizeCmd, formatDate, splitLines, parseClaudeResponse,
 } = require('./mdtalk.js');
+const {
+  KNOWLEDGE_FILE, isConversationLaneName, syncKnowledgeRoom,
+} = require('./knowledge.js');
 
 // ---------------------------------------------------------------------------
 // 定数
@@ -54,6 +57,7 @@ function rootPaths(root) {
     archive: path.join(root, 'pool-archive.md'),
     lanesDir: path.join(root, 'lanes'),
     reportsDir: path.join(root, 'reports'),
+    knowledge: path.join(root, 'lanes', KNOWLEDGE_FILE),
   };
 }
 
@@ -282,7 +286,7 @@ function otherLaneHeadings(p, excludeAbs) {
   const out = [];
   if (!fs.existsSync(p.lanesDir)) return out;
   for (const f of fs.readdirSync(p.lanesDir).sort()) {
-    if (!f.endsWith('.md')) continue;
+    if (!isConversationLaneName(f)) continue;
     const abs = path.resolve(path.join(p.lanesDir, f));
     if (abs === excludeAbs) continue;
     const heads = splitLines(fs.readFileSync(abs, 'utf8'))
@@ -445,6 +449,7 @@ function cmdInit(root) {
   writeIfMissing(p.master, masterTemplate());
   writeIfMissing(p.pool, poolTemplate());
   writeIfMissing(p.archive, archiveTemplate());
+  syncKnowledgeRoom(root);
   log.info(`初期化しました: ${root}/`
     + (created.length ? `（新規: ${created.map((f) => path.basename(f)).join(', ')}）` : '（既存を維持）'));
   return 0;
@@ -455,9 +460,13 @@ function cmdLane(root, topic) {
   const p = rootPaths(root);
   if (!fs.existsSync(p.lanesDir)) throw new Error(`${root}/ がありません。先に aide init を実行してください`);
   const safe = topic.replace(/[\\/:*?"<>|\s]+/g, '-');
+  if (!safe || safe.startsWith('_') || /\.(?:minutes|summary)$/i.test(safe)) {
+    throw new Error('そのレーン名は AIDE の生成ファイル用に予約されています');
+  }
   const file = path.join(p.lanesDir, `${safe}.md`);
   if (fs.existsSync(file)) throw new Error(`レーンは既に存在します: ${file}`);
   fs.writeFileSync(file, laneTemplate(safe));
+  syncKnowledgeRoom(root);
   log.info(`レーンを作成しました: ${file}`);
   log.info(`対話を始める: mdtalk ${path.join(root, 'lanes', safe + '.md')}`);
   return 0;
@@ -517,6 +526,7 @@ async function cmdObserve(lanePath) {
     '',
   ].join('\n');
   fs.writeFileSync(reportFile, body);
+  syncKnowledgeRoom(root);
   log.info(`verdict: ${obj.verdict} → ${reportFile}`);
   if (obj.verdict === 'pass') {
     log.info(`アクセプト可能です: aide accept ${lanePath}`);
@@ -564,6 +574,7 @@ function cmdAccept(lanePath, { section, force }) {
   };
   const poolText = fs.readFileSync(p.pool, 'utf8');
   fs.writeFileSync(p.pool, poolText.replace(/\s+$/, '') + '\n\n' + formatEntry(meta, content) + '\n');
+  syncKnowledgeRoom(root);
   log.info(`アクセプト → pool に追加 (id=${id}, section=${meta.section})`);
   log.info('統合する: aide integrate' + (root === DEFAULT_ROOT ? '' : ` ${root}`));
   return 0;
@@ -633,6 +644,7 @@ async function cmdIntegrate(root) {
       archText.replace(/\s+$/, '') + '\n\n' + archiveBlocks.join('\n\n') + '\n');
   }
   fs.writeFileSync(p.pool, rebuildPool(poolText, remaining));
+  syncKnowledgeRoom(root);
 
   const nCons = consumed.filter((id) => byId.has(id)).length;
   log.info(`統合: ${nCons}件 / 差し戻し: ${bounced.length}件 / プール残: ${remaining.length}件`);
@@ -659,7 +671,7 @@ function buildStatus(root) {
   const poolExists = initialized && fs.existsSync(p.pool);
   const archiveExists = initialized && fs.existsSync(p.archive);
   const laneFiles = initialized && fs.existsSync(p.lanesDir)
-    ? fs.readdirSync(p.lanesDir).filter((f) => f.endsWith('.md')).sort() : [];
+    ? fs.readdirSync(p.lanesDir).filter(isConversationLaneName).sort() : [];
 
   const lanes = laneFiles.map((f) => {
     const abs = path.join(p.lanesDir, f);
@@ -722,7 +734,7 @@ function cmdStatus(root, { json = false } = {}) {
   console.log(`design root: ${p.root}`);
   console.log(`master: ${fs.existsSync(p.master) ? fs.statSync(p.master).size + ' bytes' : 'なし'}`);
   const lanes = fs.existsSync(p.lanesDir)
-    ? fs.readdirSync(p.lanesDir).filter((f) => f.endsWith('.md')).sort() : [];
+    ? fs.readdirSync(p.lanesDir).filter(isConversationLaneName).sort() : [];
   console.log(`lanes: ${lanes.length}件`);
   for (const f of lanes) {
     const abs = path.join(p.lanesDir, f);
@@ -742,6 +754,14 @@ function cmdStatus(root, { json = false } = {}) {
   return 0;
 }
 
+function cmdKnowledge(root) {
+  const p = rootPaths(root);
+  if (!fs.existsSync(p.lanesDir)) throw new Error(`${root}/ がありません。aide init を実行してください`);
+  const result = syncKnowledgeRoom(root);
+  log.info(`共有知識を同期しました: ${result.file}` + (result.changed ? '' : '（変更なし）'));
+  return 0;
+}
+
 // ---------------------------------------------------------------------------
 // main
 // ---------------------------------------------------------------------------
@@ -755,6 +775,7 @@ commands:
   accept  <root>/lanes/<topic>.md [--section <見出し>] [--force]
                                      合格レポートを前提にプールへ追加
   integrate [root]                   マスターAIでプールを master.md に統合
+  knowledge [root]                   lanes/_knowledge.md を再生成
   status [root] [--json]             全体状況を表示（--json は機械可読形式）
 
 env:
@@ -788,6 +809,7 @@ async function main(argv) {
         return cmdAccept(arg1, { section: values.section, force: values.force });
       }
       case 'integrate': return await cmdIntegrate(arg1 || DEFAULT_ROOT);
+      case 'knowledge': return cmdKnowledge(arg1 || DEFAULT_ROOT);
       case 'status': return cmdStatus(arg1 || DEFAULT_ROOT, { json: values.json });
       default:
         process.stdout.write(USAGE);
@@ -811,6 +833,7 @@ module.exports = {
   buildObserverPrompt,
   buildMasterPrompt,
   buildStatus,
+  cmdKnowledge,
   laneRootOf,
   main,
 };

@@ -52,6 +52,34 @@ test('初回は注釈せずスナップショットのみ、2回目に追記段�
   assert.ok(lines.slice(idx, idx + 4).some((l) => l.startsWith('> ❓ **AI**:')));
 });
 
+test('共有知識の更新だけでも既存レーンを自動再点検する', () => {
+  const workspace = mkTmp();
+  const design = path.join(workspace, 'design');
+  const lanes = path.join(design, 'lanes');
+  fs.mkdirSync(lanes, { recursive: true });
+  fs.mkdirSync(path.join(design, 'reports'), { recursive: true });
+  fs.writeFileSync(path.join(workspace, 'README.md'), '# 概要\n\n初期仕様。\n');
+  fs.writeFileSync(path.join(design, 'master.md'), '# マスター\n');
+  fs.writeFileSync(path.join(design, 'pool.md'), '<!-- aide:pool\n-->\n');
+  fs.writeFileSync(path.join(design, 'pool-archive.md'), '<!-- aide:pool-archive\n-->\n');
+  const file = path.join(lanes, 'existing.md');
+  fs.writeFileSync(file, '# レーン: existing\n\n既存の決定。\n');
+
+  let res = run(file, []);
+  assert.strictEqual(res.status, 0, res.stderr);
+  assert.strictEqual(countAnnotations(fs.readFileSync(file, 'utf8')), 0);
+
+  // レーン本文は触らず、共有元だけを変更する。
+  fs.writeFileSync(path.join(workspace, 'README.md'), '# 概要\n\n共有方式を更新した。\n');
+  res = run(file, ['--no-minutes'], {
+    MDTALK_MOCK_FIND: '既存の決定', MDTALK_MOCK_TEXT: '新しい共有方式との整合を確認してください。',
+  });
+  assert.strictEqual(res.status, 0, res.stderr);
+  const after = fs.readFileSync(file, 'utf8');
+  assert.strictEqual(countAnnotations(after), 1);
+  assert.ok(after.includes('新しい共有方式との整合'));
+});
+
 test('注釈以外の行はバイト単位で不変（ヘッダ挿入後の比較）', () => {
   const dir = mkTmp();
   const file = path.join(dir, 'd.md');
