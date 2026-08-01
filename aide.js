@@ -642,8 +642,82 @@ async function cmdIntegrate(root) {
   return 0;
 }
 
-function cmdStatus(root) {
+function headingEntries(text) {
+  const out = [];
+  for (const [index, line] of splitLines(text).entries()) {
+    const m = line.match(/^(#{2,6})\s+(.+?)\s*$/);
+    if (m) out.push({ level: m[1].length, title: m[2], line: index + 1 });
+  }
+  return out;
+}
+
+/** VS Code 拡張などのクライアント向け、安定した機械可読ステータス。 */
+function buildStatus(root) {
   const p = rootPaths(root);
+  const initialized = fs.existsSync(p.root);
+  const masterExists = initialized && fs.existsSync(p.master);
+  const poolExists = initialized && fs.existsSync(p.pool);
+  const archiveExists = initialized && fs.existsSync(p.archive);
+  const laneFiles = initialized && fs.existsSync(p.lanesDir)
+    ? fs.readdirSync(p.lanesDir).filter((f) => f.endsWith('.md')).sort() : [];
+
+  const lanes = laneFiles.map((f) => {
+    const abs = path.join(p.lanesDir, f);
+    const text = fs.readFileSync(abs, 'utf8');
+    const topic = laneTopic(f);
+    const rep = latestReportFor(p, topic);
+    const report = rep && rep.meta ? {
+      path: rep.rel.replace(/\\/g, '/'),
+      verdict: rep.meta.verdict || null,
+      date: rep.meta.date || null,
+    } : null;
+    return {
+      topic,
+      path: `lanes/${f}`,
+      headings: headingEntries(text),
+      report,
+      stale: Boolean(rep && rep.meta && rep.meta.laneHash !== sha256(text)),
+    };
+  });
+
+  const poolEntries = poolExists ? parsePoolEntries(fs.readFileSync(p.pool, 'utf8')) : [];
+  const archiveEntries = archiveExists ? parsePoolEntries(fs.readFileSync(p.archive, 'utf8')) : [];
+  return {
+    schemaVersion: 1,
+    initialized,
+    root: path.resolve(root),
+    master: {
+      path: 'master.md',
+      exists: masterExists,
+      bytes: masterExists ? fs.statSync(p.master).size : 0,
+    },
+    lanes,
+    pool: {
+      path: 'pool.md',
+      count: poolEntries.length,
+      entries: poolEntries.map((e) => ({
+        id: e.meta.id || '',
+        lane: e.meta.lane || '',
+        section: e.meta.section || '',
+        accepted: e.meta.accepted || '',
+        report: e.meta.report || '',
+      })),
+    },
+    archive: {
+      path: 'pool-archive.md',
+      count: archiveEntries.length,
+      integrated: archiveEntries.filter((e) => e.meta.status === 'integrated').length,
+      bounced: archiveEntries.filter((e) => e.meta.status === 'bounced').length,
+    },
+  };
+}
+
+function cmdStatus(root, { json = false } = {}) {
+  const p = rootPaths(root);
+  if (json) {
+    process.stdout.write(JSON.stringify(buildStatus(root)) + '\n');
+    return 0;
+  }
   if (!fs.existsSync(p.root)) throw new Error(`${root}/ がありません。aide init を実行してください`);
   console.log(`design root: ${p.root}`);
   console.log(`master: ${fs.existsSync(p.master) ? fs.statSync(p.master).size + ' bytes' : 'なし'}`);
@@ -681,7 +755,7 @@ commands:
   accept  <root>/lanes/<topic>.md [--section <見出し>] [--force]
                                      合格レポートを前提にプールへ追加
   integrate [root]                   マスターAIでプールを master.md に統合
-  status [root]                      全体状況を表示
+  status [root] [--json]             全体状況を表示（--json は機械可読形式）
 
 env:
   AIDE_OBSERVER_CMD  観察者コマンド（既定: ${DEFAULT_OBSERVER_CMD}）
@@ -695,6 +769,7 @@ async function main(argv) {
       section: { type: 'string' },
       force: { type: 'boolean', default: false },
       quiet: { type: 'boolean', default: false },
+      json: { type: 'boolean', default: false },
     },
     allowPositionals: true,
   });
@@ -713,7 +788,7 @@ async function main(argv) {
         return cmdAccept(arg1, { section: values.section, force: values.force });
       }
       case 'integrate': return await cmdIntegrate(arg1 || DEFAULT_ROOT);
-      case 'status': return cmdStatus(arg1 || DEFAULT_ROOT);
+      case 'status': return cmdStatus(arg1 || DEFAULT_ROOT, { json: values.json });
       default:
         process.stdout.write(USAGE);
         return cmd ? 1 : 0;
@@ -735,6 +810,7 @@ module.exports = {
   formatEntry,
   buildObserverPrompt,
   buildMasterPrompt,
+  buildStatus,
   laneRootOf,
   main,
 };

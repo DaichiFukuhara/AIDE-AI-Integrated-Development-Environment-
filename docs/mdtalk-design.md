@@ -28,7 +28,7 @@
 mdtalk <file.md> [options]
 
 options:
-  --model <name>     claude に渡すモデル。既定: sonnet（例: haiku, opus も可）
+  --model <name>     claude に渡すモデル。既定: opus（例: haiku, sonnet も可）
   --once             監視せず1回だけ処理して終了（テスト・CI用）
   --interval <ms>    デバウンス時間。既定: 1500
   --max-notes <n>    1回の処理で挿入する注釈ブロックの上限。既定: 3

@@ -301,3 +301,49 @@ test('status は全体状況を表示する', () => {
   assert.ok(r.stdout.includes('lanes/auth.md: pass'));
   assert.ok(r.stdout.includes('pool: 1件'));
 });
+
+test('status --json は未初期化状態も機械可読で返す', () => {
+  const d = tmpdir();
+  const r = run(d, ['status', '--json']);
+  assert.strictEqual(r.status, 0, r.stderr);
+  const s = JSON.parse(r.stdout);
+  assert.strictEqual(s.schemaVersion, 1);
+  assert.strictEqual(s.initialized, false);
+  assert.strictEqual(s.master.exists, false);
+  assert.deepStrictEqual(s.lanes, []);
+  assert.strictEqual(s.pool.count, 0);
+  assert.strictEqual(s.archive.count, 0);
+});
+
+test('status --json は lane/report/stale/pool/archive を返す', () => {
+  const d = setup(LANE_CONTENT);
+  run(d, ['observe', LANE]);
+  run(d, ['accept', LANE, '--section', '認証フロー']);
+
+  let r = run(d, ['status', '--json']);
+  assert.strictEqual(r.status, 0, r.stderr);
+  let s = JSON.parse(r.stdout);
+  assert.strictEqual(s.initialized, true);
+  assert.strictEqual(s.master.path, 'master.md');
+  assert.strictEqual(s.lanes.length, 1);
+  assert.strictEqual(s.lanes[0].topic, 'auth');
+  assert.strictEqual(s.lanes[0].report.verdict, 'pass');
+  assert.strictEqual(s.lanes[0].stale, false);
+  assert.deepStrictEqual(
+    s.lanes[0].headings.map((h) => h.title),
+    ['認証フロー', 'ストレージ']);
+  assert.strictEqual(s.pool.count, 1);
+  assert.strictEqual(s.pool.entries[0].section, '認証フロー');
+
+  fs.appendFileSync(path.join(d, LANE), '\n観察後の変更\n');
+  r = run(d, ['status', '--json']);
+  s = JSON.parse(r.stdout);
+  assert.strictEqual(s.lanes[0].stale, true);
+
+  run(d, ['integrate']);
+  r = run(d, ['status', '--json']);
+  s = JSON.parse(r.stdout);
+  assert.strictEqual(s.pool.count, 0);
+  assert.strictEqual(s.archive.count, 1);
+  assert.strictEqual(s.archive.integrated, 1);
+});

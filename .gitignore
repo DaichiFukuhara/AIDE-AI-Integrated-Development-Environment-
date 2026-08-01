@@ -3,6 +3,10 @@
 
 # node
 node_modules/
+vscode-aide/dist/
+vscode-aide/engine/
+vscode-aide/.vscode-test/
+vscode-aide/*.vsix
 
 # 動作確認用スクラッチ（mdtalk を試したファイル）
 /test.md

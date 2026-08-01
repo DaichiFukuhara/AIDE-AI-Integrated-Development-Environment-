@@ -197,7 +197,7 @@ test('hasProtocolHeader / protocolHeaderLines', () => {
 
 test('protocolHeaderLines は mdtalk-models 行を含む（既定・指定）', () => {
   const def = m.protocolHeaderLines();
-  assert.ok(def.some((l) => l === 'mdtalk-models: dialogue=sonnet minutes=haiku summary=opus'));
+  assert.ok(def.some((l) => l === 'mdtalk-models: dialogue=opus minutes=haiku summary=sonnet'));
   const custom = m.protocolHeaderLines({ dialogue: 'opus', minutes: 'sonnet', summary: 'fable' });
   assert.ok(custom.some((l) => l === 'mdtalk-models: dialogue=opus minutes=sonnet summary=fable'));
 });
@@ -227,18 +227,18 @@ test('parseModelsHeader はヘッダ内の mdtalk-models 行のみ拾う', () =>
 });
 
 test('resolveModels は ファイル内 > CLI > 既定 の優先順', () => {
-  const cli = { model: 'sonnet', modelMinutes: 'haiku', modelSummary: 'opus' };
+  const cli = { model: 'opus', modelMinutes: 'haiku', modelSummary: 'sonnet' };
   // 既定（ヘッダ空）
   assert.deepStrictEqual(m.resolveModels(cli, {}), {
-    dialogue: 'sonnet', minutes: 'haiku', summary: 'opus',
+    dialogue: 'opus', minutes: 'haiku', summary: 'sonnet',
   });
   // ファイル内がCLIより優先
   assert.deepStrictEqual(m.resolveModels(cli, { dialogue: 'opus' }), {
-    dialogue: 'opus', minutes: 'haiku', summary: 'opus',
+    dialogue: 'opus', minutes: 'haiku', summary: 'sonnet',
   });
   // CLI未指定は既定
   assert.deepStrictEqual(m.resolveModels({}, {}), {
-    dialogue: 'sonnet', minutes: 'haiku', summary: 'opus',
+    dialogue: 'opus', minutes: 'haiku', summary: 'sonnet',
   });
 });
 

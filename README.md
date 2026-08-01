@@ -44,9 +44,9 @@ node aide.js init         # aide
 mdtalk <file.md> [options]
 
 options:
-  --model <name>          dialogue（注釈）のモデル。既定: sonnet（例: haiku, opus）
+  --model <name>          dialogue（注釈）のモデル。既定: opus（例: haiku, sonnet）
   --model-minutes <name>  minutes（議事録）のモデル。既定: haiku
-  --model-summary <name>  summary（章まとめ）のモデル。既定: opus
+  --model-summary <name>  summary（章まとめ）のモデル。既定: sonnet
   --no-minutes            議事録の自動生成を無効化
   --once                  監視せず1回だけ処理して終了（テスト・CI用）
   --interval <ms>         デバウンス時間。既定: 1500
@@ -93,14 +93,14 @@ mdtalk design.md          # 監視開始（別ターミナルでエディタか�
 
 ### マルチモデル役割分担（dialogue / minutes / summary）
 
-役割ごとに別モデルへ分担できます。対話（注釈）は sonnet、議事録は haiku、
-章まとめは opus、のようにコストと品質を使い分けます。
+役割ごとに別モデルへ分担できます。既定では対話（注釈）は opus、議事録は haiku、
+章まとめは sonnet とし、コストと品質を役割ごとに使い分けます。
 
 | 役割 | 既定モデル | 動き | 出力先 |
 | --- | --- | --- | --- |
-| dialogue | sonnet | 既存の注釈ループ | 対象 MD（挿入のみ） |
+| dialogue | opus | 既存の注釈ループ | 対象 MD（挿入のみ） |
 | minutes | haiku | 挿入/`@ai` 消費のあったサイクル後に議事録を追記 | `<base>.minutes.md` |
-| summary | opus | `@ai(summary):` 指示で章を清書 | `<base>.summary.md` |
+| summary | sonnet | `@ai(summary):` 指示で章を清書 | `<base>.summary.md` |
 
 `<base>` は対象ファイルの拡張子を除いた名前です（`design.md` →
 `design.minutes.md` / `design.summary.md`、同ディレクトリ）。対象 MD 本体への
@@ -129,7 +129,7 @@ minutes の失敗は警告ログのみで、dialogue サイクルの成否には
 プロトコルヘッダ（先頭の HTML コメント）に次の1行を置きます:
 
 ```
-mdtalk-models: dialogue=sonnet minutes=haiku summary=opus
+mdtalk-models: dialogue=opus minutes=haiku summary=sonnet
 ```
 
 一部の役割だけ書いてもよく、人間がこの行を書き換えて保存すれば次サイクルから
@@ -171,6 +171,7 @@ aide observe design/lanes/auth.md    # 観察（矛盾＋分割可能性）→ r
 aide accept design/lanes/auth.md --section 認証フロー  # 合格を前提にプールへ（--section で特定の見出しのみ、--force で観察チェックをスキップ）
 aide integrate                   # マスターAIが清書して master.md に統合
 aide status                      # 全体状況
+aide status --json               # VS Code 拡張などに向けた機械可読状態
 ```
 
 - アクセプトは最新レポートが pass で、観察後にレーンが編集されていないことが
@@ -184,6 +185,20 @@ aide status                      # 全体状況
   実 Codex ＋ 実 Claude Opus での通し確認（observe→accept→integrate）は
   2026-07-10 に動作確認済みです
 
+### VS Code 拡張
+
+`vscode-aide/`には、Master・Lanes・Pool・Archiveを一覧し、設計フロー全体を
+操作できる専用サイドバーがあります。AIDEエンジンを同梱したローカルVSIXを生成できます。
+
+```powershell
+cd vscode-aide
+npm install
+npm run package
+code --install-extension aide-buttons-0.2.0.vsix
+```
+
+詳しい操作方法と設定は[`vscode-aide/README.md`](vscode-aide/README.md)を参照してください。
+
 ## テスト
 
 ```sh
@@ -195,6 +210,6 @@ node --test
 
 ## スコープ外（v0）
 
-複数ファイル/ディレクトリ監視、エディタ拡張、git 連携、注釈へのスレッド返信、
-i18n。（mdtalk の常駐監視は Windows では保証外ですが、aide のバックエンド呼び出しは
+複数ファイル/ディレクトリ監視、git 連携、注釈へのスレッド返信、i18n。
+VS Code 拡張は `vscode-aide/` で提供します。（mdtalk の常駐監視は Windows では保証外ですが、aide のバックエンド呼び出しは
 Windows ネイティブに対応しており、WSL は不要です。）

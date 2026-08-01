@@ -1,0 +1,16 @@
+{
+  // F5 で「拡張機能開発ホスト」を起動し、vscode-aide 拡張を試す
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "AIDE Buttons 拡張を起動",
+      "type": "extensionHost",
+      "request": "launch",
+      "preLaunchTask": "aide-extension: compile",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/vscode-aide",
+        "${workspaceFolder}"
+      ]
+    }
+  ]
+}

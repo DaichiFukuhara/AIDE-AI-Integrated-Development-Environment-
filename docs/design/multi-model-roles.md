@@ -2,18 +2,17 @@
 
 ## 目的 / 背景
 
-mdtalk の AI を役割ごとに別モデルへ分担させる。対話（注釈）は sonnet、
-議事録は haiku、章まとめは opus のように、コストと品質を役割に応じて
-使い分ける。ユーザーの想定フロー:「対話は人間と sonnet がして、その議事録を
-haiku が書き、できた設計書の1つの章を opus/fable がまとめる」。
+mdtalk の AI を役割ごとに別モデルへ分担させる。既定では対話（注釈）は opus、
+議事録は haiku、章まとめは sonnet とし、コストと品質を役割に応じて
+使い分ける。必要ならファイル単位・呼び出し単位で別モデルへ差し替えられる。
 
 ## 役割の定義
 
 | 役割 | 既定モデル | 動き | 出力先 |
 |---|---|---|---|
-| dialogue | sonnet | 既存の注釈ループ（変更なし） | 対象 MD（挿入のみ） |
+| dialogue | opus | 既存の注釈ループ（変更なし） | 対象 MD（挿入のみ） |
 | minutes | haiku | サイクル後に議事録エントリを追記 | `<base>.minutes.md` |
-| summary | opus | `@ai(summary):` 指示で章を清書 | `<base>.summary.md` |
+| summary | sonnet | `@ai(summary):` 指示で章を清書 | `<base>.summary.md` |
 
 `<base>` は対象ファイルの拡張子を除いた名前。`design.md` →
 `design.minutes.md` / `design.summary.md`（対象 MD と同じディレクトリ）。
@@ -33,9 +32,9 @@ haiku が書き、できた設計書の1つの章を opus/fable がまとめる�
 ### CLI（追加オプション）
 
 ```
---model <name>            dialogue のモデル（既存。既定: sonnet）
+--model <name>            dialogue のモデル（既存。既定: opus）
 --model-minutes <name>    minutes のモデル（既定: haiku）
---model-summary <name>    summary のモデル（既定: opus）
+--model-summary <name>    summary のモデル（既定: sonnet）
 --no-minutes              議事録生成を無効化
 ```
 
@@ -44,7 +43,7 @@ haiku が書き、できた設計書の1つの章を opus/fable がまとめる�
 プロトコルヘッダ（先頭の HTML コメント）内に次の1行を持てる:
 
 ```
-mdtalk-models: dialogue=sonnet minutes=haiku summary=opus
+mdtalk-models: dialogue=opus minutes=haiku summary=sonnet
 ```
 
 - 各サイクルの冒頭でこの行をパースし、**ファイル内指定 > CLI > 既定値**の
@@ -113,10 +112,10 @@ mdtalk-models: dialogue=sonnet minutes=haiku summary=opus
 - サイクルごとに `resolveModels(cliOpts, fileHeader)` で
   `{dialogue, minutes, summary}` を決める。優先順: ファイル内
   `mdtalk-models:` 行 > CLI オプション > 既定値
-  （sonnet / haiku / opus）
+  （opus / haiku / sonnet）
 - ログの1行サマリにモデル名を出す（例:
-  `+2 notes (❓×1 💬×1) model=sonnet 3.2s` / `minutes model=haiku` /
-  `summary model=opus → design.summary.md`）
+  `+2 notes (❓×1 💬×1) model=opus 3.2s` / `minutes model=haiku` /
+  `summary model=sonnet → design.summary.md`）
 
 ## 受け入れ条件 (Acceptance Criteria)
 

@@ -298,7 +298,7 @@ test('minutes の不正応答は dialogue の成功を妨げない', () => {
   assert.ok(!fs.existsSync(path.join(dir, 'd.minutes.md')));
 });
 
-test('@ai(summary) で summary(opus) が章を .summary.md に書き、done化と参照を挿入', () => {
+test('@ai(summary) で summary(sonnet) が章を .summary.md に書き、done化と参照を挿入', () => {
   const dir = mkTmp();
   const file = path.join(dir, 'd.md');
   fs.writeFileSync(file, '# タイトル\n\n## 章A\n\n本文A。\n\n## 章B\n\n本文B。\n');
@@ -306,10 +306,10 @@ test('@ai(summary) で summary(opus) が章を .summary.md に書き、done化�
   fs.appendFileSync(file, '\n@ai(summary): 章Bをまとめて\n');
   const { res, calls } = runLog(file, [], { MDTALK_MOCK_SUMMARY: 'まとめB本文' });
   assert.strictEqual(res.status, 0);
-  // summary が opus で呼ばれた
+  // summary が sonnet で呼ばれた
   const summ = calls.filter((c) => c.role === 'summary');
   assert.strictEqual(summ.length, 1);
-  assert.strictEqual(summ[0].model, 'opus');
+  assert.strictEqual(summ[0].model, 'sonnet');
   // summary ファイルに章Bのまとめ
   const sfile = path.join(dir, 'd.summary.md');
   assert.ok(fs.existsSync(sfile));

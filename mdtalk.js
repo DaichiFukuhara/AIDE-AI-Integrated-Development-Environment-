@@ -19,9 +19,9 @@ const util = require('node:util');
 // ---------------------------------------------------------------------------
 
 const STATE_VERSION = 1;
-const DEFAULT_MODEL = 'sonnet';
+const DEFAULT_MODEL = 'opus';
 const DEFAULT_MODEL_MINUTES = 'haiku';
-const DEFAULT_MODEL_SUMMARY = 'opus';
+const DEFAULT_MODEL_SUMMARY = 'sonnet';
 const VALID_ROLES = new Set(['dialogue', 'minutes', 'summary']);
 const DEFAULT_INTERVAL = 1500;
 const DEFAULT_MAX_NOTES = 3;

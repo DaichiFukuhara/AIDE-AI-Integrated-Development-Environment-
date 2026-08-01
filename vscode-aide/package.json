@@ -1,46 +1,255 @@
 {
   "name": "aide-buttons",
-  "displayName": "AIDE Buttons",
-  "description": "AIDE のレーン操作ボタン: 見出しごとの Approve、Codex 観察、mdtalk 監視の開始/停止",
-  "version": "0.1.0",
+  "displayName": "AIDE",
+  "description": "AIDEの設計レーン、観察、Approve、統合、AI対話をVS Codeから操作します",
+  "version": "0.2.0",
   "publisher": "daichi",
   "license": "MIT",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DaichiFukuhara/AIDE-AI-Integrated-Development-Environment-.git"
+  },
   "engines": {
     "vscode": "^1.80.0"
   },
   "categories": [
     "Other"
   ],
-  "main": "./extension.js",
+  "keywords": [
+    "AI",
+    "design",
+    "markdown",
+    "codex",
+    "claude"
+  ],
+  "main": "./dist/extension.js",
   "activationEvents": [
+    "onView:aide.designView",
     "onLanguage:markdown"
   ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false,
+      "description": "AIDEはNode.js、Codex、Claudeの各CLIを子プロセスとして実行します。"
+    }
+  },
+  "scripts": {
+    "prepare-engine": "node ./scripts/prepare-engine.js",
+    "compile": "npm run prepare-engine && tsc -p .",
+    "watch": "tsc -p . --watch",
+    "test:unit": "npm run compile && node --test test/unit/core.test.js",
+    "test:integration": "npm run compile && vscode-test",
+    "test": "npm run test:unit && npm run test:integration",
+    "package": "npm run compile && vsce package --out aide-buttons-0.2.0.vsix"
+  },
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "aide",
+          "title": "AIDE",
+          "icon": "resources/aide.svg"
+        }
+      ]
+    },
+    "views": {
+      "aide": [
+        {
+          "id": "aide.designView",
+          "name": "Design",
+          "icon": "resources/aide.svg",
+          "contextualTitle": "AIDE Design"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "aide.designView",
+        "contents": "AIDEの設計ワークスペースはまだ初期化されていません。\n[設計を初期化](command:aide.initialize)\n[ログを表示](command:aide.openLogs)",
+        "when": "!aide.initialized"
+      }
+    ],
     "commands": [
       {
+        "command": "aide.initialize",
+        "title": "AIDE: 設計を初期化",
+        "icon": "$(new-folder)"
+      },
+      {
+        "command": "aide.createLane",
+        "title": "AIDE: レーンを作成",
+        "icon": "$(add)"
+      },
+      {
+        "command": "aide.refresh",
+        "title": "AIDE: 状態を更新",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "aide.openMaster",
+        "title": "AIDE: マスター設計書を開く"
+      },
+      {
+        "command": "aide.openReport",
+        "title": "AIDE: 観察レポートを開く"
+      },
+      {
+        "command": "aide.openLogs",
+        "title": "AIDE: ログを表示",
+        "icon": "$(output)"
+      },
+      {
         "command": "aide.observeLane",
-        "title": "AIDE: このレーンを観察 (observe)"
+        "title": "AIDE: このレーンを観察 (observe)",
+        "icon": "$(search)"
       },
       {
         "command": "aide.approveSection",
-        "title": "AIDE: セクションをアクセプト (accept --section)"
+        "title": "AIDE: セクションをApprove",
+        "icon": "$(check)"
+      },
+      {
+        "command": "aide.approveSectionAtCursor",
+        "title": "AIDE: カーソル位置のセクションをApprove",
+        "icon": "$(check)"
       },
       {
         "command": "aide.approveLane",
-        "title": "AIDE: レーン全体をアクセプト (accept)"
+        "title": "AIDE: レーン全体をApprove",
+        "icon": "$(check-all)"
       },
       {
         "command": "aide.integrate",
-        "title": "AIDE: プールを master へ統合 (integrate)"
+        "title": "AIDE: プールをmasterへ統合",
+        "icon": "$(git-merge)"
       },
       {
         "command": "aide.status",
-        "title": "AIDE: 全体状況 (status)"
+        "title": "AIDE: 全体状況をログへ表示"
       },
       {
         "command": "aide.watchToggle",
-        "title": "AIDE: AI対話（mdtalk 監視）の開始/停止"
+        "title": "AIDE: AI対話（mdtalk監視）の開始/停止",
+        "icon": "$(comment-discussion)"
+      },
+      {
+        "command": "aide.openTreeItem",
+        "title": "AIDE: 項目を開く"
       }
-    ]
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "aide.createLane",
+          "when": "view == aide.designView && aide.initialized",
+          "group": "navigation@1"
+        },
+        {
+          "command": "aide.integrate",
+          "when": "view == aide.designView && aide.hasPool",
+          "group": "navigation@2"
+        },
+        {
+          "command": "aide.refresh",
+          "when": "view == aide.designView",
+          "group": "navigation@3"
+        },
+        {
+          "command": "aide.openLogs",
+          "when": "view == aide.designView",
+          "group": "navigation@4"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "aide.watchToggle",
+          "when": "view == aide.designView && viewItem == lane",
+          "group": "inline@1"
+        },
+        {
+          "command": "aide.observeLane",
+          "when": "view == aide.designView && viewItem == lane",
+          "group": "inline@2"
+        },
+        {
+          "command": "aide.approveLane",
+          "when": "view == aide.designView && viewItem == lane",
+          "group": "aide@1"
+        },
+        {
+          "command": "aide.approveSection",
+          "when": "view == aide.designView && viewItem == section",
+          "group": "inline@1"
+        },
+        {
+          "command": "aide.openReport",
+          "when": "view == aide.designView && viewItem == report",
+          "group": "inline@1"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "aide.observeLane",
+          "when": "resourceLangId == markdown && resourcePath =~ /lanes/",
+          "group": "navigation@1"
+        },
+        {
+          "command": "aide.approveSectionAtCursor",
+          "when": "resourceLangId == markdown && resourcePath =~ /lanes/",
+          "group": "navigation@2"
+        },
+        {
+          "command": "aide.approveLane",
+          "when": "resourceLangId == markdown && resourcePath =~ /lanes/",
+          "group": "navigation@3"
+        },
+        {
+          "command": "aide.watchToggle",
+          "when": "resourceLangId == markdown",
+          "group": "navigation@4"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "aide.approveSectionAtCursor",
+          "when": "resourceLangId == markdown && resourcePath =~ /lanes/",
+          "group": "aide@1"
+        },
+        {
+          "command": "aide.observeLane",
+          "when": "resourceLangId == markdown && resourcePath =~ /lanes/",
+          "group": "aide@2"
+        },
+        {
+          "command": "aide.watchToggle",
+          "when": "resourceLangId == markdown",
+          "group": "aide@3"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "AIDE",
+      "properties": {
+        "aide.designRoot": {
+          "type": "string",
+          "default": "design",
+          "description": "ワークスペースからの相対パスで指定するAIDE設計ルート"
+        },
+        "aide.nodePath": {
+          "type": "string",
+          "default": "node",
+          "description": "同梱されたAIDEエンジンを実行するNode.js 20以上のコマンドまたは絶対パス"
+        }
+      }
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.2",
+    "@types/vscode": "^1.80.0",
+    "@vscode/test-cli": "^0.0.15",
+    "@vscode/test-electron": "^3.1.0",
+    "@vscode/vsce": "^3.9.2",
+    "typescript": "^7.0.2"
   }
 }

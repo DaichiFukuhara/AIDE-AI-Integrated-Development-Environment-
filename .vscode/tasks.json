@@ -4,6 +4,15 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "aide-extension: compile",
+      "type": "process",
+      "command": "npm.cmd",
+      "args": ["run", "compile"],
+      "options": { "cwd": "${workspaceFolder}/vscode-aide" },
+      "presentation": { "reveal": "silent", "panel": "dedicated", "clear": true },
+      "problemMatcher": ["$tsc"]
+    },
+    {
       "label": "aide: observe（このレーンを観察）",
       "type": "shell",
       "command": "node",
