@@ -90,7 +90,7 @@ observe-level: light
 
 矛盾検出、観察時のレーンハッシュ、観察後のstale検査はどちらのレベルでも有効です。使用したレベルは観察レポート、pool、`status --json`、VS Codeに記録・表示されます。
 
-`AIDE_OBSERVER_CMD`と`AIDE_MASTER_CMD`でAIバックエンドを変更できます。Windowsではnpm shimを起動するため、既定で`codex.cmd` / `claude.cmd`を使用します。
+`AIDE_OBSERVER_CMD`と`AIDE_MASTER_CMD`でAIバックエンドを変更できます。既定コマンドは拡張子なしの`codex` / `claude`で、Windowsでも`.exe`とnpmの`.cmd` shimの両方を解決します。
 
 詳しい設計は[mdtalk設計](docs/mdtalk-design.md)と[AIDEオーケストレーション設計](docs/design/aide-orchestration.md)を参照してください。
 

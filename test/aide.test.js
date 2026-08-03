@@ -114,6 +114,16 @@ test('parseBackendResponse はログ混じりの codex 風出力から JSON を�
   assert.throws(() => aide.parseBackendResponse('ただの文章'));
 });
 
+test('decodeBackendOutput はUTF-8とWindowsのShift-JIS出力を復号する', () => {
+  assert.strictEqual(
+    aide.decodeBackendOutput([Buffer.from('日本語エラー', 'utf8')]),
+    '日本語エラー');
+  // Shift-JISの「テスト」: 83 65 / 83 58 / 83 67
+  assert.strictEqual(
+    aide.decodeBackendOutput([Buffer.from([0x83, 0x65, 0x83, 0x58, 0x83, 0x67])]),
+    'テスト');
+});
+
 test('resolveObserveLevel は未宣言を strict、ヘッダ宣言を light として解決する', () => {
   assert.deepStrictEqual(
     aide.resolveObserveLevel(LANE_CONTENT),

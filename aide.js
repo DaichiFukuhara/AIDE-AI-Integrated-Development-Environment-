@@ -16,7 +16,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { spawn } = require('node:child_process');
-const { parseArgs } = require('node:util');
+const { parseArgs, TextDecoder } = require('node:util');
 const {
   sha256, tokenizeCmd, formatDate, splitLines, parseClaudeResponse,
 } = require('./mdtalk.js');
@@ -29,10 +29,10 @@ const {
 // ---------------------------------------------------------------------------
 
 const DEFAULT_ROOT = 'design';
-const DEFAULT_OBSERVER_CMD = (process.platform === 'win32' ? 'codex.cmd' : 'codex')
-  + ' exec --skip-git-repo-check --ephemeral --color never -';
-const DEFAULT_MASTER_CMD = (process.platform === 'win32' ? 'claude.cmd' : 'claude')
-  + ' -p --model opus --output-format json';
+// 拡張子なしにして、Windowsでも .exe と npm の .cmd shim の両方を許容する。
+// .cmd は非シェルspawnで起動できないため、callBackendが必要な場合だけshellへフォールバックする。
+const DEFAULT_OBSERVER_CMD = 'codex exec --skip-git-repo-check --ephemeral --color never -';
+const DEFAULT_MASTER_CMD = 'claude -p --model opus --output-format json';
 const OBSERVER_TIMEOUT_MS = 180000;
 const MASTER_TIMEOUT_MS = 300000;
 
@@ -125,6 +125,21 @@ function archiveTemplate() {
 // バックエンド呼び出し（コマンドは環境変数で差し替え可能）
 // ---------------------------------------------------------------------------
 
+/** UTF-8を優先し、Windowsコマンド由来のShift-JIS出力だけをフォールバック復号する。 */
+function decodeBackendOutput(chunks) {
+  const bytes = Buffer.concat((chunks || []).map((chunk) => (
+    Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)
+  )));
+  if (bytes.length === 0) return '';
+  const utf8 = bytes.toString('utf8');
+  if (!utf8.includes('\uFFFD')) return utf8;
+  try {
+    return new TextDecoder('shift_jis').decode(bytes);
+  } catch (_) {
+    return utf8;
+  }
+}
+
 function callBackend({ cmdStr, promptText, timeoutMs, label, envVar }) {
   const attempt = (useShell) => new Promise((resolve, reject) => {
     let child;
@@ -141,8 +156,8 @@ function callBackend({ cmdStr, promptText, timeoutMs, label, envVar }) {
       reject(e);
       return;
     }
-    let out = '';
-    let err = '';
+    const outChunks = [];
+    const errChunks = [];
     let done = false;
     const finish = (fn, val) => { if (!done) { done = true; clearTimeout(timer); fn(val); } };
     const timer = setTimeout(() => {
@@ -150,9 +165,13 @@ function callBackend({ cmdStr, promptText, timeoutMs, label, envVar }) {
       finish(reject, new Error(`${label}がタイムアウトしました (${timeoutMs}ms)`));
     }, timeoutMs);
     child.on('error', (e) => finish(reject, e));
-    child.stdout.on('data', (d) => { out += d; });
-    child.stderr.on('data', (d) => { err += d; });
-    child.on('close', (code) => finish(resolve, { code, out, err }));
+    child.stdout.on('data', (d) => { outChunks.push(d); });
+    child.stderr.on('data', (d) => { errChunks.push(d); });
+    child.on('close', (code) => finish(resolve, {
+      code,
+      out: decodeBackendOutput(outChunks),
+      err: decodeBackendOutput(errChunks),
+    }));
     child.stdin.on('error', () => {}); // EPIPE 無視
     child.stdin.write(promptText);
     child.stdin.end();
@@ -927,6 +946,7 @@ async function main(argv) {
 module.exports = {
   extractJsonObject,
   parseBackendResponse,
+  decodeBackendOutput,
   extractSection,
   stripLaneScaffold,
   parsePoolEntries,
