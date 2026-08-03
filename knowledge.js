@@ -80,7 +80,7 @@ function renderKnowledgeRoom(root) {
     const laneText = fs.readFileSync(path.join(lanesDir, name), 'utf8');
     const stale = report.meta.laneHash && report.meta.laneHash !== sha256(laneText);
     reports.push([
-      `### ${name} — ${report.meta.verdict || 'unknown'}${stale ? '（観察後に変更あり）' : ''}`,
+      `### ${name} — ${report.meta.verdict || 'unknown'}/${report.meta.observeLevel || 'strict'}${stale ? '（観察後に変更あり）' : ''}`,
       `元レポート: reports/${report.name}`,
       '',
       report.text,

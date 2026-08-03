@@ -7,7 +7,8 @@
  * fixtures/ に置いてある。
  *
  * 環境変数:
- *   MOCK_OBSERVER_VERDICT  pass(既定) | fail | bad(不正応答)
+ *   MOCK_OBSERVER_VERDICT  pass(既定) | fail | bad(不正応答) | exit(非ゼロ終了)
+ *   MOCK_OBSERVER_SEPARABILITY  pass(既定) | fail
  *   MOCK_LOG               呼び出し記録(JSONL)の追記先
  */
 
@@ -18,10 +19,15 @@ process.stdin.on('end', () => {
   const fs = require('node:fs');
   if (process.env.MOCK_LOG) {
     fs.appendFileSync(process.env.MOCK_LOG, JSON.stringify({
-      role: 'observer', argv: process.argv.slice(2), stdinBytes: input.length,
+      role: 'observer', argv: process.argv.slice(2), stdinBytes: input.length, prompt: input,
     }) + '\n');
   }
   const verdict = process.env.MOCK_OBSERVER_VERDICT || 'pass';
+  if (verdict === 'exit') {
+    process.stderr.write('mock observer could not start');
+    process.exitCode = 7;
+    return;
+  }
   if (verdict === 'bad') {
     process.stdout.write('これはJSONではない応答');
     return;
@@ -31,7 +37,11 @@ process.stdin.on('end', () => {
     conflicts: verdict === 'fail'
       ? [{ with: 'lanes/other.md', detail: '用語「セッション」の定義が衝突（モック）' }]
       : [],
-    separability: { ok: verdict === 'pass', detail: 'モック判定' },
+    separability: {
+      checked: true,
+      ok: (process.env.MOCK_OBSERVER_SEPARABILITY || 'pass') === 'pass' && verdict === 'pass',
+      detail: 'モック判定',
+    },
     report: '# 観察レポート（モック）\n\nverdict: ' + verdict,
   };
   process.stdout.write(JSON.stringify(res));

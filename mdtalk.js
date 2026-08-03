@@ -361,6 +361,7 @@ function protocolHeaderLines(models) {
     '約束: AIは注釈blockquoteの挿入のみ行い、人間が書いた文は不変のまま。',
     'このファイルを編集するAIは注釈blockquoteの追加のみ行うこと。',
     `mdtalk-models: dialogue=${md.dialogue} minutes=${md.minutes} summary=${md.summary}`,
+    'observe-level: strict',
     '-->',
   ];
 }

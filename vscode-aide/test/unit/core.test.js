@@ -36,12 +36,12 @@ test('parseStatusJson は schemaVersion と必須構造を検証する', () => {
 });
 
 test('laneVisual は watching/stale/verdict の優先順で表示を決める', () => {
-  const lane = { topic: 'auth', path: 'lanes/auth.md', headings: [], report: null, stale: false };
-  assert.equal(core.laneVisual(lane, false).kind, 'unobserved');
-  lane.report = { path: 'reports/auth-1.md', verdict: 'pass', date: null };
-  assert.equal(core.laneVisual(lane, false).kind, 'pass');
+  const lane = { topic: 'auth', path: 'lanes/auth.md', observeLevel: 'light', observeLevelSource: 'declared', headings: [], report: null, stale: false };
+  assert.deepEqual(core.laneVisual(lane, false), { kind: 'unobserved', description: '未観察 · light', icon: 'circle-outline' });
+  lane.report = { path: 'reports/auth-1.md', verdict: 'pass', date: null, observeLevel: 'light' };
+  assert.deepEqual(core.laneVisual(lane, false), { kind: 'pass', description: 'pass · light', icon: 'pass-filled' });
   lane.stale = true;
-  assert.equal(core.laneVisual(lane, false).kind, 'stale');
+  assert.deepEqual(core.laneVisual(lane, false), { kind: 'stale', description: '観察後に編集あり · light', icon: 'warning' });
   assert.equal(core.laneVisual(lane, true).kind, 'watching');
 });
 

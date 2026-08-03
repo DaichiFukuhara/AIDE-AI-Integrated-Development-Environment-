@@ -8,11 +8,17 @@ export interface AideReport {
   path: string;
   verdict: string | null;
   date: string | null;
+  observeLevel: ObserveLevel;
 }
+
+export type ObserveLevel = 'light' | 'strict';
+export type ObserveLevelSource = 'declared' | 'default';
 
 export interface AideLane {
   topic: string;
   path: string;
+  observeLevel: ObserveLevel;
+  observeLevelSource: ObserveLevelSource;
   headings: AideHeading[];
   report: AideReport | null;
   stale: boolean;
@@ -24,6 +30,7 @@ export interface AidePoolEntry {
   section: string;
   accepted: string;
   report: string;
+  observeLevel: ObserveLevel;
 }
 
 export interface AideStatus {

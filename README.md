@@ -1,205 +1,100 @@
-# AIDE — 並列設計オーケストレーション
+# AIDE
 
-AIDE は、大規模な設計書を複数レーン（考慮項目）に分割し、人間×AI の対話を**並列**に進めるためのツールセットです。2つのコマンドで構成：
+AIDEは、設計書を複数のMarkdownレーンに分け、人間とAIで並列に検討するためのツールです。
 
-- **mdtalk** — 1つのレーン（Markdown ファイル）内で人間と AI が対話的に設計を育てるツール
-- **aide** — 複数レーンの進捗を観察・アクセプト・統合するオーケストレーション CLI
-
-詳細は下記セクション「## mdtalk」「## aide」を参照。
-
-人間がエディタでファイルを書いて保存すると、常駐する `mdtalk` がそれを検知し、
-新しく書かれた部分を Claude（ヘッドレス `claude -p`）に読ませ、質問・コメント・
-展開・別視点・整理の注釈ブロックを該当箇所の直下に **挿入のみ** で書き込みます。
-人間の書いた文章は構造的に一切変更されません。チャット UI は使いません。
-
-完成した設計書は、そのまま spec-driven-build などの実装パイプラインの入力になります。
+- `mdtalk`: Markdownの変更を検知し、Claudeが質問や提案を追記
+- `aide`: レーンの作成、レビュー、承認、マスター設計への統合を管理
+- `vscode-aide`: 一連の操作をVS Codeのサイドバーから実行
 
 ## 必要環境
 
-- Node.js >= 20（外部依存ゼロ）
-- [`claude` CLI](https://www.npmjs.com/package/@anthropic-ai/claude-code)（`npm install -g @anthropic-ai/claude-code`）
-- `codex` CLI（任意）— `aide observe` の観察者の既定。無い場合は
-  `AIDE_OBSERVER_CMD` で別コマンドに差し替え可能
+- Node.js 20以上
+- [Claude Code CLI](https://www.npmjs.com/package/@anthropic-ai/claude-code)
+- Codex CLI（`aide observe`を使う場合）
 
-## インストール
-
-```sh
-git clone <this repo>
-cd <this repo>
-npm link      # `mdtalk` と `aide` コマンドが PATH に入ります
-```
-
-`npm link` を使わず、直接実行することもできます:
+## セットアップ
 
 ```sh
-node mdtalk.js <file.md>  # mdtalk
-node aide.js init         # aide
+git clone <repository-url>
+cd AIDE-AI-Integrated-Development-Environment-
+npm link
 ```
 
-## mdtalk — ファイル内対話
+`npm link`を使わない場合は、`node mdtalk.js` / `node aide.js`で直接実行できます。
 
-### 使い方
+## 基本フロー
 
+```sh
+aide init
+aide lane auth
+mdtalk design/lanes/auth.md
+
+# 設計が固まったら別ターミナルで実行
+aide observe design/lanes/auth.md
+aide accept design/lanes/auth.md
+aide integrate
 ```
+
+成果物は次の場所に保存されます。
+
+| パス | 内容 |
+| --- | --- |
+| `design/master.md` | 統合済みのマスター設計 |
+| `design/lanes/*.md` | テーマ別の設計レーン |
+| `design/reports/` | AIレビュー結果 |
+| `design/pool.md` | 承認済み・未統合の内容 |
+| `design/pool-archive.md` | 統合・差し戻しの履歴 |
+
+## mdtalk
+
+```sh
 mdtalk <file.md> [options]
-
-options:
-  --model <name>          dialogue（注釈）のモデル。既定: opus（例: haiku, sonnet）
-  --model-minutes <name>  minutes（議事録）のモデル。既定: haiku
-  --model-summary <name>  summary（章まとめ）のモデル。既定: sonnet
-  --no-minutes            議事録の自動生成を無効化
-  --once                  監視せず1回だけ処理して終了（テスト・CI用）
-  --interval <ms>         デバウンス時間。既定: 1500
-  --max-notes <n>         1回の処理で挿入する注釈ブロックの上限。既定: 3
-  --quiet                 ログを警告以上のみに
-  --init                  ファイルが空/未存在なら設計書スケルトンを提案させて終了
 ```
 
-- `<file.md>` が存在しない場合は空で作成して監視を開始します。
-- `Ctrl+C` で状態を保存して正常終了します。
+主なオプション:
 
-### mdtalk の基本フロー
+- `--once`: 1回だけ処理して終了
+- `--init`: 空のファイルに設計書のひな型を生成
+- `--model <name>`: 対話モデルを指定
+- `--model-minutes <name>`: 議事録モデルを指定
+- `--model-summary <name>`: 章まとめモデルを指定
+- `--no-minutes`: 議事録の自動生成を無効化
 
-```sh
-mdtalk design.md          # 監視開始（別ターミナルでエディタから design.md を編集）
+行頭に`@ai: 指示`を書くと、その指示を優先して処理します。`@ai(summary): 指示`では章のまとめを別ファイルへ生成します。
+
+## aide
+
+| コマンド | 内容 |
+| --- | --- |
+| `aide init [root]` | 設計ディレクトリを初期化 |
+| `aide lane <topic> [root]` | レーンを作成 |
+| `aide observe <lane.md>` | 矛盾や分割可能性をレビュー |
+| `aide accept <lane.md>` | レビュー済み内容をプールへ追加 |
+| `aide integrate [root]` | プールをマスター設計へ統合 |
+| `aide knowledge [root]` | 共有知識ファイルを再生成 |
+| `aide status [root] [--json]` | 現在の状態を表示 |
+
+### Observeレベル
+
+`mdtalk protocol`ヘッダの`observe-level`で、レーンごとの観察基準を選べます。
+
+```md
+<!-- mdtalk protocol
+observe-level: light
+-->
 ```
 
-段落を書いて保存すると、デバウンス後に Claude が呼ばれ、その段落の直下に
-注釈 blockquote が挿入されます:
+- `light`: マスターや他レーンとの矛盾だけを合否判定します。内部関数名、配置、既存コードへの接続方法など、安全に実装時判断できる詳細は未確定でもpassできます。
+- `strict`: 矛盾に加え、レーン単独で実装できる粒度まで依存関係とインターフェースを確認します。
+- 宣言がない既存レーンは`strict`として扱います。不正値、空値、重複宣言はObserve前にエラーになります。
 
-```markdown
-> ❓ **AI**: この機能の対象ユーザーは誰ですか？（2026-07-08 14:32）
-```
+矛盾検出、観察時のレーンハッシュ、観察後のstale検査はどちらのレベルでも有効です。使用したレベルは観察レポート、pool、`status --json`、VS Codeに記録・表示されます。
 
-マーカーの意味:
+`AIDE_OBSERVER_CMD`と`AIDE_MASTER_CMD`でAIバックエンドを変更できます。Windowsではnpm shimを起動するため、既定で`codex.cmd` / `claude.cmd`を使用します。
 
-| マーカー | type | 意味 |
-| --- | --- | --- |
-| ❓ | question | 質問（曖昧点の具体化） |
-| 💬 | comment | コメント（暗黙の前提の言語化） |
-| ➕ | expand | 展開（たたき台の提案） |
-| 🔀 | counter | 別視点（抜けている観点） |
-| 🧭 | structure | 整理（並べ替えの提案） |
+詳しい設計は[mdtalk設計](docs/mdtalk-design.md)と[AIDEオーケストレーション設計](docs/design/aide-orchestration.md)を参照してください。
 
-### 人間から AI への合図
-
-- 行頭 `@ai:` で始まる行は AI への直接指示です（例: `@ai: この節を整理して`）。
-  次回処理時に最優先で解釈され、処理後にその行は `<!-- done: この節を整理して -->`
-  に書き換えられます（これが唯一の例外的な人間行の変更です）。
-- `@ai(<モデル名>): 指示`（例: `@ai(opus): 反論だけほしい`）で、その1回の
-  dialogue 呼び出しだけモデルを差し替えられます。
-- AI の質問に答えるときは、質問 blockquote の直下に普通に書けば OK です。
-  特別な記法は不要で、AI は前回スナップショットとの差分で回答を認識します。
-
-### マルチモデル役割分担（dialogue / minutes / summary）
-
-役割ごとに別モデルへ分担できます。既定では対話（注釈）は opus、議事録は haiku、
-章まとめは sonnet とし、コストと品質を役割ごとに使い分けます。
-
-| 役割 | 既定モデル | 動き | 出力先 |
-| --- | --- | --- | --- |
-| dialogue | opus | 既存の注釈ループ | 対象 MD（挿入のみ） |
-| minutes | haiku | 挿入/`@ai` 消費のあったサイクル後に議事録を追記 | `<base>.minutes.md` |
-| summary | sonnet | `@ai(summary):` 指示で章を清書 | `<base>.summary.md` |
-
-`<base>` は対象ファイルの拡張子を除いた名前です（`design.md` →
-`design.minutes.md` / `design.summary.md`、同ディレクトリ）。対象 MD 本体への
-書き込みは従来どおり挿入のみで、minutes / summary は別ファイルに書きます。
-
-#### 議事録（minutes）
-
-dialogue のサイクルで注釈を挿入した、または `@ai:` を消費したとき、その直後に
-minutes モデルを1回呼び、`<base>.minutes.md` の末尾へ `## <日時>` 見出し付きで
-議事エントリを追記します（追記のみ）。`--no-minutes` で無効化できます。
-minutes の失敗は警告ログのみで、dialogue サイクルの成否には影響しません。
-
-#### 章まとめ（summary）
-
-`@ai(summary): この章をまとめて` を書くと、その行が属する章（直前の `##` 見出しから
-次の `##` 見出しの手前まで）を summary モデルが清書し、`<base>.summary.md` に
-書き出します。同じ章見出しのセクションが既にあれば置換、なければ追記します
-（章単位で冪等）。対象 MD には指示行の `<!-- done -->` 変換に加え、章末尾に
-まとめ先を示す参照 blockquote（🧭）が挿入されます。失敗時は指示を消費せず、
-次サイクルで再試行します。
-
-#### 役割別モデルの指定
-
-優先順は **ファイル内指定 > CLI オプション > 既定値** です。CLI では
-`--model` / `--model-minutes` / `--model-summary` で指定します。ファイル内では
-プロトコルヘッダ（先頭の HTML コメント）に次の1行を置きます:
-
-```
-mdtalk-models: dialogue=opus minutes=haiku summary=sonnet
-```
-
-一部の役割だけ書いてもよく、人間がこの行を書き換えて保存すれば次サイクルから
-反映されます（動的切り替え）。この行はヘッダ新規挿入時にテンプレートとして
-自動で含まれます。
-
-#### 空ファイルから始める
-
-```sh
-mdtalk newdesign.md --init --once
-```
-
-8 節（目的 / 対象ファイル / インターフェース / 振る舞い / 受け入れ条件 /
-エッジケース / テスト方針 / スコープ外）の設計書スケルトンが提案・挿入されます。
-
-### mdtalk の状態ファイル
-
-対象 MD と同じディレクトリの `.mdtalk/<ファイル名>.state.json` に、
-スナップショット・処理済みハッシュ・注釈済み段落フィンガープリント・PID ロックを
-保存します。二重起動は PID ロックで拒否されます。
-
-## aide — レーン分割・並列設計オーケストレーション
-
-mdtalk を1レーン分の部品として、複数の考慮項目を**並列に**設計するための
-CLI です（設計書: `docs/design/aide-orchestration.md`）。
-
-- **マスター設計書** (`design/master.md`) — アクセプト済みの内容だけが載る「正」
-- **レーン** (`design/lanes/*.md`) — 項目ごとの対話ファイル。mdtalk で監視する
-- **共有知識ルーム** (`design/lanes/_knowledge.md`) — プロジェクトREADME、`.aide-context.md`、
-  master、pool、レーン索引、最新の観察結果を lanes 内へ自動投影。レーンAIのプロンプトへ
-  毎回、参照専用コンテキストとして添付する
-- **観察者**（既定: Codex） — ボタン式。矛盾＋分割可能性をチェックし、
-  合格がアクセプトの前提条件
-- **プール** (`design/pool.md`) — アクセプト済み・未統合のステージング
-- **マスターAI**（既定: claude opus） — 別セッションのバッチでプールを清書し
-  master へ統合。矛盾エントリは理由付きで差し戻す
-
-```sh
-aide init                        # design/ を初期化
-aide lane auth                   # レーン作成 → mdtalk design/lanes/auth.md で対話
-aide observe design/lanes/auth.md    # 観察（矛盾＋分割可能性）→ reports/ にレポート
-aide accept design/lanes/auth.md --section 認証フロー  # 合格を前提にプールへ（--section で特定の見出しのみ、--force で観察チェックをスキップ）
-aide integrate                   # マスターAIが清書して master.md に統合
-aide knowledge                   # 共有知識ルームを手動で即時再同期（通常は自動）
-aide status                      # 全体状況
-aide status --json               # VS Code 拡張などに向けた機械可読状態
-```
-
-- アクセプトは最新レポートが pass で、観察後にレーンが編集されていないことが
-  条件です（`--force` で強行可）。マージボタンを持つのは常に人間です。
-- 共有知識ルームは `init` / `lane` / `observe` / `accept` / `integrate` と、レーンの
-  `mdtalk` 処理直前に自動同期されます。VS Code 拡張では設計Markdownの変更も検知して同期します。
-  直接編集した内容は次回同期で上書きされます。
-- 監視中の既存レーンは共有知識の変更も監視します。レーン本文が未変更でも、共有知識のハッシュが
-  変わればAIが対象レーンとの矛盾・不足・反映漏れを自動再点検します。
-- READMEに置きたくない共通知識や、既存レーンへ即座に伝えたい運用ルールは、ワークスペース直下の
-  `.aide-context.md` に書きます。次回同期から全レーンAIへ共有されます。
-- 統合済み/差し戻しエントリは `design/pool-archive.md` に監査証跡として残ります。
-- バックエンドは環境変数で差し替え可能:
-  `AIDE_OBSERVER_CMD`（既定 `codex exec --skip-git-repo-check --ephemeral --color never -`）/
-  `AIDE_MASTER_CMD`（既定 `claude -p --model opus --output-format json`）。
-  応答は stdout に JSON が含まれていれば良く、ログやバナーが混ざっていてもパースできます
-  （最後に現れるトップレベルの JSON オブジェクトを抽出）。
-  実 Codex ＋ 実 Claude Opus での通し確認（observe→accept→integrate）は
-  2026-07-10 に動作確認済みです
-
-### VS Code 拡張
-
-`vscode-aide/`には、Master・Lanes・Pool・Archiveを一覧し、設計フロー全体を
-操作できる専用サイドバーがあります。AIDEエンジンを同梱したローカルVSIXを生成できます。
+## VS Code拡張
 
 ```powershell
 cd vscode-aide
@@ -208,19 +103,14 @@ npm run package
 code --install-extension aide-buttons-0.2.0.vsix
 ```
 
-詳しい操作方法と設定は[`vscode-aide/README.md`](vscode-aide/README.md)を参照してください。
+操作方法は[VS Code拡張のREADME](vscode-aide/README.md)を参照してください。
 
 ## テスト
 
 ```sh
-node --test
+npm test
 ```
 
-ネットワークや実 `claude` / `codex` は不要です。`MDTALK_CLAUDE_CMD` /
-`AIDE_OBSERVER_CMD` / `AIDE_MASTER_CMD` でモックコマンドに差し替えてテストします。
+## License
 
-## スコープ外（v0）
-
-複数ファイル/ディレクトリ監視、git 連携、注釈へのスレッド返信、i18n。
-VS Code 拡張は `vscode-aide/` で提供します。（mdtalk の常駐監視は Windows では保証外ですが、aide のバックエンド呼び出しは
-Windows ネイティブに対応しており、WSL は不要です。）
+[MIT](LICENSE)

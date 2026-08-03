@@ -58,6 +58,16 @@ const LANE_CONTENT = [
   '',
 ].join('\n');
 
+function laneWithObserveLevel(level) {
+  return [
+    '<!-- mdtalk protocol',
+    `observe-level: ${level}`,
+    '-->',
+    '',
+    LANE_CONTENT,
+  ].join('\n');
+}
+
 // ---------------------------------------------------------------------------
 // ユニット
 // ---------------------------------------------------------------------------
@@ -102,6 +112,50 @@ test('parseBackendResponse はログ混じりの codex 風出力から JSON を�
     { verdict: 'pass' });
   // JSON が無ければ throw
   assert.throws(() => aide.parseBackendResponse('ただの文章'));
+});
+
+test('resolveObserveLevel は未宣言を strict、ヘッダ宣言を light として解決する', () => {
+  assert.deepStrictEqual(
+    aide.resolveObserveLevel(LANE_CONTENT),
+    { level: 'strict', source: 'default', line: null });
+  assert.deepStrictEqual(
+    aide.resolveObserveLevel(laneWithObserveLevel('light')),
+    { level: 'light', source: 'declared', line: 2 });
+  assert.strictEqual(
+    aide.resolveObserveLevel(LANE_CONTENT + '\nobserve-level: light\n').level,
+    'strict',
+    '本文中の文字列は宣言として扱わない');
+});
+
+test('resolveObserveLevel は未知値・空値・重複宣言を拒否する', () => {
+  assert.throws(() => aide.resolveObserveLevel(laneWithObserveLevel('draft')), /draft.*light, strict/);
+  assert.throws(() => aide.resolveObserveLevel(laneWithObserveLevel('')), /\(空\)/);
+  const duplicate = [
+    '<!-- mdtalk protocol',
+    'observe-level: light',
+    'observe-level: light',
+    '-->',
+  ].join('\n');
+  assert.throws(() => aide.resolveObserveLevel(duplicate), /複数宣言/);
+});
+
+test('buildObserverPrompt は light で実装時判断を許容し分割可能性を合否から外す', () => {
+  const base = { masterText: '', laneRel: 'lanes/x.md', laneText: '設計', others: [] };
+  const light = aide.buildObserverPrompt({
+    ...base,
+    observeLevel: { level: 'light', source: 'declared', line: 2 },
+  });
+  assert.ok(light.includes('実装時に安全に決められる詳細'));
+  assert.ok(light.includes('分割可能性は合否条件から除外'));
+  assert.ok(light.includes('"checked":false'));
+  assert.ok(!light.includes('このセクション単独で実装単位として成立'));
+
+  const strict = aide.buildObserverPrompt({
+    ...base,
+    observeLevel: { level: 'strict', source: 'default', line: null },
+  });
+  assert.ok(strict.includes('このセクション単独で実装単位として成立'));
+  assert.ok(strict.includes('"checked":true'));
 });
 
 test('formatEntry / parsePoolEntries / rebuildPool の往復', () => {
@@ -167,6 +221,7 @@ test('observe はレポートを生成する（verdict/laneHash 付き）', () =
   const report = fs.readFileSync(path.join(d, 'design', 'reports', 'auth-1.md'), 'utf8');
   assert.ok(report.includes('verdict: pass'));
   assert.ok(/laneHash: [0-9a-f]{64}/.test(report));
+  assert.ok(report.includes('observeLevel: strict'));
   // 観察者が呼ばれたことをログで確認
   const calls = fs.readFileSync(logFile, 'utf8').trim().split('\n').map(JSON.parse);
   assert.strictEqual(calls.length, 1);
@@ -176,6 +231,81 @@ test('observe はレポートを生成する（verdict/laneHash 付き）', () =
   // 2回目は連番
   run(d, ['observe', LANE]);
   assert.ok(fs.existsSync(path.join(d, 'design', 'reports', 'auth-2.md')));
+});
+
+test('observe-level light は実装時判断の詳細を合否から外し、レベルを伝播する', () => {
+  const d = setup(laneWithObserveLevel('light'));
+  const logFile = path.join(d, 'mock.log');
+  const r = run(d, ['observe', LANE], {
+    MOCK_LOG: logFile,
+    MOCK_OBSERVER_SEPARABILITY: 'fail',
+  });
+  assert.strictEqual(r.status, 0, r.stderr);
+  const report = fs.readFileSync(path.join(d, 'design', 'reports', 'auth-1.md'), 'utf8');
+  assert.ok(report.includes('verdict: pass'));
+  assert.ok(report.includes('observeLevel: light'));
+  assert.ok(report.includes('分割可能性: スキップ'));
+
+  const call = JSON.parse(fs.readFileSync(logFile, 'utf8').trim());
+  assert.ok(call.prompt.includes('実装時に安全に決められる詳細'));
+  assert.ok(!call.prompt.includes('このセクション単独で実装単位として成立'));
+
+  let status = JSON.parse(run(d, ['status', '--json']).stdout);
+  assert.strictEqual(status.lanes[0].observeLevel, 'light');
+  assert.strictEqual(status.lanes[0].observeLevelSource, 'declared');
+  assert.strictEqual(status.lanes[0].report.observeLevel, 'light');
+
+  const accepted = run(d, ['accept', LANE]);
+  assert.strictEqual(accepted.status, 0, accepted.stderr);
+  const entries = aide.parsePoolEntries(fs.readFileSync(path.join(d, 'design', 'pool.md'), 'utf8'));
+  assert.strictEqual(entries[0].meta.observeLevel, 'light');
+  status = JSON.parse(run(d, ['status', '--json']).stdout);
+  assert.strictEqual(status.pool.entries[0].observeLevel, 'light');
+});
+
+test('observe-level strict は分割可能性NGをfailにする', () => {
+  const d = setup(LANE_CONTENT);
+  const r = run(d, ['observe', LANE], { MOCK_OBSERVER_SEPARABILITY: 'fail' });
+  assert.strictEqual(r.status, 0, r.stderr);
+  const report = fs.readFileSync(path.join(d, 'design', 'reports', 'auth-1.md'), 'utf8');
+  assert.ok(report.includes('verdict: fail'));
+  assert.ok(report.includes('分割可能性: NG'));
+});
+
+test('observe-level light でも矛盾があればfailにする', () => {
+  const d = setup(laneWithObserveLevel('light'));
+  const r = run(d, ['observe', LANE], { MOCK_OBSERVER_VERDICT: 'fail' });
+  assert.strictEqual(r.status, 0, r.stderr);
+  const report = fs.readFileSync(path.join(d, 'design', 'reports', 'auth-1.md'), 'utf8');
+  assert.ok(report.includes('verdict: fail'));
+  assert.ok(report.includes('分割可能性: スキップ'));
+  assert.ok(report.includes('lanes/other.md'));
+  const accepted = run(d, ['accept', LANE]);
+  assert.strictEqual(accepted.status, 1);
+  assert.ok(accepted.stderr.includes('不合格'));
+});
+
+test('不正な observe-level は観察者を起動せずエラーにする', () => {
+  const d = setup(laneWithObserveLevel('draft'));
+  const logFile = path.join(d, 'mock.log');
+  const r = run(d, ['observe', LANE], { MOCK_LOG: logFile });
+  assert.strictEqual(r.status, 1);
+  assert.ok(r.stderr.includes("draft"));
+  assert.ok(r.stderr.includes('light, strict'));
+  assert.ok(!fs.existsSync(logFile));
+  assert.ok(!fs.existsSync(path.join(d, 'design', 'reports', 'auth-1.md')));
+});
+
+test('旧レポートは observeLevel 未記録でも strict としてstatusに返す', () => {
+  const d = setup(LANE_CONTENT);
+  run(d, ['observe', LANE]);
+  const reportFile = path.join(d, 'design', 'reports', 'auth-1.md');
+  const legacy = fs.readFileSync(reportFile, 'utf8')
+    .replace(/^observeLevel:.*\n/m, '')
+    .replace(/^observeLevelSource:.*\n/m, '');
+  fs.writeFileSync(reportFile, legacy);
+  const status = JSON.parse(run(d, ['status', '--json']).stdout);
+  assert.strictEqual(status.lanes[0].report.observeLevel, 'strict');
 });
 
 test('accept は観察レポートなしでは拒否される', () => {
@@ -314,6 +444,16 @@ test('観察者の不正応答はエラーになり、レポートを残さな�
   const d = setup(LANE_CONTENT);
   const r = run(d, ['observe', LANE], { MOCK_OBSERVER_VERDICT: 'bad' });
   assert.strictEqual(r.status, 1);
+  assert.ok(!fs.existsSync(path.join(d, 'design', 'reports', 'auth-1.md')));
+});
+
+test('観察者の非ゼロ終了はstderrとexit codeを表示する', () => {
+  const d = setup(LANE_CONTENT);
+  const r = run(d, ['observe', LANE], { MOCK_OBSERVER_VERDICT: 'exit' });
+  assert.strictEqual(r.status, 1);
+  assert.ok(r.stderr.includes('exit 7'));
+  assert.ok(r.stderr.includes('mock observer could not start'));
+  assert.ok(!r.stderr.includes('JSONとして解釈'));
   assert.ok(!fs.existsSync(path.join(d, 'design', 'reports', 'auth-1.md')));
 });
 

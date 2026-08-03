@@ -96,8 +96,8 @@ class AideTreeProvider implements vscode.TreeDataProvider<AideNode> {
     node.lanePath = absolute;
     node.lane = lane;
     node.tooltip = lane.report
-      ? `${lane.path}\n最新観察: ${lane.report.verdict}${lane.stale ? '（観察後に編集あり）' : ''}`
-      : `${lane.path}\nまだ観察されていません`;
+      ? `${lane.path}\n現在のレベル: ${lane.observeLevel} (${lane.observeLevelSource})\n最新観察: ${lane.report.verdict} (${lane.report.observeLevel})${lane.stale ? '（観察後に編集あり）' : ''}`
+      : `${lane.path}\n現在のレベル: ${lane.observeLevel} (${lane.observeLevelSource})\nまだ観察されていません`;
     node.command = { command: 'aide.openTreeItem', title: 'Open Lane', arguments: [node] };
     return node;
   }
@@ -107,7 +107,7 @@ class AideTreeProvider implements vscode.TreeDataProvider<AideNode> {
     const nodes: AideNode[] = [];
     if (lane.report) {
       const report = new AideNode('report', `Report: ${lane.report.verdict ?? 'unknown'}`);
-      report.description = lane.report.date ?? undefined;
+      report.description = `${lane.report.observeLevel}${lane.report.date ? ` · ${lane.report.date}` : ''}`;
       report.iconPath = new vscode.ThemeIcon(lane.report.verdict === 'pass' ? 'pass' : 'error');
       report.filePath = path.join(status.root, lane.report.path);
       report.lanePath = absolute;

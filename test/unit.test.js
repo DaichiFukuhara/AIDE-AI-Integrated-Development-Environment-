@@ -222,6 +222,7 @@ test('hasProtocolHeader / protocolHeaderLines', () => {
 test('protocolHeaderLines は mdtalk-models 行を含む（既定・指定）', () => {
   const def = m.protocolHeaderLines();
   assert.ok(def.some((l) => l === 'mdtalk-models: dialogue=opus minutes=haiku summary=sonnet'));
+  assert.ok(def.some((l) => l === 'observe-level: strict'));
   const custom = m.protocolHeaderLines({ dialogue: 'opus', minutes: 'sonnet', summary: 'fable' });
   assert.ok(custom.some((l) => l === 'mdtalk-models: dialogue=opus minutes=sonnet summary=fable'));
 });

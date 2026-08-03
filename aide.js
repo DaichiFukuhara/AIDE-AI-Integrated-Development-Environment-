@@ -29,8 +29,10 @@ const {
 // ---------------------------------------------------------------------------
 
 const DEFAULT_ROOT = 'design';
-const DEFAULT_OBSERVER_CMD = 'codex exec --skip-git-repo-check --ephemeral --color never -';
-const DEFAULT_MASTER_CMD = 'claude -p --model opus --output-format json';
+const DEFAULT_OBSERVER_CMD = (process.platform === 'win32' ? 'codex.cmd' : 'codex')
+  + ' exec --skip-git-repo-check --ephemeral --color never -';
+const DEFAULT_MASTER_CMD = (process.platform === 'win32' ? 'claude.cmd' : 'claude')
+  + ' -p --model opus --output-format json';
 const OBSERVER_TIMEOUT_MS = 180000;
 const MASTER_TIMEOUT_MS = 300000;
 
@@ -155,7 +157,15 @@ function callBackend({ cmdStr, promptText, timeoutMs, label, envVar }) {
     child.stdin.write(promptText);
     child.stdin.end();
   });
-  const retriable = (e) => e && (e.code === 'ENOENT' || e.code === 'EINVAL');
+  const retriable = (e) => e && (e.code === 'ENOENT' || e.code === 'EINVAL' || e.code === 'EPERM');
+  const requireSuccess = (result) => {
+    if (result.code === 0) return result;
+    const detail = String(result.err || result.out || '').trim();
+    const suffix = detail ? `\n--- stderr/stdout ---\n${detail.slice(-2000)}` : '';
+    const error = new Error(`${label}コマンドが異常終了しました (exit ${result.code})${suffix}`);
+    error.code = 'EBACKEND';
+    throw error;
+  };
   return attempt(false)
     .catch((e) => {
       if (process.platform === 'win32' && retriable(e)) return attempt(true);
@@ -168,7 +178,8 @@ function callBackend({ cmdStr, promptText, timeoutMs, label, envVar }) {
           `  環境変数 ${envVar} で差し替えできます（現在: ${cmdStr}）`);
       }
       throw e;
-    });
+    })
+    .then(requireSuccess);
 }
 
 /**
@@ -297,6 +308,7 @@ function otherLaneHeadings(p, excludeAbs) {
 }
 
 const REPORT_META_RE = /<!-- aide:report\r?\n([\s\S]*?)-->/;
+const OBSERVE_LEVELS = new Set(['light', 'strict']);
 
 function parseMetaLines(block) {
   const meta = {};
@@ -310,6 +322,50 @@ function parseMetaLines(block) {
 function parseReportMeta(text) {
   const m = text.match(REPORT_META_RE);
   return m ? parseMetaLines(m[1]) : null;
+}
+
+/**
+ * 先頭の mdtalk protocol ヘッダから観察レベルを解決する。
+ * 既存レーンとの互換性のため、宣言がなければ strict とする。
+ */
+function resolveObserveLevel(text) {
+  const lines = splitLines(text);
+  let start = -1;
+  let end = -1;
+  for (let i = 0; i < lines.length; i++) {
+    if (/^\uFEFF?<!--\s*mdtalk protocol\s*$/.test(lines[i])) {
+      start = i;
+      break;
+    }
+  }
+  if (start < 0) return { level: 'strict', source: 'default', line: null };
+  for (let i = start + 1; i < lines.length; i++) {
+    if (/^\s*-->\s*$/.test(lines[i])) {
+      end = i;
+      break;
+    }
+  }
+  if (end < 0) return { level: 'strict', source: 'default', line: null };
+
+  const declarations = [];
+  for (let i = start + 1; i < end; i++) {
+    const m = lines[i].match(/^\s*observe-level:\s*(.*?)\s*$/);
+    if (m) declarations.push({ value: m[1], line: i + 1 });
+  }
+  if (declarations.length === 0) return { level: 'strict', source: 'default', line: null };
+  if (declarations.length > 1) {
+    throw new Error(`observe-level が複数宣言されています（行 ${declarations.map((d) => d.line).join(', ')}）`);
+  }
+  const declaration = declarations[0];
+  if (!OBSERVE_LEVELS.has(declaration.value)) {
+    const shown = declaration.value === '' ? '(空)' : declaration.value;
+    throw new Error(`不正な observe-level '${shown}' を行 ${declaration.line} で検出しました。許可値: light, strict`);
+  }
+  return { level: declaration.value, source: 'declared', line: declaration.line };
+}
+
+function reportObserveLevel(meta) {
+  return meta && OBSERVE_LEVELS.has(meta.observeLevel) ? meta.observeLevel : 'strict';
 }
 
 /** そのレーンの最新の観察レポートを返す（なければ null）。 */
@@ -349,7 +405,7 @@ function parsePoolEntries(text) {
 }
 
 const ENTRY_META_ORDER = [
-  'id', 'lane', 'section', 'accepted', 'report', 'status', 'reason', 'integratedAt',
+  'id', 'lane', 'section', 'accepted', 'report', 'observeLevel', 'status', 'reason', 'integratedAt',
 ];
 
 function formatEntry(meta, content) {
@@ -373,17 +429,28 @@ function rebuildPool(text, entries) {
 // プロンプト
 // ---------------------------------------------------------------------------
 
-function buildObserverPrompt({ masterText, laneRel, laneText, others }) {
+function buildObserverPrompt({ masterText, laneRel, laneText, others, observeLevel }) {
   const othersText = others.length === 0
     ? '（他のレーンはまだない）'
     : others.map((o) => `### ${o.lane}\n${o.headings.join('\n') || '（見出しなし）'}`).join('\n\n');
-  return [
-    'あなたは設計レビューの「観察者」です。対話には参加しておらず、外部の目として',
-    '対象レーンの設計内容を検査します。検査項目は2つ:',
+  const level = observeLevel && observeLevel.level === 'light' ? 'light' : 'strict';
+  const reviewRules = level === 'light' ? [
+    '観察レベルは light です。検査項目は矛盾のみです。',
+    'マスター設計書・他レーンとの用語/インターフェース/前提の衝突を検査してください。',
+    '分割可能性は合否条件から除外します。内部関数名、ファイル配置、データ構造の細部、',
+    '既存コードへの接続方法など、実装時に安全に決められる詳細が未確定でも問題にしません。',
+    '矛盾がなければ verdict は "pass"、矛盾があれば "fail" です。',
+  ] : [
+    '観察レベルは strict です。検査項目は2つ:',
     '1. 矛盾: マスター設計書・他レーンとの用語/インターフェース/前提の衝突',
     '2. 分割可能性: この設計が疎結合か。他への依存がインターフェースとして明示され、',
     '   このセクション単独で実装単位として成立するか',
     '両方に問題がなければ verdict は "pass"、どちらかに問題があれば "fail"。',
+  ];
+  return [
+    'あなたは設計レビューの「観察者」です。対話には参加しておらず、外部の目として',
+    '対象レーンの設計内容を検査します。',
+    ...reviewRules,
     '',
     '## マスター設計書（正）',
     masterText,
@@ -397,7 +464,9 @@ function buildObserverPrompt({ masterText, laneRel, laneText, others }) {
     '## 応答形式（このJSONのみを出力すること）',
     '{"verdict":"pass"|"fail",',
     ' "conflicts":[{"with":"<ファイルや節>","detail":"<内容>"}],',
-    ' "separability":{"ok":true|false,"detail":"<判定理由>"},',
+    level === 'light'
+      ? ' "separability":{"checked":false,"ok":null,"detail":"observe-level: light のためスキップ"},'
+      : ' "separability":{"checked":true,"ok":true|false,"detail":"<判定理由>"},',
     ' "report":"<Markdown形式の詳細レポート（日本語）>"}',
   ].join('\n');
 }
@@ -478,15 +547,17 @@ async function cmdObserve(lanePath) {
   if (!fs.existsSync(laneAbs)) throw new Error(`レーンがありません: ${lanePath}`);
   if (!fs.existsSync(p.master)) throw new Error(`master.md がありません。aide init を実行してください`);
   const laneText = fs.readFileSync(laneAbs, 'utf8');
+  const observeLevel = resolveObserveLevel(laneText);
   const laneHash = sha256(laneText);
   const masterText = fs.readFileSync(p.master, 'utf8');
   const others = otherLaneHeadings(p, laneAbs);
 
   const cmdStr = process.env.AIDE_OBSERVER_CMD || DEFAULT_OBSERVER_CMD;
-  log.info(`観察者を起動: ${cmdStr.split(' ')[0]} → ${laneRel}`);
+  const sourceText = observeLevel.source === 'declared' ? `declared, 行${observeLevel.line}` : 'default';
+  log.info(`観察者を起動: ${cmdStr.split(' ')[0]} → ${laneRel} (observe-level: ${observeLevel.level}, ${sourceText})`);
   const res = await callBackend({
     cmdStr,
-    promptText: buildObserverPrompt({ masterText, laneRel, laneText, others }),
+    promptText: buildObserverPrompt({ masterText, laneRel, laneText, others, observeLevel }),
     timeoutMs: OBSERVER_TIMEOUT_MS,
     label: '観察者',
     envVar: 'AIDE_OBSERVER_CMD',
@@ -500,25 +571,48 @@ async function cmdObserve(lanePath) {
   if (obj.verdict !== 'pass' && obj.verdict !== 'fail') {
     throw new Error(`観察者の応答に verdict がありません（pass|fail）`);
   }
+  if (!Array.isArray(obj.conflicts)) {
+    throw new Error('観察者の応答に conflicts 配列がありません');
+  }
+
+  const conflicts = obj.conflicts;
+  const rawSep = obj.separability || {};
+  let verdict = obj.verdict;
+  let sep;
+  if (observeLevel.level === 'light') {
+    verdict = conflicts.length === 0 ? 'pass' : 'fail';
+    sep = {
+      checked: false,
+      ok: null,
+      detail: 'observe-level: light のためスキップ（実装時に決められる詳細は合否対象外）',
+    };
+  } else {
+    if (typeof rawSep.ok !== 'boolean') {
+      throw new Error('strict 観察の応答に separability.ok (boolean) がありません');
+    }
+    if (conflicts.length > 0 || rawSep.ok === false) verdict = 'fail';
+    sep = { checked: true, ok: rawSep.ok, detail: rawSep.detail || '(詳細なし)' };
+  }
 
   const topic = laneTopic(laneAbs);
   const prev = latestReportFor(p, topic);
   const n = prev ? prev.n + 1 : 1;
   const reportFile = path.join(p.reportsDir, `${topic}-${n}.md`);
-  const conflicts = Array.isArray(obj.conflicts) ? obj.conflicts : [];
-  const sep = obj.separability || {};
   const body = [
     '<!-- aide:report',
     `lane: ${laneRel}`,
     `laneHash: ${laneHash}`,
-    `verdict: ${obj.verdict}`,
+    `verdict: ${verdict}`,
+    `observeLevel: ${observeLevel.level}`,
+    `observeLevelSource: ${observeLevel.source}`,
     `date: ${formatDate(new Date())}`,
     '-->',
     '',
     `# 観察レポート: ${laneRel} (#${n})`,
     '',
-    `- verdict: **${obj.verdict}**`,
-    `- 分割可能性: ${sep.ok ? 'OK' : 'NG'} — ${sep.detail || '(詳細なし)'}`,
+    `- verdict: **${verdict}**`,
+    `- 観察レベル: **${observeLevel.level}** (${observeLevel.source})`,
+    `- 分割可能性: ${sep.checked ? (sep.ok ? 'OK' : 'NG') : 'スキップ'} — ${sep.detail}`,
     `- 矛盾: ${conflicts.length === 0 ? 'なし'
       : conflicts.map((c) => `${c.with}: ${c.detail}`).join(' / ')}`,
     '',
@@ -527,8 +621,8 @@ async function cmdObserve(lanePath) {
   ].join('\n');
   fs.writeFileSync(reportFile, body);
   syncKnowledgeRoom(root);
-  log.info(`verdict: ${obj.verdict} → ${reportFile}`);
-  if (obj.verdict === 'pass') {
+  log.info(`verdict: ${verdict} → ${reportFile}`);
+  if (verdict === 'pass') {
     log.info(`アクセプト可能です: aide accept ${lanePath}`);
   } else {
     log.info('不合格。レポートを見てレーンの対話を続けてください。');
@@ -542,6 +636,7 @@ function cmdAccept(lanePath, { section, force }) {
   if (!fs.existsSync(laneAbs)) throw new Error(`レーンがありません: ${lanePath}`);
   if (!fs.existsSync(p.pool)) throw new Error(`pool.md がありません。aide init を実行してください`);
   const laneText = fs.readFileSync(laneAbs, 'utf8');
+  resolveObserveLevel(laneText); // 不正な宣言は --force 時も拒否する
   const topic = laneTopic(laneAbs);
 
   const report = latestReportFor(p, topic);
@@ -571,6 +666,7 @@ function cmdAccept(lanePath, { section, force }) {
     section: section || '(全体)',
     accepted: formatDate(new Date()),
     report: report.rel,
+    observeLevel: reportObserveLevel(report.meta),
   };
   const poolText = fs.readFileSync(p.pool, 'utf8');
   fs.writeFileSync(p.pool, poolText.replace(/\s+$/, '') + '\n\n' + formatEntry(meta, content) + '\n');
@@ -676,16 +772,20 @@ function buildStatus(root) {
   const lanes = laneFiles.map((f) => {
     const abs = path.join(p.lanesDir, f);
     const text = fs.readFileSync(abs, 'utf8');
+    const observeLevel = resolveObserveLevel(text);
     const topic = laneTopic(f);
     const rep = latestReportFor(p, topic);
     const report = rep && rep.meta ? {
       path: rep.rel.replace(/\\/g, '/'),
       verdict: rep.meta.verdict || null,
       date: rep.meta.date || null,
+      observeLevel: reportObserveLevel(rep.meta),
     } : null;
     return {
       topic,
       path: `lanes/${f}`,
+      observeLevel: observeLevel.level,
+      observeLevelSource: observeLevel.source,
       headings: headingEntries(text),
       report,
       stale: Boolean(rep && rep.meta && rep.meta.laneHash !== sha256(text)),
@@ -713,6 +813,7 @@ function buildStatus(root) {
         section: e.meta.section || '',
         accepted: e.meta.accepted || '',
         report: e.meta.report || '',
+        observeLevel: e.meta.observeLevel || 'strict',
       })),
     },
     archive: {
@@ -738,14 +839,16 @@ function cmdStatus(root, { json = false } = {}) {
   console.log(`lanes: ${lanes.length}件`);
   for (const f of lanes) {
     const abs = path.join(p.lanesDir, f);
+    const laneText = fs.readFileSync(abs, 'utf8');
+    const observeLevel = resolveObserveLevel(laneText);
     const topic = laneTopic(f);
     const rep = latestReportFor(p, topic);
     let s = '観察なし';
     if (rep && rep.meta) {
-      const stale = rep.meta.laneHash !== sha256(fs.readFileSync(abs, 'utf8'));
-      s = `${rep.meta.verdict} (${rep.rel})${stale ? ' [観察後に編集あり]' : ''}`;
+      const stale = rep.meta.laneHash !== sha256(laneText);
+      s = `${rep.meta.verdict}/${reportObserveLevel(rep.meta)} (${rep.rel})${stale ? ' [観察後に編集あり]' : ''}`;
     }
-    console.log(`  lanes/${f}: ${s}`);
+    console.log(`  lanes/${f}: ${s} [現在 ${observeLevel.level}/${observeLevel.source}]`);
   }
   const poolEntries = fs.existsSync(p.pool) ? parsePoolEntries(fs.readFileSync(p.pool, 'utf8')) : [];
   console.log(`pool: ${poolEntries.length}件 ${poolEntries.map((e) => e.meta.id).join(', ')}`);
@@ -771,7 +874,7 @@ const USAGE = `aide <command> [args]
 commands:
   init [root]                        design ディレクトリを初期化（既定: design）
   lane <topic> [root]                レーンファイルを作成
-  observe <root>/lanes/<topic>.md    観察者AIで矛盾＋分割可能性をチェック
+  observe <root>/lanes/<topic>.md    observe-level に従って矛盾・分割可能性をチェック
   accept  <root>/lanes/<topic>.md [--section <見出し>] [--force]
                                      合格レポートを前提にプールへ追加
   integrate [root]                   マスターAIでプールを master.md に統合
@@ -828,6 +931,7 @@ module.exports = {
   stripLaneScaffold,
   parsePoolEntries,
   parseReportMeta,
+  resolveObserveLevel,
   rebuildPool,
   formatEntry,
   buildObserverPrompt,

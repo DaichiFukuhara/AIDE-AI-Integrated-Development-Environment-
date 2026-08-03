@@ -34,11 +34,13 @@ export function parseStatusJson(output: string): AideStatus {
 }
 
 export function laneVisual(lane: AideLane, watching: boolean): LaneVisual {
+  const level = lane.observeLevel || 'strict';
   if (watching) return { kind: 'watching', description: 'AI対話中', icon: 'sync~spin' };
-  if (lane.stale) return { kind: 'stale', description: '観察後に編集あり', icon: 'warning' };
-  if (!lane.report) return { kind: 'unobserved', description: '未観察', icon: 'circle-outline' };
-  if (lane.report.verdict === 'pass') return { kind: 'pass', description: 'pass', icon: 'pass-filled' };
-  return { kind: 'fail', description: lane.report.verdict || 'fail', icon: 'error' };
+  if (lane.stale) return { kind: 'stale', description: `観察後に編集あり · ${level}`, icon: 'warning' };
+  if (!lane.report) return { kind: 'unobserved', description: `未観察 · ${level}`, icon: 'circle-outline' };
+  const reportLevel = lane.report.observeLevel || 'strict';
+  if (lane.report.verdict === 'pass') return { kind: 'pass', description: `pass · ${reportLevel}`, icon: 'pass-filled' };
+  return { kind: 'fail', description: `${lane.report.verdict || 'fail'} · ${reportLevel}`, icon: 'error' };
 }
 
 export function safeTopic(value: string): string {

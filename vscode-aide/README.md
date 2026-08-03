@@ -7,6 +7,7 @@ AIDEの設計レーン、観察、Approve、統合、Markdown上のAI対話をVS
 
 - Activity BarのAIDEサイドバーでMaster、Lanes、Pool、Archiveを一覧
 - レーンごとに未観察、pass、fail、観察後変更あり、AI対話中を表示
+- レーンと最新レポートのObserveレベル（`light` / `strict`）を表示
 - 初期化、レーン作成、Observe、セクション／レーンApprove、Integrate
 - 最新レポートやPoolエントリを該当位置で表示
 - Markdownエディタのツールバー、CodeLens、ステータスバーからも操作可能
@@ -42,6 +43,16 @@ VSIXにはAIDEエンジンが同梱されるため、`npm link`やAIDE本体の�
 - `aide.nodePath`: Node.js 20以上のコマンドまたは絶対パス。既定`node`
 
 `aide.designRoot`には絶対パスやワークスペース外への相対パスを指定できません。
+
+## Observeレベル
+
+レーン先頭の`mdtalk protocol`ヘッダへ次のいずれかを記述します。
+
+```md
+observe-level: light
+```
+
+`light`は矛盾だけを合否判定し、内部の実装詳細は実装時判断として許容します。`strict`は分割可能性も合否判定します。宣言がない既存レーンは`strict`です。現在のレベルと最新レポートで使用したレベルは、サイドバーの説明とツールチップで確認できます。
 
 ## 開発
 
