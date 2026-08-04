@@ -23,6 +23,9 @@ const {
 const {
   KNOWLEDGE_FILE, isConversationLaneName, syncKnowledgeRoom,
 } = require('./knowledge.js');
+const {
+  parseProposalBlocks, replaceProposalBlock, safeTopic,
+} = require('./proposals.js');
 
 // ---------------------------------------------------------------------------
 // 定数
@@ -87,19 +90,59 @@ function masterTemplate() {
   ].join('\n');
 }
 
-function laneTemplate(topic) {
+function laneTemplate(topic, context = {}) {
+  const parentLine = context.parentLane ? `parent: ${context.parentLane}` : null;
+  const proposalLine = context.proposalId ? `proposal: ${context.proposalId}` : null;
+  const goal = context.goal || `（このレーンで「${topic}」について達成したいことを書く）`;
+  const scope = context.scope || '（このレーンに含めること・含めないことを書く）';
+  const dependencies = context.dependencies && context.dependencies.length
+    ? context.dependencies.map((value) => `- ${value}`).join('\n')
+    : '（他レーン・外部システム・先に必要な判断を書く）';
   return [
     `# レーン: ${topic}`,
     '<!-- aide:lane',
+    parentLine,
+    proposalLine,
     `考慮項目「${topic}」の対話ファイル。mdtalk で監視して対話する:`,
     `  mdtalk lanes/${topic}.md`,
     '観察:      aide observe <このファイル>',
     'アクセプト: aide accept <このファイル> [--section <見出し>]',
     '-->',
     '',
-    `（ここに「${topic}」について書き始める）`,
+    '## 目的 / 背景',
     '',
-  ].join('\n');
+    goal,
+    '',
+    ...(context.reason ? ['### 分割理由', '', context.reason, ''] : []),
+    '## 対象範囲',
+    '',
+    scope,
+    '',
+    '## 利用者・関係者',
+    '',
+    '（誰が関係し、誰にどんな変化を起こしたいかを書く）',
+    '',
+    '## 品質目標・制約',
+    '',
+    '（優先する品質と、変更できない技術・組織上の制約を書く）',
+    '',
+    '## 依存関係・インターフェース',
+    '',
+    dependencies,
+    '',
+    '## 選択肢・判断',
+    '',
+    '（検討した選択肢、採用理由、影響を書く）',
+    '',
+    '## リスク・未決事項',
+    '',
+    '（分からないこと、危険な仮説、人間が判断すべきことを書く）',
+    '',
+    '## 受け入れ条件',
+    '',
+    '- [ ] このレーンで決めるべきことが明確になっている',
+    '',
+  ].filter((line) => line !== null).join('\n');
 }
 
 function poolTemplate() {
@@ -300,7 +343,12 @@ function stripLaneScaffold(text) {
   const out = [];
   let i = 0;
   while (i < lines.length) {
-    if (/^<!--\s*(mdtalk protocol|aide:lane)/.test(lines[i])) {
+    if (/^<!--\s*aide:lane-proposal\s/.test(lines[i])) {
+      while (i < lines.length && lines[i] !== '<!-- aide:lane-proposal-end -->') i++;
+      i++;
+      continue;
+    }
+    if (/^<!--\s*(mdtalk protocol|aide:lane)(?:\s|$)/.test(lines[i])) {
       while (i < lines.length && !/-->\s*$/.test(lines[i])) i++;
       i++; // '-->' 行自体
       continue;
@@ -543,20 +591,61 @@ function cmdInit(root) {
   return 0;
 }
 
-function cmdLane(root, topic) {
+function cmdLane(root, topic, context = {}) {
   if (!topic) throw new Error('レーン名を指定してください: aide lane <topic> [root]');
   const p = rootPaths(root);
   if (!fs.existsSync(p.lanesDir)) throw new Error(`${root}/ がありません。先に aide init を実行してください`);
-  const safe = topic.replace(/[\\/:*?"<>|\s]+/g, '-');
+  const safe = safeTopic(topic);
   if (!safe || safe.startsWith('_') || /\.(?:minutes|summary)$/i.test(safe)) {
     throw new Error('そのレーン名は AIDE の生成ファイル用に予約されています');
   }
   const file = path.join(p.lanesDir, `${safe}.md`);
   if (fs.existsSync(file)) throw new Error(`レーンは既に存在します: ${file}`);
-  fs.writeFileSync(file, laneTemplate(safe));
+  fs.writeFileSync(file, laneTemplate(safe, context));
   syncKnowledgeRoom(root);
   log.info(`レーンを作成しました: ${file}`);
   log.info(`対話を始める: mdtalk ${path.join(root, 'lanes', safe + '.md')}`);
+  return 0;
+}
+
+function cmdProposal(lanePath, id, action) {
+  const actions = new Set(['create', 'continue', 'defer', 'reject']);
+  if (!id) throw new Error('提案IDを指定してください: aide proposal <lane.md> <id> <action>');
+  if (!actions.has(action)) throw new Error('action は create, continue, defer, reject のいずれかです');
+  const { root, laneAbs, laneRel } = laneRootOf(lanePath);
+  if (!fs.existsSync(laneAbs)) throw new Error(`レーンがありません: ${lanePath}`);
+  const laneText = fs.readFileSync(laneAbs, 'utf8');
+  const proposal = parseProposalBlocks(laneText).find((item) => item.id === id);
+  if (!proposal) throw new Error(`レーン分割提案が見つかりません: ${id}`);
+  if (!['pending', 'deferred'].includes(proposal.status)) {
+    throw new Error(`この提案は判断済みです: ${proposal.status}`);
+  }
+
+  const decidedAt = formatDate(new Date());
+  let update;
+  if (action === 'create') {
+    const childLane = `lanes/${proposal.topic}.md`;
+    cmdLane(root, proposal.topic, {
+      parentLane: laneRel,
+      proposalId: proposal.id,
+      goal: proposal.goal,
+      reason: proposal.reason,
+      scope: proposal.scope,
+      dependencies: proposal.dependencies,
+    });
+    update = { status: 'created', decidedAt, childLane };
+  } else if (action === 'continue') {
+    update = { status: 'continued', decidedAt };
+  } else if (action === 'defer') {
+    update = { status: 'deferred', decidedAt };
+  } else {
+    update = { status: 'rejected', decidedAt };
+  }
+
+  const replaced = replaceProposalBlock(laneText, id, update);
+  fs.writeFileSync(laneAbs, replaced.text);
+  syncKnowledgeRoom(root);
+  log.info(`レーン分割提案 ${id}: ${replaced.proposal.status}`);
   return 0;
 }
 
@@ -656,6 +745,11 @@ function cmdAccept(lanePath, { section, force }) {
   if (!fs.existsSync(p.pool)) throw new Error(`pool.md がありません。aide init を実行してください`);
   const laneText = fs.readFileSync(laneAbs, 'utf8');
   resolveObserveLevel(laneText); // 不正な宣言は --force 時も拒否する
+  const unresolvedProposals = parseProposalBlocks(laneText)
+    .filter((proposal) => proposal.status === 'pending' || proposal.status === 'deferred');
+  if (unresolvedProposals.length) {
+    throw new Error(`未判断のレーン分割提案があります: ${unresolvedProposals.map((proposal) => proposal.id).join(', ')}`);
+  }
   const topic = laneTopic(laneAbs);
 
   const report = latestReportFor(p, topic);
@@ -673,6 +767,7 @@ function cmdAccept(lanePath, { section, force }) {
   if (section) {
     content = extractSection(splitLines(laneText), section);
     if (content === null) throw new Error(`見出しが見つかりません: ${section}`);
+    content = stripLaneScaffold(content);
   } else {
     content = stripLaneScaffold(laneText);
   }
@@ -808,6 +903,20 @@ function buildStatus(root) {
       headings: headingEntries(text),
       report,
       stale: Boolean(rep && rep.meta && rep.meta.laneHash !== sha256(text)),
+      proposals: parseProposalBlocks(text).map((proposal) => ({
+        id: proposal.id,
+        topic: proposal.topic,
+        title: proposal.title,
+        status: proposal.status,
+        reason: proposal.reason,
+        goal: proposal.goal,
+        scope: proposal.scope,
+        dependencies: proposal.dependencies,
+        createdAt: proposal.createdAt,
+        decidedAt: proposal.decidedAt,
+        childLane: proposal.childLane,
+        line: proposal.line,
+      })),
     };
   });
 
@@ -868,6 +977,10 @@ function cmdStatus(root, { json = false } = {}) {
       s = `${rep.meta.verdict}/${reportObserveLevel(rep.meta)} (${rep.rel})${stale ? ' [観察後に編集あり]' : ''}`;
     }
     console.log(`  lanes/${f}: ${s} [現在 ${observeLevel.level}/${observeLevel.source}]`);
+    const proposals = parseProposalBlocks(laneText);
+    for (const proposal of proposals.filter((item) => item.status === 'pending' || item.status === 'deferred')) {
+      console.log(`    分割提案 ${proposal.id}: ${proposal.title} [${proposal.status}]`);
+    }
   }
   const poolEntries = fs.existsSync(p.pool) ? parsePoolEntries(fs.readFileSync(p.pool, 'utf8')) : [];
   console.log(`pool: ${poolEntries.length}件 ${poolEntries.map((e) => e.meta.id).join(', ')}`);
@@ -893,6 +1006,7 @@ const USAGE = `aide <command> [args]
 commands:
   init [root]                        design ディレクトリを初期化（既定: design）
   lane <topic> [root]                レーンファイルを作成
+  proposal <lane.md> <id> <action>   分割提案を判断（create|continue|defer|reject）
   observe <root>/lanes/<topic>.md    observe-level に従って矛盾・分割可能性をチェック
   accept  <root>/lanes/<topic>.md [--section <見出し>] [--force]
                                      合格レポートを前提にプールへ追加
@@ -917,11 +1031,15 @@ async function main(argv) {
     allowPositionals: true,
   });
   QUIET = values.quiet;
-  const [cmd, arg1, arg2] = positionals;
+  const [cmd, arg1, arg2, arg3] = positionals;
   try {
     switch (cmd) {
       case 'init': return cmdInit(arg1 || DEFAULT_ROOT);
       case 'lane': return cmdLane(arg2 || DEFAULT_ROOT, arg1);
+      case 'proposal': {
+        if (!arg1) throw new Error('レーンを指定してください: aide proposal <lane.md> <id> <action>');
+        return cmdProposal(arg1, arg2, arg3);
+      }
       case 'observe': {
         if (!arg1) throw new Error('レーンを指定してください: aide observe <root>/lanes/<topic>.md');
         return await cmdObserve(arg1);
@@ -958,6 +1076,8 @@ module.exports = {
   buildMasterPrompt,
   buildStatus,
   cmdKnowledge,
+  cmdProposal,
+  laneTemplate,
   laneRootOf,
   main,
 };

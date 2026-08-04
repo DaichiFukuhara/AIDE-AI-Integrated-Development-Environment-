@@ -80,6 +80,33 @@ test('共有知識の更新だけでも既存レーンを自動再点検する',
   assert.ok(after.includes('新しい共有方式との整合'));
 });
 
+test('AIはレーンを作らず分割案をMarkdownへ1件だけ提示する', () => {
+  const dir = mkTmp();
+  const file = path.join(dir, 'design.md');
+  fs.writeFileSync(file, '# 設計\n\n認証と課金の方針を検討する。\n');
+  run(file, []);
+  fs.appendFileSync(file, '\n課金は外部決済サービスと連携する。\n');
+  let res = run(file, ['--no-minutes'], {
+    MDTALK_MOCK_FIND: '課金は外部決済',
+    MDTALK_MOCK_PROPOSAL_TOPIC: 'billing',
+    MDTALK_MOCK_PROPOSAL_TITLE: '課金設計',
+  });
+  assert.strictEqual(res.status, 0, res.stderr);
+  let after = fs.readFileSync(file, 'utf8');
+  assert.ok(after.includes('レーン分割の提案: 課金設計'));
+  assert.ok(after.includes('"status":"pending"'));
+
+  fs.appendFileSync(file, '\n課金の追加情報。\n');
+  res = run(file, ['--no-minutes'], {
+    MDTALK_MOCK_FIND: '課金の追加情報',
+    MDTALK_MOCK_PROPOSAL_TOPIC: 'billing',
+    MDTALK_MOCK_PROPOSAL_TITLE: '課金設計',
+  });
+  assert.strictEqual(res.status, 0, res.stderr);
+  after = fs.readFileSync(file, 'utf8');
+  assert.strictEqual((after.match(/<!-- aide:lane-proposal /g) || []).length, 1, '同じ提案を増殖させない');
+});
+
 test('注釈以外の行はバイト単位で不変（ヘッダ挿入後の比較）', () => {
   const dir = mkTmp();
   const file = path.join(dir, 'd.md');

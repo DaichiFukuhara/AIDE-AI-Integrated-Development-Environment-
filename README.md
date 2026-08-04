@@ -29,6 +29,9 @@ aide init
 aide lane auth
 mdtalk design/lanes/auth.md
 
+# AIが独立した論点を見つけると、レーン内に「分割の提案」を表示
+# 人間が作成・このまま続行・保留・却下を判断
+
 # 設計が固まったら別ターミナルで実行
 aide observe design/lanes/auth.md
 aide accept design/lanes/auth.md
@@ -68,11 +71,27 @@ mdtalk <file.md> [options]
 | --- | --- |
 | `aide init [root]` | 設計ディレクトリを初期化 |
 | `aide lane <topic> [root]` | レーンを作成 |
+| `aide proposal <lane.md> <id> <action>` | AIのレーン分割案を判断（`create` / `continue` / `defer` / `reject`） |
 | `aide observe <lane.md>` | 矛盾や分割可能性をレビュー |
 | `aide accept <lane.md>` | レビュー済み内容をプールへ追加 |
 | `aide integrate [root]` | プールをマスター設計へ統合 |
 | `aide knowledge [root]` | 共有知識ファイルを再生成 |
 | `aide status [root] [--json]` | 現在の状態を表示 |
+
+### レーン分割の提案
+
+`mdtalk`は、現在のレーンから独立して検討でき、固有の目的・成果・境界を持つ論点を見つけると、レーンを自動作成せずに分割案を提示します。提案には分割理由、新レーンの目的、対象範囲、依存関係が含まれます。
+
+人間はVS CodeまたはCLIで次のいずれかを選びます。
+
+- `create`: 提案内容を引き継いだ子レーンを作成
+- `continue`: 現在のレーン内で検討を続ける
+- `defer`: 後で判断するため保留
+- `reject`: 却下し、同じ論点の再提案を抑制
+
+同一レーンには判断待ちの提案を同時に1件しか追加せず、既に記録された同一topicは再提案しません。新規レーンは、目的、対象範囲、関係者、品質目標・制約、依存関係、選択肢、リスク、受け入れ条件を持つ構造化テンプレートから始まります。
+
+`pending`または`deferred`の提案が残っているレーンはApproveできません。`--force`でもこの判断は迂回せず、作成・続行・却下のいずれかを人間が明示します。
 
 ### Observeレベル
 

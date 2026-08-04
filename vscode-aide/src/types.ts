@@ -14,6 +14,23 @@ export interface AideReport {
 export type ObserveLevel = 'light' | 'strict';
 export type ObserveLevelSource = 'declared' | 'default';
 
+export type LaneProposalStatus = 'pending' | 'deferred' | 'created' | 'continued' | 'rejected';
+
+export interface AideLaneProposal {
+  id: string;
+  topic: string;
+  title: string;
+  status: LaneProposalStatus;
+  reason: string;
+  goal: string;
+  scope: string;
+  dependencies: string[];
+  createdAt: string;
+  decidedAt: string;
+  childLane: string;
+  line: number;
+}
+
 export interface AideLane {
   topic: string;
   path: string;
@@ -22,6 +39,7 @@ export interface AideLane {
   headings: AideHeading[];
   report: AideReport | null;
   stale: boolean;
+  proposals: AideLaneProposal[];
 }
 
 export interface AidePoolEntry {

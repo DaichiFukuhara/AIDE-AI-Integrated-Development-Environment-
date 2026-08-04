@@ -4,9 +4,9 @@ import * as path from 'node:path';
 import { ChildProcess, spawn } from 'node:child_process';
 import { Debouncer, errorTail, laneVisual, parseStatusJson, resolveDesignRoot, safeTopic } from './core';
 import { runProcess, ProcessResult } from './process';
-import { AideLane, AidePoolEntry, AideStatus } from './types';
+import { AideLane, AideLaneProposal, AidePoolEntry, AideStatus } from './types';
 
-type NodeKind = 'group' | 'master' | 'lane' | 'report' | 'section' | 'poolEntry' | 'archive';
+type NodeKind = 'group' | 'master' | 'lane' | 'proposal' | 'report' | 'section' | 'poolEntry' | 'archive';
 
 class AideNode extends vscode.TreeItem {
   filePath?: string;
@@ -15,6 +15,7 @@ class AideNode extends vscode.TreeItem {
   line?: number;
   needle?: string;
   lane?: AideLane;
+  proposal?: AideLaneProposal;
   poolEntry?: AidePoolEntry;
 
   constructor(
@@ -87,7 +88,7 @@ class AideTreeProvider implements vscode.TreeDataProvider<AideNode> {
   private laneNode(status: AideStatus, lane: AideLane): AideNode {
     const absolute = path.join(status.root, lane.path);
     const visual = laneVisual(lane, this.watching.has(normalizePath(absolute)));
-    const hasChildren = Boolean(lane.report || lane.headings.length);
+    const hasChildren = Boolean(lane.report || lane.headings.length || (lane.proposals || []).length);
     const node = new AideNode('lane', lane.topic, hasChildren
       ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None);
     node.description = visual.description;
@@ -105,6 +106,28 @@ class AideTreeProvider implements vscode.TreeDataProvider<AideNode> {
   private laneChildren(status: AideStatus, lane: AideLane): AideNode[] {
     const absolute = path.join(status.root, lane.path);
     const nodes: AideNode[] = [];
+    for (const proposal of lane.proposals || []) {
+      const node = new AideNode('proposal', `分割案: ${proposal.title}`);
+      node.contextValue = proposal.status === 'pending' || proposal.status === 'deferred'
+        ? 'laneProposalOpen' : 'laneProposal';
+      node.description = proposal.status === 'pending' ? '判断待ち'
+        : proposal.status === 'deferred' ? '保留' : proposal.status;
+      node.iconPath = new vscode.ThemeIcon(
+        proposal.status === 'pending' ? 'lightbulb' : proposal.status === 'created' ? 'git-branch' : 'history',
+      );
+      node.filePath = absolute;
+      node.lanePath = absolute;
+      node.line = proposal.line;
+      node.proposal = proposal;
+      node.tooltip = [
+        `理由: ${proposal.reason}`,
+        `目的: ${proposal.goal}`,
+        proposal.scope ? `範囲: ${proposal.scope}` : '',
+        proposal.dependencies.length ? `依存: ${proposal.dependencies.join(', ')}` : '',
+      ].filter(Boolean).join('\n');
+      node.command = { command: 'aide.openTreeItem', title: 'Open Lane Proposal', arguments: [node] };
+      nodes.push(node);
+    }
     if (lane.report) {
       const report = new AideNode('report', `Report: ${lane.report.verdict ?? 'unknown'}`);
       report.description = `${lane.report.observeLevel}${lane.report.date ? ` · ${lane.report.date}` : ''}`;
@@ -152,7 +175,21 @@ class AideLensProvider implements vscode.CodeLensProvider {
       new vscode.CodeLens(top, { title: '$(check-all) Approve（レーン全体）', command: 'aide.approveLane', arguments: [document.uri] }),
     ];
     for (let line = 0; line < document.lineCount; line++) {
-      const match = document.lineAt(line).text.match(/^(#{2,6})\s+(.+?)\s*$/);
+      const text = document.lineAt(line).text;
+      const proposalMatch = text.match(/^<!-- aide:lane-proposal (\{.*\}) -->$/);
+      if (proposalMatch) {
+        try {
+          const proposal = JSON.parse(proposalMatch[1]) as { id?: string; title?: string; status?: string };
+          if (proposal.id && (proposal.status === 'pending' || proposal.status === 'deferred')) {
+            lenses.push(new vscode.CodeLens(new vscode.Range(line, 0, line, 0), {
+              title: `$(lightbulb) 分割案を判断: ${proposal.title || proposal.id}`,
+              command: 'aide.decideLaneProposal',
+              arguments: [document.uri, proposal.id],
+            }));
+          }
+        } catch { /* 不正な提案メタデータはCLI/status側で無視する */ }
+      }
+      const match = text.match(/^(#{2,6})\s+(.+?)\s*$/);
       if (match) {
         lenses.push(new vscode.CodeLens(new vscode.Range(line, 0, line, 0), {
           title: `$(check) Approve: ${match[2]}`,
@@ -226,6 +263,8 @@ class AideController implements vscode.Disposable {
     register('aide.openReport', (node?: AideNode) => this.openReport(node));
     register('aide.openLogs', () => this.output.show(true));
     register('aide.openTreeItem', (node: AideNode) => this.openNode(node));
+    register('aide.decideLaneProposal', (input?: AideNode | vscode.Uri, id?: string) =>
+      this.guard('レーン分割案', () => this.decideLaneProposal(input, id)));
     register('aide.observeLane', (input?: AideNode | vscode.Uri) => this.guard('Observe', () => this.observe(input)));
     register('aide.approveSection', (input?: AideNode | vscode.Uri, heading?: string) =>
       this.guard('Approve', () => this.approveSection(input, heading)));
@@ -348,6 +387,32 @@ class AideController implements vscode.Disposable {
     await this.runEngine('aide', ['lane', safe, this.designRoot()], 'レーン作成');
     await this.refresh(false);
     await this.openFile(path.join(this.designRoot(), 'lanes', `${safe}.md`));
+  }
+
+  private async decideLaneProposal(input?: AideNode | vscode.Uri, explicitId?: string): Promise<void> {
+    const lanePath = this.lanePathOf(input);
+    const proposal = input instanceof AideNode ? input.proposal : undefined;
+    const id = explicitId || proposal?.id;
+    if (!id) throw new Error('判断するレーン分割案が指定されていません');
+    const choices: Array<vscode.QuickPickItem & { action: string }> = [
+      { label: '$(git-branch) 新しいレーンを作成', description: '目的と分割理由を引き継いで作成します', action: 'create' },
+      { label: '$(arrow-right) このレーンで続ける', description: '独立レーンには分けません', action: 'continue' },
+      { label: '$(watch) 保留', description: '後で判断できるよう候補を残します', action: 'defer' },
+      { label: '$(close) 却下', description: '同じ論点の再提案を抑制します', action: 'reject' },
+    ];
+    const selected = await vscode.window.showQuickPick(choices, {
+      title: `AIDE: レーン分割案${proposal ? `「${proposal.title}」` : ''}`,
+      placeHolder: 'この分割案をどう扱いますか？',
+    });
+    if (!selected) return;
+    await this.runEngine('aide', ['proposal', lanePath, id, selected.action], 'レーン分割案を更新');
+    await this.refresh(false);
+    if (selected.action === 'create') {
+      const topic = proposal?.topic || this.provider.getStatus()?.lanes
+        .flatMap((lane) => lane.proposals || [])
+        .find((item) => item.id === id)?.topic;
+      if (topic) await this.openFile(path.join(this.designRoot(), 'lanes', `${topic}.md`));
+    }
   }
 
   private async observe(input?: AideNode | vscode.Uri): Promise<void> {

@@ -18,6 +18,7 @@ if (vscode) suite('AIDE extension', () => {
       'aide.initialize', 'aide.createLane', 'aide.refresh', 'aide.openMaster',
       'aide.openReport', 'aide.openLogs', 'aide.observeLane', 'aide.approveSection',
       'aide.approveLane', 'aide.integrate', 'aide.status', 'aide.watchToggle',
+      'aide.decideLaneProposal',
     ]) {
       assert.ok(commands.includes(command), `${command} is registered`);
     }
@@ -34,5 +35,6 @@ if (vscode) suite('AIDE extension', () => {
     assert.ok(commands.includes('aide.observeLane'));
     assert.ok(commands.includes('aide.approveLane'));
     assert.ok(commands.includes('aide.approveSection'));
+    assert.ok(commands.includes('aide.decideLaneProposal'));
   });
 });

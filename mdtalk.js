@@ -14,6 +14,12 @@ const crypto = require('node:crypto');
 const { spawn } = require('node:child_process');
 const util = require('node:util');
 const { syncKnowledgeRoomForLane } = require('./knowledge.js');
+const {
+  formatProposalBlock,
+  normalizeProposal,
+  parseProposalBlocks,
+  proposalKey,
+} = require('./proposals.js');
 
 // ---------------------------------------------------------------------------
 // 定数
@@ -91,6 +97,17 @@ function formatDate(d) {
 
 const AI_ANNOTATION_FIRST_RE = /^>\s*[❓💬➕🔀🧭]\s*\*\*AI\*\*:/u;
 
+function markProposalBlockLines(lines) {
+  const flag = new Array(lines.length).fill(false);
+  let inside = false;
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].startsWith('<!-- aide:lane-proposal ')) inside = true;
+    if (inside) flag[i] = true;
+    if (inside && lines[i] === '<!-- aide:lane-proposal-end -->') inside = false;
+  }
+  return flag;
+}
+
 /** 各行が AI 注釈 blockquote に属するかの boolean 配列を返す。 */
 function markAiAnnotationLines(lines) {
   const flag = new Array(lines.length).fill(false);
@@ -146,11 +163,13 @@ function lcsMatchedNewIndices(a, b) {
 function humanChangedLineNumbers(oldLines, newLines) {
   const matched = lcsMatchedNewIndices(oldLines, newLines);
   const aiFlag = markAiAnnotationLines(newLines);
+  const proposalFlag = markProposalBlockLines(newLines);
   const header = protocolHeaderRange(newLines);
   const out = [];
   for (let idx = 0; idx < newLines.length; idx++) {
     if (matched.has(idx)) continue;
     if (aiFlag[idx]) continue;
+    if (proposalFlag[idx]) continue;
     if (header && idx >= header.start && idx <= header.end) continue; // ヘッダ内は対象外
     if (newLines[idx].trim() === '') continue; // 空行の追加は無視
     out.push(idx + 1);
@@ -272,7 +291,7 @@ function findDirectives(lines) {
  * - 既に注釈済みの段落フィンガープリントは抑制。
  */
 function applyWrite(text, opts) {
-  const { insertions = [], directives = [], references = [], eol, dateStr } = opts;
+  const { insertions = [], laneProposals = [], directives = [], references = [], eol, dateStr } = opts;
   const lines = splitLines(text);
   const fpSet = new Set(opts.annotatedFingerprints || []);
   const edits = [];
@@ -280,6 +299,9 @@ function applyWrite(text, opts) {
   const dropped = [];
   const suppressed = [];
   const newFingerprints = [];
+  const appliedProposals = [];
+  const droppedProposals = [];
+  const suppressedProposals = [];
 
   for (const d of directives) {
     const doneText = d.doneText != null ? d.doneText : d.instruction;
@@ -298,6 +320,34 @@ function applyWrite(text, opts) {
     const block = formatAnnotationLines(ins, dateStr);
     edits.push({ at: bounds.end + 1, kind: 'insert', lines: ['', ...block] });
     applied.push({ type: ins.type, text: ins.text });
+  }
+
+  const existingProposals = parseProposalBlocks(text);
+  const knownProposalKeys = new Set(existingProposals.map((proposal) => proposalKey(proposal.topic)));
+  let hasPendingProposal = existingProposals.some((proposal) => proposal.status === 'pending');
+  for (const rawProposal of laneProposals) {
+    let proposal;
+    try {
+      proposal = normalizeProposal(rawProposal, { createdAt: dateStr, status: 'pending' });
+    } catch (_) {
+      droppedProposals.push(rawProposal);
+      continue;
+    }
+    const key = proposalKey(proposal.topic);
+    if (hasPendingProposal || knownProposalKeys.has(key)) {
+      suppressedProposals.push(proposal);
+      continue;
+    }
+    const idx = matchAnchor(lines, rawProposal.anchorLine, rawProposal.anchorText);
+    if (idx < 0) {
+      droppedProposals.push(proposal);
+      continue;
+    }
+    const bounds = paragraphBounds(lines, idx);
+    edits.push({ at: bounds.end + 1, kind: 'insert', lines: ['', ...formatProposalBlock(proposal)] });
+    appliedProposals.push(proposal);
+    knownProposalKeys.add(key);
+    hasPendingProposal = true;
   }
 
   // summary の参照 blockquote（章末尾）。フィンガープリント抑制は行わない。
@@ -322,6 +372,9 @@ function applyWrite(text, opts) {
     dropped,
     suppressed,
     newFingerprints,
+    appliedProposals,
+    droppedProposals,
+    suppressedProposals,
   };
 }
 
@@ -423,11 +476,15 @@ const NORMS = [
   '- 曖昧な要求→❓で具体化を迫る、暗黙の前提→💬で言語化、抜けている観点（エラー時・境界・非機能）→🔀/❓、書きかけの節→➕でたたき台を提案。',
   '- 言うことがなければ insertions を空配列で返す（無理に注釈しない）。',
   '- 日本語で、断定でなく対話の口調で書く。',
+  '- 現在のレーンから独立して検討でき、固有の目的・成果・境界を持つ論点を発見した場合だけ laneProposals で分割を提案する。ファイルは作成しない。',
+  '- 小さな詳細、単なる章、軽微な別ケースはレーン分割にしない。既存の提案と同じ論点は再提案しない。',
+  '- laneProposals は最大1件。人間が判断できるよう、分割理由・新レーンの目的・対象範囲・依存関係を明示する。',
 ];
 
 const SCHEMA_TEXT = [
   '応答は次のJSONのみ（前後に文章やコードフェンスを付けない）:',
-  '{"insertions":[{"anchorLine":<1始まり行番号>,"anchorText":"その行の先頭20文字","type":"question|comment|expand|counter|structure","text":"注釈本文"}]}',
+  '{"insertions":[{"anchorLine":<1始まり行番号>,"anchorText":"その行の先頭20文字","type":"question|comment|expand|counter|structure","text":"注釈本文"}],"laneProposals":[{"anchorLine":<1始まり行番号>,"anchorText":"その行の先頭20文字","topic":"短いファイル名","title":"人間向け名称","reason":"分割理由","goal":"新レーンで決めること","scope":"対象範囲","dependencies":["依存するレーンや決定"]}]}',
+  '分割提案がなければ laneProposals は空配列にする。',
 ];
 
 function buildSnapshotWithNumbers(lines) {
@@ -479,6 +536,11 @@ function buildPrompt(opts) {
     ? changedLines.join(', ')
     : '（差分なし）';
 
+  const proposalHistory = parseProposalBlocks(fullText);
+  const proposalSection = proposalHistory.length
+    ? proposalHistory.map((proposal) => `- ${proposal.topic}: ${proposal.status}`).join('\n')
+    : '（なし）';
+
   const prompt = [
     NORMS.join('\n'),
     '',
@@ -487,6 +549,9 @@ function buildPrompt(opts) {
     '',
     `## 人間が新しく書いた/変えた行番号`,
     changedSection,
+    '',
+    '## 既存のレーン分割提案（同じ論点は再提案しない）',
+    proposalSection,
     '',
     '## 共有知識の更新',
     knowledgeChanged
@@ -798,6 +863,32 @@ function validateInsertions(obj) {
   return out;
 }
 
+function validateLaneProposals(obj) {
+  if (!obj || typeof obj !== 'object') throw new Error('dialogue response is not an object');
+  if (obj.laneProposals == null) return [];
+  if (!Array.isArray(obj.laneProposals)) throw new Error('laneProposals is not an array');
+  const out = [];
+  for (const proposal of obj.laneProposals) {
+    if (!proposal || typeof proposal !== 'object') throw new Error('lane proposal is not an object');
+    if (!Number.isInteger(proposal.anchorLine) || proposal.anchorLine < 1) throw new Error('bad proposal anchorLine');
+    if (typeof proposal.anchorText !== 'string') throw new Error('bad proposal anchorText');
+    const normalized = normalizeProposal(proposal);
+    out.push({
+      ...normalized,
+      anchorLine: proposal.anchorLine,
+      anchorText: proposal.anchorText,
+    });
+  }
+  return out;
+}
+
+function validateDialogueResponse(obj) {
+  return {
+    insertions: validateInsertions(obj),
+    laneProposals: validateLaneProposals(obj),
+  };
+}
+
 // ---------------------------------------------------------------------------
 // 状態ファイル
 // ---------------------------------------------------------------------------
@@ -911,7 +1002,7 @@ async function requestInsertions(ctx, promptText, model) {
   try {
     const r = await call(promptText);
     firstOut = r.out;
-    return { ok: true, insertions: validateInsertions(parseClaudeResponse(firstOut)) };
+    return { ok: true, ...validateDialogueResponse(parseClaudeResponse(firstOut)) };
   } catch (e) {
     if (e instanceof ClaudeNotFoundError) throw e;
     if (e && e.code === 'ETIMEDOUT') return { ok: false, reason: 'timeout' };
@@ -922,7 +1013,7 @@ async function requestInsertions(ctx, promptText, model) {
     ': 直前の応答はスキーマ違反でした。指定したJSONのみを返してください。';
   try {
     const r2 = await call(retryPrompt);
-    return { ok: true, insertions: validateInsertions(parseClaudeResponse(r2.out)) };
+    return { ok: true, ...validateDialogueResponse(parseClaudeResponse(r2.out)) };
   } catch (e) {
     if (e instanceof ClaudeNotFoundError) throw e;
     if (e && e.code === 'ETIMEDOUT') return { ok: false, reason: 'timeout' };
@@ -970,6 +1061,7 @@ async function processAnnotations(ctx, state, currentText) {
 
   // --- dialogue（注釈ループ） ---
   let insertions = [];
+  let laneProposals = [];
   let dialogueModel = models.dialogue;
   if (hasDialogueWork) {
     const { prompt, truncated } = buildPrompt({
@@ -988,6 +1080,7 @@ async function processAnnotations(ctx, state, currentText) {
       return { status: 'skipped', reason: res.reason };
     }
     insertions = res.insertions.slice(0, ctx.maxNotes);
+    laneProposals = res.laneProposals.slice(0, 1);
   }
 
   // --- summary（章まとめ・dialogue とは独立。失敗しても消費しない） ---
@@ -1006,6 +1099,7 @@ async function processAnnotations(ctx, state, currentText) {
   const consumedDirectives = dialogueDirectives.concat(summaryOut.consumed);
   const result = applyWrite(currentText, {
     insertions,
+    laneProposals,
     directives: consumedDirectives,
     references: summaryOut.references,
     eol,
@@ -1040,7 +1134,9 @@ async function processAnnotations(ctx, state, currentText) {
       .map(([t, n]) => `${markerFor(t)}×${n}`).join(' ');
     const secs = ((Date.now() - started) / 1000).toFixed(1);
     ctx.log.info(
-      `+${result.applied.length} notes${countStr ? ' (' + countStr + ')' : ''} model=${dialogueModel} ${secs}s`
+      `+${result.applied.length} notes${countStr ? ' (' + countStr + ')' : ''}` +
+      `${result.appliedProposals.length ? ` / lane proposal×${result.appliedProposals.length}` : ''}` +
+      ` model=${dialogueModel} ${secs}s`
     );
   }
 
@@ -1524,6 +1620,8 @@ module.exports = {
   siblingPath,
   parseClaudeResponse,
   validateInsertions,
+  validateLaneProposals,
+  validateDialogueResponse,
   validateMinutes,
   validateSummary,
   statePaths,

@@ -7,7 +7,7 @@ const extensionRoot = path.resolve(__dirname, '..');
 const repositoryRoot = path.resolve(extensionRoot, '..');
 const engineRoot = path.join(extensionRoot, 'engine');
 fs.mkdirSync(engineRoot, { recursive: true });
-for (const name of ['aide.js', 'mdtalk.js', 'knowledge.js']) {
+for (const name of ['aide.js', 'mdtalk.js', 'knowledge.js', 'proposals.js']) {
   fs.copyFileSync(path.join(repositoryRoot, name), path.join(engineRoot, name));
 }
 console.log(`AIDE engine prepared: ${engineRoot}`);

@@ -16,6 +16,7 @@
  *                            その行に question 注釈を1件付ける insertion を組む
  *   MDTALK_MOCK_TYPE=<type>  FIND 時の type（既定 question）
  *   MDTALK_MOCK_TEXT=<text>  FIND 時の注釈本文（既定 'auto note'）
+ *   MDTALK_MOCK_PROPOSAL_TOPIC=<topic> FIND 時に注釈ではなくレーン分割提案を返す
  *   MDTALK_MOCK_OUT=<json>   生の出力 JSON をそのまま返す（FIND より優先度低）
  *   MDTALK_MOCK_ENVELOPE=1   good 応答を claude の json エンベロープで包む
  *   MDTALK_MOCK_BAD=always   常に不正 JSON を返す
@@ -77,6 +78,22 @@ function buildFind(stdin) {
     if (mm && mm[2].includes(target)) {
       const anchorLine = parseInt(mm[1], 10);
       const anchorText = mm[2].slice(0, 20);
+      if (process.env.MDTALK_MOCK_PROPOSAL_TOPIC) {
+        const topic = process.env.MDTALK_MOCK_PROPOSAL_TOPIC;
+        return JSON.stringify({
+          insertions: [],
+          laneProposals: [{
+            anchorLine,
+            anchorText,
+            topic,
+            title: process.env.MDTALK_MOCK_PROPOSAL_TITLE || topic,
+            reason: process.env.MDTALK_MOCK_PROPOSAL_REASON || '独立した設計判断が必要なため',
+            goal: process.env.MDTALK_MOCK_PROPOSAL_GOAL || '方針を決める',
+            scope: process.env.MDTALK_MOCK_PROPOSAL_SCOPE || '対象範囲',
+            dependencies: [],
+          }],
+        });
+      }
       return JSON.stringify({ insertions: [{ anchorLine, anchorText, type, text }] });
     }
   }

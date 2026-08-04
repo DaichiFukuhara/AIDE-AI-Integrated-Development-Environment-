@@ -3,6 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert');
 const m = require('../mdtalk.js');
+const proposals = require('../proposals.js');
 
 test('detectEOL / splitLines / joinLines は改行コードを保つ', () => {
   assert.strictEqual(m.detectEOL('a\r\nb'), '\r\n');
@@ -38,6 +39,15 @@ test('humanChangedLineNumbers は AI 注釈内の変更を除外する', () => {
   const changed = m.humanChangedLineNumbers(oldLines, newLines);
   // 段落B は 7 行目、AI 注釈(5行目)は除外される
   assert.deepStrictEqual(changed, [7]);
+});
+
+test('humanChangedLineNumbers はレーン分割提案ブロックを人間編集として扱わない', () => {
+  const oldLines = ['# 見出し', '', '本文'];
+  const proposal = proposals.formatProposalBlock({
+    topic: 'auth-policy', title: '認証ポリシー', reason: '独立した判断', goal: '方式を決める',
+  });
+  const newLines = [...oldLines, '', ...proposal, '', '人間の追記'];
+  assert.deepStrictEqual(m.humanChangedLineNumbers(oldLines, newLines), [newLines.length]);
 });
 
 test('matchAnchor は先頭一致で解決、±5でズレ吸収、無ければ -1', () => {
@@ -155,12 +165,64 @@ test('applyWrite: CRLF を維持する', () => {
   assert.ok(!/[^\r]\n/.test(res.text), 'LF 単独が混ざらない');
 });
 
+test('applyWrite はレーン分割提案を1件だけ挿入し、同じtopicを再提案しない', () => {
+  const src = '設計本文';
+  const proposal = {
+    anchorLine: 1,
+    anchorText: '設計本文',
+    topic: 'auth-policy',
+    title: '認証ポリシー',
+    reason: '認証方式とは独立した判断になるため',
+    goal: 'セッションと失効ポリシーを決める',
+    scope: '有効期限と失効',
+    dependencies: ['auth'],
+  };
+  const first = m.applyWrite(src, {
+    laneProposals: [proposal], directives: [], eol: '\n', dateStr: 'D', annotatedFingerprints: [],
+  });
+  assert.strictEqual(first.appliedProposals.length, 1);
+  assert.strictEqual(proposals.parseProposalBlocks(first.text)[0].status, 'pending');
+  const second = m.applyWrite(first.text, {
+    laneProposals: [proposal], directives: [], eol: '\n', dateStr: 'D2', annotatedFingerprints: [],
+  });
+  assert.strictEqual(second.appliedProposals.length, 0);
+  assert.strictEqual(second.suppressedProposals.length, 1);
+  assert.strictEqual(proposals.parseProposalBlocks(second.text).length, 1);
+});
+
 test('validateInsertions は不正応答を弾く', () => {
   assert.throws(() => m.validateInsertions({}));
   assert.throws(() => m.validateInsertions({ insertions: [{ anchorLine: 0, anchorText: '', type: 'question', text: '' }] }));
   assert.throws(() => m.validateInsertions({ insertions: [{ anchorLine: 1, anchorText: 'x', type: 'bad', text: '' }] }));
   const ok = m.validateInsertions({ insertions: [{ anchorLine: 1, anchorText: 'x', type: 'question', text: 't' }] });
   assert.strictEqual(ok.length, 1);
+});
+
+test('validateLaneProposals は判断材料を持つ構造だけを許可する', () => {
+  const valid = m.validateLaneProposals({
+    laneProposals: [{
+      anchorLine: 2, anchorText: '本文', topic: 'auth-policy', title: '認証ポリシー',
+      reason: '独立している', goal: '方式を決める', scope: '認証のみ', dependencies: ['identity'],
+    }],
+  });
+  assert.strictEqual(valid.length, 1);
+  assert.strictEqual(valid[0].topic, 'auth-policy');
+  assert.throws(() => m.validateLaneProposals({ laneProposals: [{}] }));
+  assert.throws(() => m.validateLaneProposals({ laneProposals: 'bad' }));
+});
+
+test('提案ブロックは状態を更新してもIDと判断理由を保つ', () => {
+  const block = proposals.formatProposalBlock({
+    topic: 'billing', title: '課金', reason: '外部境界がある', goal: '課金方式を決める',
+  }).join('\n');
+  const parsed = proposals.parseProposalBlocks(block);
+  assert.strictEqual(parsed.length, 1);
+  const updated = proposals.replaceProposalBlock(block, parsed[0].id, {
+    status: 'rejected', decidedAt: 'D',
+  });
+  assert.strictEqual(updated.proposal.status, 'rejected');
+  assert.ok(updated.text.includes('状態: 却下'));
+  assert.ok(updated.text.includes('外部境界がある'));
 });
 
 test('buildPrompt は共有知識を参照専用コンテキストとして含める', () => {

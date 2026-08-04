@@ -62,6 +62,18 @@ claude -p --model <model> --output-format json
       "type": "question | comment | expand | counter | structure",
       "text": "注釈本文（Markdown可・複数行可）"
     }
+  ],
+  "laneProposals": [
+    {
+      "anchorLine": 18,
+      "anchorText": "課金は外部決済サービス",
+      "topic": "billing",
+      "title": "課金設計",
+      "reason": "外部システムとの境界を独立して決められるため",
+      "goal": "課金方式と失敗時の扱いを決める",
+      "scope": "決済、返金、再試行",
+      "dependencies": ["identity"]
+    }
   ]
 }
 ```
@@ -70,6 +82,8 @@ claude -p --model <model> --output-format json
   `anchorText` と照合し、ズレていれば近傍±5行から `anchorText` に一致する
   行を探す。見つからなければその insertion は捨ててログに残す。
 - `insertions` は空配列でもよい（「言うことなし」を正当な応答とする）。
+- `laneProposals`も空配列でよい。独立した目的・成果・境界が説明できる場合だけ最大1件を返す。小さな詳細や軽微な別ケースは分割しない。
+- mdtalkは提案をMarkdownへ記録するだけでレーンを作成しない。作成・続行・保留・却下は人間が`aide proposal`またはVS Codeから判断する。
 
 ### 注釈ブロックの書式（ファイルに挿入される形）
 

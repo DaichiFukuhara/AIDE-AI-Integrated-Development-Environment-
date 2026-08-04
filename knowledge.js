@@ -6,6 +6,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
+const { parseProposalBlocks } = require('./proposals.js');
 
 const KNOWLEDGE_FILE = '_knowledge.md';
 
@@ -69,7 +70,14 @@ function renderKnowledgeRoom(root) {
   const laneIndex = laneNames.length ? laneNames.map((name) => {
     const text = fs.readFileSync(path.join(lanesDir, name), 'utf8');
     const hs = headings(text).filter((line) => !/^#\s+レーン:/.test(line));
-    return [`### ${name}`, hs.length ? hs.map((line) => `- ${line}`).join('\n') : '- （見出しなし）'].join('\n');
+    const proposals = parseProposalBlocks(text);
+    const proposalLines = proposals.map((proposal) =>
+      `- 分割提案: ${proposal.title} [${proposal.status}] (${proposal.topic})`);
+    return [
+      `### ${name}`,
+      hs.length ? hs.map((line) => `- ${line}`).join('\n') : '- （見出しなし）',
+      ...proposalLines,
+    ].join('\n');
   }).join('\n\n') : '（レーンなし）';
 
   const reports = [];

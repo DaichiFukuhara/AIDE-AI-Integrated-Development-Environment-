@@ -8,11 +8,23 @@ AIDEの設計レーン、観察、Approve、統合、Markdown上のAI対話をVS
 - Activity BarのAIDEサイドバーでMaster、Lanes、Pool、Archiveを一覧
 - レーンごとに未観察、pass、fail、観察後変更あり、AI対話中を表示
 - レーンと最新レポートのObserveレベル（`light` / `strict`）を表示
+- AIが提示したレーン分割案を表示し、作成・続行・保留・却下を人間が判断
 - 初期化、レーン作成、Observe、セクション／レーンApprove、Integrate
 - 最新レポートやPoolエントリを該当位置で表示
 - Markdownエディタのツールバー、CodeLens、ステータスバーからも操作可能
 - 設計ファイルの変更を検出してサイドバーを自動更新
 - master・pool・最新レポートを `lanes/_knowledge.md` へ自動同期し、レーンAIへ共有
+
+## レーン分割案
+
+レーンAIは独立した設計論点を見つけた場合、ファイルを勝手に作らず、分割理由・目的・範囲・依存関係を持つ提案をレーンへ追加します。AIDEサイドバーの提案を右クリックするか、Markdown上のCodeLens「分割案を判断」から次を選べます。
+
+- 新しいレーンを作成
+- このレーンで続ける
+- 保留
+- 却下
+
+作成を選んだ場合だけ、提案内容と親レーンへの参照を持つ子レーンが生成されます。
 
 Integrateは`master.md`を書き換える前に確認します。ObserveとIntegrateは進捗通知からキャンセルできます。
 

@@ -8,6 +8,7 @@ const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 
 const aide = require('../aide.js');
+const proposals = require('../proposals.js');
 const AIDE = path.join(__dirname, '..', 'aide.js');
 const MOCK_OBSERVER = path.join(__dirname, '..', 'fixtures', 'mock-observer.js');
 const MOCK_MASTER = path.join(__dirname, '..', 'fixtures', 'mock-master.js');
@@ -221,6 +222,70 @@ test('lane はレーンファイルを作成する', () => {
   assert.ok(knowledge.includes('### auth.md'));
   // 二重作成は拒否
   assert.strictEqual(run(d, ['lane', 'auth']).status, 1);
+});
+
+test('proposal create は人間の判断後だけ目的付き子レーンを作る', () => {
+  const proposalBlock = proposals.formatProposalBlock({
+    topic: 'session-policy',
+    title: 'セッションポリシー',
+    reason: '認証方式と独立して有効期限・失効を決められるため',
+    goal: 'セッションの有効期限と失効条件を決める',
+    scope: '有効期限、更新、強制失効',
+    dependencies: ['auth'],
+    createdAt: 'D',
+  });
+  const content = LANE_CONTENT + '\n' + proposalBlock.join('\n') + '\n';
+  const d = setup(content);
+  const proposal = proposals.parseProposalBlocks(content)[0];
+
+  assert.ok(!fs.existsSync(path.join(d, 'design', 'lanes', 'session-policy.md')),
+    '提案だけではファイルを作らない');
+  const result = run(d, ['proposal', LANE, proposal.id, 'create']);
+  assert.strictEqual(result.status, 0, result.stderr);
+
+  const child = fs.readFileSync(path.join(d, 'design', 'lanes', 'session-policy.md'), 'utf8');
+  assert.ok(child.includes('parent: lanes/auth.md'));
+  assert.ok(child.includes(`proposal: ${proposal.id}`));
+  assert.ok(child.includes('セッションの有効期限と失効条件を決める'));
+  assert.ok(child.includes('認証方式と独立して'));
+  assert.ok(child.includes('## 品質目標・制約'), '構造化された設計テンプレートを使う');
+
+  const parent = fs.readFileSync(path.join(d, LANE), 'utf8');
+  const decided = proposals.parseProposalBlocks(parent)[0];
+  assert.strictEqual(decided.status, 'created');
+  assert.strictEqual(decided.childLane, 'lanes/session-policy.md');
+
+  const status = JSON.parse(run(d, ['status', '--json']).stdout);
+  const auth = status.lanes.find((lane) => lane.topic === 'auth');
+  assert.strictEqual(auth.proposals[0].status, 'created');
+});
+
+test('proposal は保留後に再判断でき、続行・却下は確定状態になる', () => {
+  const block = proposals.formatProposalBlock({
+    topic: 'audit', title: '監査', reason: '独立した関心事', goal: '監査方針を決める',
+  });
+  const d = setup(LANE_CONTENT + '\n' + block.join('\n') + '\n');
+  const id = proposals.parseProposalBlocks(block.join('\n'))[0].id;
+  assert.strictEqual(run(d, ['proposal', LANE, id, 'defer']).status, 0);
+  assert.strictEqual(proposals.parseProposalBlocks(fs.readFileSync(path.join(d, LANE), 'utf8'))[0].status, 'deferred');
+  assert.strictEqual(run(d, ['proposal', LANE, id, 'continue']).status, 0);
+  assert.strictEqual(proposals.parseProposalBlocks(fs.readFileSync(path.join(d, LANE), 'utf8'))[0].status, 'continued');
+  assert.strictEqual(run(d, ['proposal', LANE, id, 'reject']).status, 1, '確定後の再判断は拒否する');
+});
+
+test('accept は未判断または保留中のレーン分割提案を拒否する', () => {
+  const block = proposals.formatProposalBlock({
+    topic: 'audit', title: '監査', reason: '独立した関心事', goal: '監査方針を決める',
+  });
+  const d = setup(LANE_CONTENT + '\n' + block.join('\n') + '\n');
+  const id = proposals.parseProposalBlocks(block.join('\n'))[0].id;
+  assert.strictEqual(run(d, ['observe', LANE]).status, 0);
+  let result = run(d, ['accept', LANE]);
+  assert.strictEqual(result.status, 1);
+  assert.ok(result.stderr.includes('未判断のレーン分割提案'));
+  assert.strictEqual(run(d, ['proposal', LANE, id, 'defer']).status, 0);
+  result = run(d, ['accept', LANE, '--force']);
+  assert.strictEqual(result.status, 1, 'forceでも人間の分割判断は迂回しない');
 });
 
 test('observe はレポートを生成する（verdict/laneHash 付き）', () => {
