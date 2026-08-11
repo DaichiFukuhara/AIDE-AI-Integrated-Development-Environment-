@@ -19,8 +19,10 @@
  *   MDTALK_MOCK_PROPOSAL_TOPIC=<topic> FIND 時に注釈ではなくレーン分割提案を返す
  *   MDTALK_MOCK_OUT=<json>   生の出力 JSON をそのまま返す（FIND より優先度低）
  *   MDTALK_MOCK_ENVELOPE=1   good 応答を claude の json エンベロープで包む
+ *   MDTALK_MOCK_STRUCTURED=1 good 応答を structured_output エンベロープで包む
  *   MDTALK_MOCK_BAD=always   常に不正 JSON を返す
  *   MDTALK_MOCK_BADFIRST=1   RETRY-SCHEMA-STRICT を含まない初回のみ不正 JSON
+ *   MDTALK_MOCK_EXIT_CODE=N  dialogue 呼び出しを stderr 付きの終了コード N で失敗させる
  *   MDTALK_MOCK_TIMEOUT=1    応答せずハングする
  *   MDTALK_MOCK_MINUTES=<text>   minutes 応答本文（既定 '議事メモ'）
  *   MDTALK_MOCK_SUMMARY=<text>   summary 応答本文（既定 '# まとめ'）
@@ -40,11 +42,22 @@ function argModel() {
   return i >= 0 && i + 1 < a.length ? a[i + 1] : null;
 }
 
+function argJsonSchema() {
+  const a = process.argv;
+  const i = a.indexOf('--json-schema');
+  if (i < 0 || i + 1 >= a.length) return null;
+  try { return JSON.parse(a[i + 1]); } catch (_) { return 'invalid'; }
+}
+
 function logCall(role) {
   const f = process.env.MDTALK_MOCK_LOG;
   if (!f) return;
   try {
-    fs.appendFileSync(f, JSON.stringify({ role, model: argModel() }) + '\n');
+    fs.appendFileSync(f, JSON.stringify({
+      role,
+      model: argModel(),
+      jsonSchema: argJsonSchema(),
+    }) + '\n');
   } catch (_) { /* ignore */ }
 }
 
@@ -136,6 +149,11 @@ async function main() {
   }
 
   logCall('dialogue');
+  if (process.env.MDTALK_MOCK_EXIT_CODE) {
+    process.stderr.write(process.env.MDTALK_MOCK_STDERR || 'mock claude failure');
+    process.exitCode = Number(process.env.MDTALK_MOCK_EXIT_CODE);
+    return;
+  }
   let good;
   if (process.env.MDTALK_MOCK_FIND) good = buildFind(stdin);
   else if (process.env.MDTALK_MOCK_OUT) good = process.env.MDTALK_MOCK_OUT;
@@ -143,6 +161,9 @@ async function main() {
 
   if (process.env.MDTALK_MOCK_ENVELOPE === '1') {
     good = JSON.stringify({ type: 'result', result: good });
+  }
+  if (process.env.MDTALK_MOCK_STRUCTURED === '1') {
+    good = JSON.stringify({ type: 'result', structured_output: JSON.parse(good) });
   }
 
   const wantBad =

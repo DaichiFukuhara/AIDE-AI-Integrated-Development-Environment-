@@ -37,6 +37,7 @@ const POLL_INTERVAL_MS = 2000;
 const LARGE_FILE_BYTES = 100 * 1024;
 const CONTEXT_LINES = 120;
 const RETRY_MARKER = 'RETRY-SCHEMA-STRICT';
+const LOG_EXCERPT_CHARS = 500;
 
 const MARKERS = {
   question: '❓',
@@ -46,6 +47,78 @@ const MARKERS = {
   structure: '🧭',
 };
 const VALID_TYPES = new Set(Object.keys(MARKERS));
+
+const INSERTION_JSON_SCHEMA = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    anchorLine: { type: 'integer', minimum: 1 },
+    anchorText: { type: 'string' },
+    type: { type: 'string', enum: [...VALID_TYPES] },
+    text: { type: 'string' },
+  },
+  required: ['anchorLine', 'anchorText', 'type', 'text'],
+};
+
+const LANE_PROPOSAL_JSON_SCHEMA = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    anchorLine: { type: 'integer', minimum: 1 },
+    anchorText: { type: 'string' },
+    topic: { type: 'string', minLength: 1 },
+    title: { type: 'string', minLength: 1 },
+    reason: { type: 'string', minLength: 1 },
+    goal: { type: 'string', minLength: 1 },
+    scope: { type: 'string' },
+    dependencies: { type: 'array', items: { type: 'string' }, maxItems: 8 },
+  },
+  required: [
+    'anchorLine', 'anchorText', 'topic', 'title', 'reason', 'goal', 'scope', 'dependencies',
+  ],
+};
+
+function dialogueJsonSchema(maxNotes = DEFAULT_MAX_NOTES) {
+  const noteLimit = Number.isInteger(maxNotes) && maxNotes >= 0 ? maxNotes : DEFAULT_MAX_NOTES;
+  return {
+    type: 'object',
+    additionalProperties: false,
+    properties: {
+      insertions: {
+        type: 'array',
+        items: INSERTION_JSON_SCHEMA,
+        maxItems: noteLimit,
+      },
+      laneProposals: {
+        type: 'array',
+        items: LANE_PROPOSAL_JSON_SCHEMA,
+        maxItems: 1,
+      },
+    },
+    required: ['insertions', 'laneProposals'],
+  };
+}
+
+const INIT_JSON_SCHEMA = {
+  type: 'object',
+  additionalProperties: false,
+  properties: { skeleton: { type: 'string' } },
+  required: ['skeleton'],
+};
+
+const MINUTES_JSON_SCHEMA = {
+  type: 'object',
+  additionalProperties: false,
+  properties: { minutes: { type: 'string' } },
+  required: ['minutes'],
+};
+
+const SUMMARY_JSON_SCHEMA = {
+  type: 'object',
+  additionalProperties: false,
+  properties: { summary: { type: 'string' } },
+  required: ['summary'],
+};
 
 // ---------------------------------------------------------------------------
 // 汎用ユーティリティ
@@ -777,17 +850,38 @@ function validateSummary(obj) {
 
 class ClaudeNotFoundError extends Error {}
 
-function resolveClaudeArgv(model) {
+class ClaudeCliError extends Error {
+  constructor(exitCode, signal, detail) {
+    const status = exitCode == null ? `signal=${signal || 'unknown'}` : `exit=${exitCode}`;
+    super(`claude CLI エラー（${status}）${detail ? `: ${detail}` : ''}`);
+    this.name = 'ClaudeCliError';
+    this.code = 'ECLAUDE';
+    this.exitCode = exitCode;
+    this.signal = signal;
+  }
+}
+
+function outputExcerpt(value, maxChars = LOG_EXCERPT_CHARS) {
+  const compact = String(value || '')
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!compact) return '';
+  return compact.length > maxChars ? compact.slice(0, maxChars) + '…' : compact;
+}
+
+function resolveClaudeArgv(model, jsonSchema) {
   const override = process.env.MDTALK_CLAUDE_CMD;
   const base = override ? tokenizeCmd(override) : ['claude'];
   const [cmd, ...pre] = base;
   const args = [...pre, '-p', '--model', model, '--output-format', 'json'];
+  if (jsonSchema) args.push('--json-schema', JSON.stringify(jsonSchema));
   return { cmd, args };
 }
 
-function callClaudeRaw({ promptText, model, timeoutMs }) {
+function callClaudeRaw({ promptText, model, timeoutMs, jsonSchema }) {
   return new Promise((resolve, reject) => {
-    const { cmd, args } = resolveClaudeArgv(model);
+    const { cmd, args } = resolveClaudeArgv(model, jsonSchema);
     let child;
     try {
       child = spawn(cmd, args, { stdio: ['pipe', 'pipe', 'pipe'] });
@@ -807,11 +901,20 @@ function callClaudeRaw({ promptText, model, timeoutMs }) {
       finish(reject, e);
     }, timeoutMs);
     child.on('error', (e) => {
-      finish(reject, e.code === 'ENOENT' ? new ClaudeNotFoundError(String(e.message)) : e);
+      finish(reject, e.code === 'ENOENT'
+        ? new ClaudeNotFoundError(String(e.message))
+        : new ClaudeCliError(null, null, outputExcerpt(e.message)));
     });
     child.stdout.on('data', (d) => { out += d; });
     child.stderr.on('data', (d) => { err += d; });
-    child.on('close', (code) => finish(resolve, { code, out, err }));
+    child.on('close', (code, signal) => {
+      if (code !== 0) {
+        const detail = outputExcerpt(err) || outputExcerpt(out);
+        finish(reject, new ClaudeCliError(code, signal, detail));
+        return;
+      }
+      finish(resolve, { code, out, err });
+    });
     child.stdin.on('error', () => {}); // EPIPE 無視
     child.stdin.write(promptText);
     child.stdin.end();
@@ -824,6 +927,9 @@ function parseClaudeResponse(out) {
   let obj = null;
   try { obj = JSON.parse(trimmed); } catch (_) { obj = null; }
   if (obj && typeof obj === 'object') {
+    if (obj.structured_output && typeof obj.structured_output === 'object') {
+      return obj.structured_output;
+    }
     if ('insertions' in obj || 'skeleton' in obj) return obj;
     if (typeof obj.result === 'string') return parseInner(obj.result);
   }
@@ -997,27 +1103,56 @@ function makeLogger(quiet) {
  * ClaudeNotFoundError / timeout は上位へ伝播しないよう扱う（timeout は skip）。
  */
 async function requestInsertions(ctx, promptText, model) {
-  const call = (p) => callClaudeRaw({ promptText: p, model: model || ctx.model, timeoutMs: ctx.timeoutMs });
-  let firstOut;
+  const call = (p) => callClaudeRaw({
+    promptText: p,
+    model: model || ctx.model,
+    timeoutMs: ctx.timeoutMs,
+    jsonSchema: dialogueJsonSchema(ctx.maxNotes),
+  });
+  let first;
   try {
-    const r = await call(promptText);
-    firstOut = r.out;
-    return { ok: true, ...validateDialogueResponse(parseClaudeResponse(firstOut)) };
+    first = await call(promptText);
   } catch (e) {
     if (e instanceof ClaudeNotFoundError) throw e;
     if (e && e.code === 'ETIMEDOUT') return { ok: false, reason: 'timeout' };
-    // parse/validate 失敗 → 再試行
+    if (e instanceof ClaudeCliError) {
+      ctx.log.warn(e.message);
+      return { ok: false, reason: 'claude-cli' };
+    }
+    throw e;
+  }
+  try {
+    return { ok: true, ...validateDialogueResponse(parseClaudeResponse(first.out)) };
+  } catch (e) {
+    const excerpt = outputExcerpt(first.out);
+    ctx.log.warn(
+      `claude 応答の検証に失敗: ${e.message}` +
+      `${excerpt ? ` / stdout抜粋: ${excerpt}` : ''}`
+    );
   }
   ctx.log.warn('claude 応答がスキーマ違反。スキーマ厳守で再試行します。');
   const retryPrompt = promptText + '\n\n' + RETRY_MARKER +
     ': 直前の応答はスキーマ違反でした。指定したJSONのみを返してください。';
   try {
     const r2 = await call(retryPrompt);
-    return { ok: true, ...validateDialogueResponse(parseClaudeResponse(r2.out)) };
+    try {
+      return { ok: true, ...validateDialogueResponse(parseClaudeResponse(r2.out)) };
+    } catch (e) {
+      const excerpt = outputExcerpt(r2.out);
+      ctx.log.warn(
+        `claude 再試行応答の検証に失敗: ${e.message}` +
+        `${excerpt ? ` / stdout抜粋: ${excerpt}` : ''}`
+      );
+      return { ok: false, reason: 'badjson' };
+    }
   } catch (e) {
     if (e instanceof ClaudeNotFoundError) throw e;
     if (e && e.code === 'ETIMEDOUT') return { ok: false, reason: 'timeout' };
-    return { ok: false, reason: 'badjson' };
+    if (e instanceof ClaudeCliError) {
+      ctx.log.warn(e.message);
+      return { ok: false, reason: 'claude-cli' };
+    }
+    throw e;
   }
 }
 
@@ -1076,9 +1211,15 @@ async function processAnnotations(ctx, state, currentText) {
     dialogueModel = override || models.dialogue;
     const res = await requestInsertions(ctx, prompt, dialogueModel);
     if (!res.ok) {
+      state.lastFailedHash = sha256(currentText);
+      state.lastFailedKnowledgeHash = sharedKnowledgeHash;
+      state.lastFailureReason = res.reason;
       ctx.log.warn(`サイクルをスキップ（${res.reason}）。`);
       return { status: 'skipped', reason: res.reason };
     }
+    delete state.lastFailedHash;
+    delete state.lastFailedKnowledgeHash;
+    delete state.lastFailureReason;
     insertions = res.insertions.slice(0, ctx.maxNotes);
     laneProposals = res.laneProposals.slice(0, 1);
   }
@@ -1151,7 +1292,7 @@ async function processAnnotations(ctx, state, currentText) {
         dateStr: formatDate(new Date()),
       });
     } catch (e) {
-      ctx.log.warn(`minutes 失敗（${e.code || e.message}）。議事録は今回スキップします。`);
+      ctx.log.warn(`minutes 失敗（${e.message || e.code}）。議事録は今回スキップします。`);
     }
   }
 
@@ -1174,10 +1315,15 @@ async function processSummaries(ctx, models, lines, summaryDirectives, sharedKno
     });
     let body;
     try {
-      const r = await callClaudeRaw({ promptText: prompt, model: models.summary, timeoutMs: ctx.timeoutMs });
+      const r = await callClaudeRaw({
+        promptText: prompt,
+        model: models.summary,
+        timeoutMs: ctx.timeoutMs,
+        jsonSchema: SUMMARY_JSON_SCHEMA,
+      });
       body = validateSummary(parseClaudeResponse(r.out));
     } catch (e) {
-      ctx.log.warn(`summary 失敗（${e.code || e.message}）。指示は消費せず次サイクルで再試行します。`);
+      ctx.log.warn(`summary 失敗（${e.message || e.code}）。指示は消費せず次サイクルで再試行します。`);
       continue;
     }
     let existing = null;
@@ -1213,7 +1359,12 @@ async function generateMinutes(ctx, models, opts) {
     insertedNotes: opts.insertedNotes,
     recentEntries,
   });
-  const r = await callClaudeRaw({ promptText: prompt, model: models.minutes, timeoutMs: ctx.timeoutMs });
+  const r = await callClaudeRaw({
+    promptText: prompt,
+    model: models.minutes,
+    timeoutMs: ctx.timeoutMs,
+    jsonSchema: MINUTES_JSON_SCHEMA,
+  });
   const body = validateMinutes(parseClaudeResponse(r.out));
   appendMinutes(ctx.minutesFile, body, opts.dateStr);
   ctx.log.info(`minutes model=${models.minutes} → ${path.basename(ctx.minutesFile)}`);
@@ -1223,7 +1374,10 @@ async function generateMinutes(ctx, models, opts) {
 async function processInit(ctx, state, currentText) {
   const eol = detectEOL(currentText || '\n');
   const res = await callClaudeRaw({
-    promptText: buildInitPrompt(), model: ctx.model, timeoutMs: ctx.timeoutMs,
+    promptText: buildInitPrompt(),
+    model: ctx.model,
+    timeoutMs: ctx.timeoutMs,
+    jsonSchema: INIT_JSON_SCHEMA,
   });
   let obj;
   try {
@@ -1355,14 +1509,16 @@ function runWatch(ctx, state) {
   const knowledgeState = () => {
     try {
       const knowledge = syncKnowledgeRoomForLane(ctx.targetFile);
-      if (!knowledge) return { file: null, changed: false };
+      if (!knowledge) return { file: null, hash: null, changed: false };
+      const hash = knowledge.text ? sha256(knowledge.text) : null;
       return {
         file: knowledge.file,
-        changed: sha256(knowledge.text) !== state.sharedKnowledgeHash,
+        hash,
+        changed: hash !== state.sharedKnowledgeHash,
       };
     } catch (e) {
       ctx.log.warn(`共有知識の確認に失敗: ${e.message}`);
-      return { file: null, changed: false };
+      return { file: null, hash: null, changed: false };
     }
   };
 
@@ -1375,6 +1531,11 @@ function runWatch(ctx, state) {
       const shared = knowledgeState();
       if (h === state.lastWrittenHash && !shared.changed) {
         ctx.log.info('自分の書き込みによる変更のためスキップ。');
+      } else if (
+        h === state.lastFailedHash &&
+        (shared.hash || null) === (state.lastFailedKnowledgeHash || null)
+      ) {
+        ctx.log.info(`前回と同じ失敗入力のため再試行を抑制（${state.lastFailureReason || 'unknown'}）。`);
       } else if (h === state.lastProcessedHash && !shared.changed) {
         // 実質変更なし
       } else {
@@ -1546,14 +1707,21 @@ async function main(argv) {
     if (opts.once) {
       const h = sha256(currentText);
       let knowledgeChanged = false;
+      let knowledgeHash = null;
       try {
         const knowledge = syncKnowledgeRoomForLane(ctx.targetFile);
-        knowledgeChanged = Boolean(knowledge && sha256(knowledge.text) !== state.sharedKnowledgeHash);
+        knowledgeHash = knowledge && knowledge.text ? sha256(knowledge.text) : null;
+        knowledgeChanged = Boolean(knowledge && knowledgeHash !== state.sharedKnowledgeHash);
       } catch (e) {
         log.warn(`共有知識の確認に失敗: ${e.message}`);
       }
       if (h === state.lastWrittenHash && !knowledgeChanged) {
         log.info('自分の書き込みによる変更のためスキップ。');
+      } else if (
+        h === state.lastFailedHash &&
+        knowledgeHash === (state.lastFailedKnowledgeHash || null)
+      ) {
+        log.info(`前回と同じ失敗入力のため再試行を抑制（${state.lastFailureReason || 'unknown'}）。`);
       } else if (h === state.lastProcessedHash && !knowledgeChanged) {
         log.info('変更なし。');
       } else {
@@ -1624,6 +1792,8 @@ module.exports = {
   validateDialogueResponse,
   validateMinutes,
   validateSummary,
+  dialogueJsonSchema,
+  resolveClaudeArgv,
   statePaths,
   main,
   MARKERS,

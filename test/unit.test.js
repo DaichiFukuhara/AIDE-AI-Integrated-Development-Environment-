@@ -256,7 +256,24 @@ test('parseClaudeResponse は envelope/コードフェンスから取り出す',
     m.parseClaudeResponse(JSON.stringify({ type: 'result', result: '{"insertions":[]}' })),
     { insertions: [] });
   assert.deepStrictEqual(
+    m.parseClaudeResponse(JSON.stringify({
+      type: 'result',
+      structured_output: { insertions: [], laneProposals: [] },
+    })),
+    { insertions: [], laneProposals: [] });
+  assert.deepStrictEqual(
     m.parseClaudeResponse('```json\n{"insertions":[]}\n```'), { insertions: [] });
+});
+
+test('dialogueJsonSchema は注釈とレーン提案の構造を必須化する', () => {
+  const schema = m.dialogueJsonSchema(2);
+  assert.deepStrictEqual(schema.required, ['insertions', 'laneProposals']);
+  assert.strictEqual(schema.properties.insertions.maxItems, 2);
+  assert.strictEqual(schema.properties.laneProposals.maxItems, 1);
+  assert.deepStrictEqual(
+    schema.properties.insertions.items.properties.type.enum.sort(),
+    ['comment', 'counter', 'expand', 'question', 'structure']
+  );
 });
 
 test('parseClaudeResponse は JSON 文字列内のコードフェンスで途中切りしない', () => {

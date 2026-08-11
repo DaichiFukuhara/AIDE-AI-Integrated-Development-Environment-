@@ -179,8 +179,9 @@ test('空ファイル + --init で 8 節スケルトンが挿入される', () =
   const dir = mkTmp();
   const file = path.join(dir, 'new.md');
   fs.writeFileSync(file, '');
-  const res = run(file, ['--init'], { MDTALK_MOCK_SKELETON: '1' });
+  const { res, calls } = runLog(file, ['--init'], { MDTALK_MOCK_SKELETON: '1' });
   assert.strictEqual(res.status, 0);
+  assert.deepStrictEqual(calls[0].jsonSchema.required, ['skeleton']);
   const after = fs.readFileSync(file, 'utf8');
   const sections = ['目的', '対象ファイル', 'インターフェース', '振る舞い',
     '受け入れ条件', 'エッジケース', 'テスト方針', 'スコープ外'];
@@ -234,9 +235,31 @@ test('再試行しても不正なら注釈せずスキップ（クラッシュ�
   fs.writeFileSync(file, '# 設計\n\n段落。\n');
   run(file, []); // init
   fs.appendFileSync(file, '\nずっと不正。\n');
-  const res = run(file, [], { MDTALK_MOCK_BAD: 'always' });
-  assert.strictEqual(res.status, 0);
+  let out = runLog(file, ['--no-minutes'], { MDTALK_MOCK_BAD: 'always' });
+  assert.strictEqual(out.res.status, 0);
+  assert.strictEqual(out.calls.filter((c) => c.role === 'dialogue').length, 2, '初回と再試行の2回');
   assert.strictEqual(countAnnotations(fs.readFileSync(file, 'utf8')), 0);
+
+  const stateFile = path.join(dir, '.mdtalk', 'd.md.state.json');
+  let state = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
+  assert.strictEqual(state.lastFailureReason, 'badjson');
+  assert.ok(state.lastFailedHash);
+
+  // 同じ本文・共有知識なら、別プロセスで起動しても再送しない。
+  out = runLog(file, ['--no-minutes'], { MDTALK_MOCK_BAD: 'always' });
+  assert.strictEqual(out.res.status, 0);
+  assert.strictEqual(out.calls.length, 0);
+
+  // 本文が変われば再試行し、成功時に失敗記録を消す。
+  fs.appendFileSync(file, '\n修正後の段落。\n');
+  out = runLog(file, ['--no-minutes'], {
+    MDTALK_MOCK_FIND: '修正後の段落', MDTALK_MOCK_TEXT: '再開しました',
+  });
+  assert.strictEqual(out.res.status, 0, out.res.stderr);
+  assert.strictEqual(out.calls.filter((c) => c.role === 'dialogue').length, 1);
+  state = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
+  assert.strictEqual(state.lastFailedHash, undefined);
+  assert.strictEqual(state.lastFailureReason, undefined);
 });
 
 test('envelope 形式の応答も解釈できる', () => {
@@ -252,6 +275,40 @@ test('envelope 形式の応答も解釈できる', () => {
   });
   assert.strictEqual(res.status, 0);
   assert.strictEqual(countAnnotations(fs.readFileSync(file, 'utf8')), 1);
+});
+
+test('json-schema を渡し structured_output 形式の応答を解釈できる', () => {
+  const dir = mkTmp();
+  const file = path.join(dir, 'd.md');
+  fs.writeFileSync(file, '# 設計\n\n段落。\n');
+  run(file, []); // init
+  fs.appendFileSync(file, '\n構造化出力対象。\n');
+  const { res, calls } = runLog(file, ['--no-minutes'], {
+    MDTALK_MOCK_STRUCTURED: '1',
+    MDTALK_MOCK_FIND: '構造化出力対象',
+    MDTALK_MOCK_TEXT: 'structured ok',
+  });
+  assert.strictEqual(res.status, 0, res.stderr);
+  assert.strictEqual(countAnnotations(fs.readFileSync(file, 'utf8')), 1);
+  const dialogue = calls.find((c) => c.role === 'dialogue');
+  assert.ok(dialogue.jsonSchema, '--json-schema が渡される');
+  assert.deepStrictEqual(dialogue.jsonSchema.required, ['insertions', 'laneProposals']);
+});
+
+test('claude CLI の非ゼロ終了は再試行せず stderr を表示する', () => {
+  const dir = mkTmp();
+  const file = path.join(dir, 'd.md');
+  fs.writeFileSync(file, '# 設計\n\n段落。\n');
+  run(file, []); // init
+  fs.appendFileSync(file, '\nCLI失敗対象。\n');
+  const { res, calls } = runLog(file, ['--no-minutes'], {
+    MDTALK_MOCK_EXIT_CODE: '7',
+    MDTALK_MOCK_STDERR: '認証に失敗しました',
+  });
+  assert.strictEqual(res.status, 0);
+  assert.strictEqual(calls.filter((c) => c.role === 'dialogue').length, 1, 'CLI失敗は再試行しない');
+  assert.match(res.stderr, /claude CLI エラー.*exit=7.*認証に失敗しました/);
+  assert.doesNotMatch(res.stderr, /スキーマ違反/);
 });
 
 test('二重起動は PID ロックで拒否される', () => {
@@ -300,6 +357,7 @@ test('挿入後に minutes(haiku) が呼ばれ .minutes.md に日時見出し付
   const minutes = calls.filter((c) => c.role === 'minutes');
   assert.strictEqual(minutes.length, 1);
   assert.strictEqual(minutes[0].model, 'haiku');
+  assert.deepStrictEqual(minutes[0].jsonSchema.required, ['minutes']);
   // minutes ファイルに日時見出し
   const mfile = path.join(dir, 'design.minutes.md');
   assert.ok(fs.existsSync(mfile));
@@ -365,6 +423,7 @@ test('@ai(summary) で summary(sonnet) が章を .summary.md に書き、done化
   const summ = calls.filter((c) => c.role === 'summary');
   assert.strictEqual(summ.length, 1);
   assert.strictEqual(summ[0].model, 'sonnet');
+  assert.deepStrictEqual(summ[0].jsonSchema.required, ['summary']);
   // summary ファイルに章Bのまとめ
   const sfile = path.join(dir, 'd.summary.md');
   assert.ok(fs.existsSync(sfile));
