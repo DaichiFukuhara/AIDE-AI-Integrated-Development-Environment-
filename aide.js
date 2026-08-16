@@ -44,8 +44,15 @@ const MASTER_TIMEOUT_MS = 300000;
 // ---------------------------------------------------------------------------
 
 let QUIET = false;
+// MCP モードでは stdout が JSON-RPC 専用になるため、info もまとめて stderr へ回す。
+// ログが1行混ざるだけでプロトコルが壊れるので、既定の console.log は使えない。
+let STDOUT_RESERVED = false;
 const log = {
-  info: (...a) => { if (!QUIET) console.log('[aide]', ...a); },
+  info: (...a) => {
+    if (QUIET) return;
+    if (STDOUT_RESERVED) console.error('[aide]', ...a);
+    else console.log('[aide]', ...a);
+  },
   warn: (...a) => console.warn('[aide][warn]', ...a),
   error: (...a) => console.error('[aide][error]', ...a),
 };
@@ -1013,6 +1020,8 @@ commands:
   integrate [root]                   マスターAIでプールを master.md に統合
   knowledge [root]                   lanes/_knowledge.md を再生成
   status [root] [--json]             全体状況を表示（--json は機械可読形式）
+  mcp --root <絶対パス>              MCPサーバーを起動（stdio・読み取り専用）
+                                     実装AIが設計を参照するための窓口
 
 env:
   AIDE_OBSERVER_CMD  観察者コマンド（既定: ${DEFAULT_OBSERVER_CMD}）
@@ -1024,6 +1033,7 @@ async function main(argv) {
     args: argv,
     options: {
       section: { type: 'string' },
+      root: { type: 'string' },
       force: { type: 'boolean', default: false },
       quiet: { type: 'boolean', default: false },
       json: { type: 'boolean', default: false },
@@ -1051,6 +1061,12 @@ async function main(argv) {
       case 'integrate': return await cmdIntegrate(arg1 || DEFAULT_ROOT);
       case 'knowledge': return cmdKnowledge(arg1 || DEFAULT_ROOT);
       case 'status': return cmdStatus(arg1 || DEFAULT_ROOT, { json: values.json });
+      case 'mcp': {
+        // stdout を JSON-RPC 専用にしてからサーバーを起動する。
+        // require は遅延（mcp.js が aide.js を読むため、循環参照を避ける）。
+        STDOUT_RESERVED = true;
+        return await require('./mcp.js').cmdMcp({ root: values.root || arg1 });
+      }
       default:
         process.stdout.write(USAGE);
         return cmd ? 1 : 0;

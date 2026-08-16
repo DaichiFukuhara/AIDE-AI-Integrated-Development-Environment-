@@ -77,6 +77,7 @@ mdtalk <file.md> [options]
 | `aide integrate [root]` | プールをマスター設計へ統合 |
 | `aide knowledge [root]` | 共有知識ファイルを再生成 |
 | `aide status [root] [--json]` | 現在の状態を表示 |
+| `aide mcp --root <絶対パス>` | MCPサーバーを起動（stdio・読み取り専用） |
 
 ### レーン分割の提案
 
@@ -110,6 +111,70 @@ observe-level: light
 矛盾検出、観察時のレーンハッシュ、観察後のstale検査はどちらのレベルでも有効です。使用したレベルは観察レポート、pool、`status --json`、VS Codeに記録・表示されます。
 
 `AIDE_OBSERVER_CMD`と`AIDE_MASTER_CMD`でAIバックエンドを変更できます。既定コマンドは拡張子なしの`codex` / `claude`で、Windowsでも`.exe`とnpmの`.cmd` shimの両方を解決します。
+
+## MCPサーバー
+
+`aide mcp`は、実装中のAIエージェント（Codex、Claude Codeなど）が、コードを書く前に「この作業は設計のどこに対応するか」をAIDEへ問い合わせるための窓口です。stdio上のJSON-RPCで動き、**設計ファイルへ一切書き込みません**。
+
+```sh
+aide mcp --root /abs/path/to/design
+```
+
+`--root`は`design`ディレクトリの絶対パスです。外部エージェントが引数を組み立てるため、カレントディレクトリには依存しません。
+
+| ツール | 内容 |
+| --- | --- |
+| `aide_check_design` | 依頼文から該当する設計を探す。**実装前の入口はこれ1つ** |
+| `aide_get_section` | `aide_check_design`が返したセクションの本文を読む |
+| `aide_status` | 全体状況（診断用） |
+
+`observe` / `accept` / `integrate` は公開しません。人間のボタンだからです。
+
+### authority — 承認済みと下書きを混同しない
+
+`aide_check_design`が返すセクションには必ず出所が付きます。
+
+- `master`: 統合済みの正
+- `accepted_pool`: 人間が承認したが未統合
+- `draft_lane`: **未承認の作業中。仕様ではない**
+
+実装の根拠に使えるのは`approvedSections`だけです。`relatedDrafts`は参考情報で、これを根拠に実装してはいけません。
+
+### outcome と stopRequired
+
+| outcome | 意味 | stopRequired |
+| --- | --- | --- |
+| `covered` | 承認済み設計への強い一致が見つかった | false |
+| `draft_only` | 一致したのは未承認の下書きだけ | true |
+| `unknown` | 一致なし、または一致が弱い | true |
+
+`covered`は**「字面が強く一致した」という意味であり、依頼された振る舞いがすべて仕様化されている証明ではありません**。本文を読んでも決まっていない製品判断が残る場合は、実装せず人間に確認してください。
+
+検索は見出しの語による素朴な一致なので、**一致が弱い場合は`covered`にせず`unknown`で止めます**。長い語が1つ当たっただけでは足りず、その語が索引内で希少であることも要求します（`storage`のような一般語で実装許可が出ないようにするため）。「設計が存在しない」ことは証明できないため、一致ゼロも`missing`ではなく`unknown`を返します。
+
+レーンは承認後も残り続けるため、下書きの併存だけでは停止させません（警告が常態化するとゲート全体が無視されるため）。`signals`に非ブロッキングの注意として出します。
+
+一方、**本文や候補を切り詰めたときは停止します**。読めていない後半に制約がある可能性があるためです（`truncated` / `approvedSectionsTruncated`）。
+
+### 登録例
+
+Codex（`~/.codex/config.toml`）:
+
+```toml
+[mcp_servers.aide]
+command = "node"
+args = ["C:/abs/path/to/aide.js", "mcp", "--root", "C:/abs/path/to/design"]
+```
+
+Claude Code:
+
+```sh
+claude mcp add aide -- node /abs/path/to/aide.js mcp --root /abs/path/to/design
+```
+
+`aide` コマンドではなく `node <aide.jsの絶対パス>` で登録しています。npm製CLIはWindowsでは`aide.cmd`というshimになり、MCPホストがシェルを介さずにプロセスを起動する場合に解決できないためです（`callBackend`が同じ問題に対処しています）。
+
+なお、MCPは**強制装置ではありません**。通常のファイル編集ツールを横取りできないため、エージェントに「聞きやすくする」ことはできても「必ず止める」ことはできません。確実に止めたい場合はpre-write hookやCIが別途必要です。
 
 詳しい設計は[mdtalk設計](docs/mdtalk-design.md)と[AIDEオーケストレーション設計](docs/design/aide-orchestration.md)を参照してください。
 
