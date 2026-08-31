@@ -3,7 +3,7 @@ id: <ドット区切り。例 auth.login>
 parent: <親の id。根なら null>
 depth: <0-3。0=根 / 1=課題 / 2=解決法の詳細化と機能 / 3=システム（葉）>
 children: []
-status: draft          # draft / decision-pending / decision-approved
+status: draft          # draft / questions-done / decision-approved
                        # / split-proposed / split-prechecked / split-approved
                        # / children-created / done
                        # / deferred / rejected / stale
@@ -60,6 +60,13 @@ uses_seams: []         # 親が定義した seam のうち、自分が使うも�
 ## boundary_requests
 
 <!-- 子孫からの境界変更の起票。追記のみ。open は非権威的で、子は継承しない -->
+
+## seam_inbox
+
+<!-- 子同士の seam 成果物はここへ追記され、親が権威化して宛先の子へ降ろす
+     （根の split-4「親に残すもの」9）。子は兄弟のファイルに直接書かない。
+     2026-08-31 追加: split-4 が搬送路として決めたのにテンプレートに無かった
+     （precheck の指摘）。bootstrap 例外の範囲での修正 -->
 
 ## 承認証跡
 
