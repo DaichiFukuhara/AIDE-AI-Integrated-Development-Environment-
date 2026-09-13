@@ -2,8 +2,8 @@
 
 - Log keeper: Luna
 - Started: 2026-09-13（開始時刻の厳密な記録なし、Asia/Tokyo）
-- Updated: 2026-09-13T20:24:00+09:00
-- Status: in-progress
+- Updated: 2026-09-13T20:31:00+09:00
+- Status: completed
 - Workspace: `C:\Users\daich\claude-works\AIDE-AI-Integrated-Development-Environment-`
 
 ## Objective
@@ -67,23 +67,42 @@ AIDEが解こうとする「AIの暗黙判断を減らし、設計判断を追�
 - Evidence/rationale: 読みやすさの改善では、仕様精度を失わず、人間向け説明を先に提示する必要がある。
 - Artifacts: `harness-v2/node-template.md`, `harness-v2/rationale-template.md`, `design/reports/ObserveSystem-observe-failure-analysis.md`
 
+### 2026-09-13T20:27:00+09:00 — change
+
+AIDE可読性検討ログだけをコミットした。
+
+- Evidence/rationale: コミットは `af48c02`（`docs: record AIDE readability discussion`）。
+- Evidence/rationale: 既存の `harness/`、`v2/`、別ログの未コミット変更はコミットに含めていない。
+- Artifacts: `logs/2026-09-13-aide-readability-discussion.md`, `git commit af48c02`
+
+### 2026-09-13T20:30:00+09:00 — change
+
+コミット `af48c02` をリモートブランチへpushし、PR #5を作成した。
+
+- Evidence/rationale: 同ブランチの既存PR #4は2026-09-08にマージ済みで、open PRは存在しなかった。
+- Evidence/rationale: 新規PRのタイトルは「AIDEの必要性と設計書の可読性に関する検討ログを追加」。
+- Artifacts: `origin/codex/aide-v2-design-harness-v2`, `https://github.com/DaichiFukuhara/AIDE-AI-Integrated-Development-Environment-/pull/5`
+
 ## Decisions
 
 - 各章を、意味と影響を先に理解し、後半で正確な仕様を確認できる共通順序へ再構成する案を採用候補とした。
 
 ## Changes
 
-- None recorded
+- `logs/2026-09-13-aide-readability-discussion.md` を作成・更新した。
+- 同ログを `af48c02`（`docs: record AIDE readability discussion`）として単独コミットした。
+- コミット `af48c02` を `origin/codex/aide-v2-design-harness-v2` へpushし、PR #5「AIDEの必要性と設計書の可読性に関する検討ログを追加」を作成した。
 
 ## Validation
 
-- Not run
+- 対象ログの `git diff --check` は問題なし。
+- コミットが対象ログ1ファイルだけを含むことをコミット出力で確認した。
+- push成功とPR URLを確認した。
 
 ## Open items
 
 - 既存の一章へ新構成を試験適用し、理解、訂正可能性、仕様欠落の有無を比較する。
-- ログ変更をコミットし、pushしてPRを作成する。
 
 ## Outcome
 
-Finalization pending.
+AIDEの必要性、設計書の理解を妨げるAIの言葉遣い、章ごとの構成改善案を、証拠と未検証事項を区別して記録した。コミット `af48c02` をpushし、PR #5を作成した。
