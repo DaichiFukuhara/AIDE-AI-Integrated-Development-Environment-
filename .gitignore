@@ -3,12 +3,12 @@
 
 # node
 node_modules/
-vscode-aide/dist/
-vscode-aide/engine/
-vscode-aide/.vscode-test/
-vscode-aide/*.vsix
+archive/legacy-cli/vscode-aide/dist/
+archive/legacy-cli/vscode-aide/engine/
+archive/legacy-cli/vscode-aide/.vscode-test/
+archive/legacy-cli/vscode-aide/*.vsix
 
 # 動作確認用スクラッチ（mdtalk を試したファイル）
-/test.md
-/design.md
-/design.minutes.md
+/archive/legacy-cli/test.md
+/archive/legacy-cli/design.md
+/archive/legacy-cli/design.minutes.md
