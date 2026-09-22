@@ -1,0 +1,3 @@
+2026-09-22T03:06:54.726183Z ERROR codex_models_manager::cache: failed to load models cache: missing field `base_instructions` at line 139 column 5
+2026-09-22T03:06:55.728914Z  WARN codex_core::shell_snapshot: Failed to create shell snapshot for powershell: Shell snapshot not supported yet for PowerShell
+2026-09-22T03:09:28.107779Z ERROR codex_core::tools::router: error=`"C:\\Users\\daich\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command '(Get-ChildItem docs/v3-design/root -Recurse -Include design.md,rationale.md | Measure-Object).Count'` rejected: blocked by policy

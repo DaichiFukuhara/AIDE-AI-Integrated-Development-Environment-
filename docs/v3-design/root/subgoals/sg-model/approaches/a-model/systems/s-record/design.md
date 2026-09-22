@@ -1,0 +1,162 @@
+---
+id: S-RECORD
+kind: system
+title: 現在仕様・参照・反映を管理する記録機構
+parent: A-MODEL
+depth: 3
+status: published
+revision: 6
+design_revision: 2
+parent_revision: 3
+updated_at: '2026-09-22T00:50:02+09:00'
+children: []
+depends_on: []
+owned_seams: []
+seam_refs: []
+source_refs:
+- sources/requirements.md
+unit_test_id: UT-S-RECORD
+subgoal_integration_id: SIT-SG-MODEL
+final_integration_id: FIT-G-V3
+---
+
+# 現在仕様・参照・反映を管理する記録機構
+
+保存された設計、実験結果、監査結果から、現在の仕様とその根拠を矛盾なく読み出せる。
+
+**なぜ必要か:** ログの転記漏れと古い承認の混同に対処するには、内容を増やすより更新する正本と一括反映点を限定する必要がある。
+
+**今回の判断:** 現在仕様を版付きbundleとして参照し、反映候補を検証して一括採用する。masterと詳細設計は相互参照で結ぶ。
+
+## 1. 目的
+
+保存された設計、実験結果、監査結果から、現在の仕様とその根拠を矛盾なく読み出せる。
+
+## 2. 親から受け取った条件
+
+親: A-MODEL。割当条件: AM1, AM2。親の意味版はfrontmatterのparent_revision。
+
+設計正本、関係索引、候補反映の書込みを所有する。実験結果の作成は学習側、監査結果の作成は監査側が所有する。
+
+## 3. 対象と望ましい状態
+
+対象はAIと共同開発する利用者と実装・監査担当。手続きのための停止、理解できない説明、記録の食い違いを減らす。
+
+保存された設計、実験結果、監査結果から、現在の仕様とその根拠を矛盾なく読み出せる。
+
+## 4. 責任範囲
+
+設計正本、関係索引、候補反映の書込みを所有する。実験結果の作成は学習側、監査結果の作成は監査側が所有する。
+
+| 制約ID | 守る条件 |
+| --- | --- |
+| C-TRACE | 目標→小目標→アプローチ→システムの意味を残し、目的と担当を参照で追える。 |
+| C-ONE | 仕様・契約の正本と書込み担当を一つにする。候補、現行、過去版、監査済みを混同しない。 |
+| C-SCOPE | 既存の許可と委任を引き継ぐ。目的・予算・外部影響の範囲は暗黙に拡張しない。 |
+| C-EVIDENCE | 設計上の判断、実装された事実、テスト結果、人の評価、監査結果を区別する。 |
+| C-SMALL | 今回の実験に必要な枝だけを具体化する。全枝の完成を実験開始の条件にしない。 |
+| C-READ | 意味と操作結果を先に説明する。用語には具体的意味を与え、短い理由を仕様に添える。 |
+| C-REVIEW | 監査指摘は基準・具体的な支障・終了条件を持つ。minorと委任済み内部選択だけで停止しない。 |
+| C-PHASE | 本ツリーはv2によるv3の設計成果。v3実行、製品実装、テスト成功を装わない。 |
+
+## 5. 設計
+
+現在仕様を版付きbundleとして参照し、反映候補を検証して一括採用する。masterと詳細設計は相互参照で結ぶ。
+
+### v3が利用者のプロジェクトに作る保存物
+```text
+design/
+  master.md + rationale.md
+  goals/<goal>/design.md + rationale.md
+    approaches/<approach>/design.md + rationale.md
+  domains/<domain>/design.md + rationale.md
+    systems/<system>/design.md + rationale.md
+  snapshots/<bundle-id>/...
+experiments/<experiment-id>.md
+audits/<audit-id>.md
+src/    # 将来の小規模実装と採用済み実装
+tests/  # 将来の関連テスト
+```
+snapshotsは過去版を固定する履歴であり、並行して編集する別仕様ではない。Gitの不変コミットを指定できれば同等の参照で代替できる。domainのdesignは共通言語と責任の正本。contextが複数ならその中でcontextごとに意味と契約所有者を明示する。
+
+### 最小記録
+specはid、kind、semantic_revision、通常revision、purpose/acceptance/constraints、primary_parent、uses_systems、domain_id/context_id、契約のownerと参照、delegation_ref、evidence_refsを持つ。rootのprimary_parentはnull。主親をたどると4階層になる。追加のuses_systemsは目的の割当を持つが所有者を増やさない。
+ここでspecは4階層の目標・小目標・アプローチ・systemを指す。domain/contextの文書は横断する言語と契約の定義であり、第5階層として挿入しない。上位の方式説明のprimary_approach_idはsystemの主親を意味する呼び名で、保存上はprimary_parent一項目へ統一する。
+現在bundleは対象specの意味版集合と契約集合、根拠参照を持つ。audit_baseline_refとunaudited_changesを表示するが、監査基準版を現在版へ自動更新しない。文書の通常revisionだけの変更では監査対象の意味を変えない。
+
+### 反映の手順
+1. 提案に含まれる旧版、新しい意味、実験結果、許可範囲、影響する条件・契約を読み、各specの正本を解決する。
+2. 変更分類をS-AUDIT-INPUTへ渡し、S-AUDIT-RESULTの判定を受ける。試作計画はplan、採用する仕様差分はadoptionとして区別する。
+3. require-review / blockedなら現行仕様を維持する。daily-pass / audit-passはその対象ハッシュと許可範囲にだけ有効。実験が成功したことを別の許可として扱わない。
+4. 正本と対応する根拠を同じ論理更新にまとめる。候補の全ファイルを別の作業場所で準備し、内容ハッシュを確認してcurrentの参照を最後に切り替える。
+5. 途中で中断したら元のcurrentを維持する。既に切替済みなら同一operation_idを再実行しても一度の反映として返す。競合は最新bundleを元に影響と監査の要否を再計算する。
+6. 未採用の実験結果はexperimentsへの参照だけ残す。採用の全体方針が変わる場合に限りmasterの該当箇所を変更する。
+
+planのcheckedはその候補を試せるという判定だけを返す。planは現在仕様を切り替えず、base_bundleと候補hashを保存したまま実験へ渡す。初回で現在仕様がない場合も、最小の目標チェーンを候補として固定し、base_bundle=nullで開始できる。adoptionだけが手順4〜6の現在仕様への反映を行う。periodicは現行bundleの監査結果を追記し、仕様の意味版を変えない。withdrawalは未反映の操作を取消し、既に反映した版を黙って巻き戻さない。反映済みの取消は新しい変更案として扱う。
+
+### 読みやすさの契約
+各designは「この文書で決めること／なぜ必要か／誰が何をするとどうなるか／守ること・できないこと／決定済みと未決／詳細と確認方法」の順で読めるようにする。短い採用理由を本文に置き、長い比較はrationaleへ参照する。
+専門語の初出に平易な説明を添える。抽象的な主語を避け、少なくとも正常な操作例と重要な例外を示す。説明前半と詳細の意味の一致は監査する。利用者が目的・結果・制約を説明できたかは、確認済み／未確認を記録する。毎回の文言修正に人の再承認を必須にしない。
+
+### 正常・失敗・取消の扱い
+
+参照欠落・循環・所有者重複はcandidateのまま拒否。版競合はconflictで再読。書込み中断は最後の完全bundleをcurrentとして維持し、operation_idで再開。
+
+## 6. 入出力と状態
+
+| 区分 | 契約 |
+| --- | --- |
+| 入力 | S-CONTEXTの取得要求、S-PROPOSALの反映候補、S-AUDIT-RESULTの判定。base_revisionとoperation_idは必須。 |
+| 出力 | S-CONTEXTの設計bundle、S-AUDIT-INPUTの監査依頼、反映結果 applied / already-applied / conflict / rejected / cancelled。 |
+| 状態 | candidate → checked → committed、または conflict / rejected / cancelled。現在bundleは完全なcommitted一組だけを指す。 |
+
+## 7. seam と依存
+
+祖先G-V3が所有するS-CONTEXT、S-PROPOSAL、S-AUDIT-INPUT、S-AUDIT-RESULTを継承する。直接の参加はseam_refsに示す。子孫は小目標の実行責務として契約を実現し、独自の契約を再定義しない。兄弟の内部実装へのdependencyはない。
+
+## 8. 品質条件
+
+ローカルMarkdownと履歴で復元できる。外部送信を必要としない。未監査差分があることを隠さない。
+
+| 観点 | 要求または適用範囲 |
+| --- | --- |
+| 情報保護 | 外部送信は既存の許可範囲に従う。秘密の値を根拠文書へ転記しない。 |
+| 性能・規模 | 初期は小規模なMarkdown運用。応答時間の保証値は今回設定せず、対象実験の予算を守る。 |
+| 回復 | 候補の失敗で既存の有効版を消さず、操作IDと対象版から再開する。 |
+| 互換性 | v2の正本を変更せず、必要な枝からv3へ移す。旧成果物をv3監査済みと自動認定しない。 |
+
+## 9. 受入条件
+
+| 条件ID | 観測できる成立状態 | owner |
+| --- | --- | --- |
+| SR1 | systemの主親を一つに保ち、uses_systemsとcontext境界から参照・条件の所在を解決できる。 | S-RECORD |
+| SR2 | 文章の冒頭で主体・操作・結果・短い理由・制約・未決が分かり、詳細の条件と食い違わない。 | S-RECORD |
+| SR3 | 同じ操作の再送は重複反映せず、古いbase_revisionと部分書込みは現行仕様へ混入しない。 | S-RECORD |
+| SR4 | 対象の意味ハッシュと異なる監査結果を採用せず、小変更後に未監査差分と基準版を読める。 | S-RECORD |
+| SR5 | 実験不採用・取消では設計を変更せず、採用時だけ関係する正本と根拠・参照を更新する。 | S-RECORD |
+
+## 10. 子への割り当て
+
+該当なし。systemはこの設計ツリーの葉。実装と検証は後続工程へ渡す。
+
+## 11. 未解決事項
+
+将来実装担当はJSON/YAMLの表現、索引の生成方法、履歴保存の方法を選べる。一括反映・不変snapshot・参照一意性の保証は変更しない。
+
+効率改善と人間の理解は実運用で未検証。検証担当は後続のv3試行担当であり、設計合格を効果実証として扱わない。
+
+## 12. 将来の検証対応
+
+| ID種別 | 対応 |
+| --- | --- |
+| unit_test_id | UT-S-RECORD |
+| subgoal_integration_id | SIT-SG-MODEL |
+| final_integration_id | FIT-G-V3 |
+
+条件ID: SR1, SR2, SR3, SR4, SR5。ここでは対応IDと受入条件だけを定義し、テストケース・コードは生成しない。
+
+## 13. system 引渡し契約
+
+目標チェーン: G-V3 → SG-MODEL → A-MODEL → S-RECORD。
+
+§4の責務、§5の手順、§6のI/O・状態、§7の根の契約、§8の品質、§9の条件、§11の委任、§12の3検証IDを引き渡す。主入力はimmutable system closure。実装着手に必要な製品境界の未決はない。選択可能な内部技術と、今後実測する効果は区別する。

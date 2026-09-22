@@ -1,0 +1,2 @@
+# Preserve the exact bytes recorded in audit and snapshot SHA-256 values.
+* -text
