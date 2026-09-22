@@ -10,7 +10,7 @@
 - [completion.md](completion.md): v2の設計完了条件との照合。
 - [final-verification.md](final-verification.md): 保存後のファイル、参照、ハッシュの最終照合。
 - [input-provenance.md](input-provenance.md): 参照したv2規約と既存資料のファイルハッシュ。
-- [independent-audit/README.md](independent-audit/README.md): 正本化後に追加したCodex CLI / GPT-5.5による独立監査。対象のtree revision 18に対してpass。
+- [independent-audit/README.md](independent-audit/README.md): 最新のCodex CLI / GPT-6 Astra監査はtree revision 18に対してfail、major 4件。GPT-5.5のpassは過去の判定として保持する。
 
 役割ごとの処理は逐次実行した。今回の補助処理で並行書込みや故障注入の動作を試験したという意味ではない。
 
