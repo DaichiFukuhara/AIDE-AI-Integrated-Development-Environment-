@@ -1,29 +1,36 @@
 # v3設計の独立監査
 
-**最新判定: fail。GPT-6 Astraがopen major 4件、blocker 0件を指摘した。**
+**最新判定: pass。open blocker / major 0件、AV3-001〜005はclosed。**
 
-2026-09-22、ユーザーの指示により、起草した主担当とは別のCodex CLIプロセスで監査した。前回のノード検査は自己レビューのみだったため、この記録で独立監査を追加する。過去の自己レビューを独立監査だったことにはしない。
+## 最終のAstra再監査
 
-## 最新のAstra監査
+- 実行: Codex CLI 0.155.1 / `gpt-6-astra` / high / read-only。起草者とは別の新規CLIセッション。代替モデルなし。
+- 対象: tree revision 80、10ノード全20文書、47 manifest、変更・検査・訂正履歴。計356ファイルを元の行番号とhash付きの全文で入力した。
+- [監査回答原文](astra-bundle-round-3-retry/report.md)
+- [固定した入力全文](astra-bundle-round-3-retry/prompt.md)・[実行記録](astra-bundle-round-3-retry/execution.json)・[入力と出力の照合](astra-bundle-round-3-retry/verification.md)
+- CLI文字数上限のため、書店の参考例だけは今回の入力から除外した。監査対象の設計、規範、ロール、テンプレート、検査履歴は全文を渡した。Astraが読めた範囲と未読資料は回答原文を参照。
+- 主担当が全入力の監査中の不変性と、manifest・snapshot・訂正検査のhashを別途照合した。Astraがhashを再計算したとは扱わない。
 
-- 実行: Codex CLI 0.155.1 / `gpt-6-astra`、reasoning effort `high`。新規セッション、read-only。モデルの代替なし。
-- 対象: tree revision 18。v2規範、10ノード全20文書、全15manifest・snapshot・handoff・検査記録・要求・関連ログを含む134ファイルの全文。
-- 入力方法: CLIのシェル読取りがポリシーで拒否されたため、主担当が読み出した全文を元の行番号とSHA-256付きでstdinへ渡した。読み取り権限を拡張する回避は行っていない。
-- [Astraの監査回答原文](astra-bundle-round-1/report.md)
-- [依頼と入力全文](astra-bundle-round-1/prompt.md)
-- [実行記録](astra-bundle-round-1/execution.json)・[入力と出力の照合](astra-bundle-round-1/verification.md)
-- 過去の独立監査回答は入力に含めず、READMEのpass表示を根拠にしないよう指定した。
+| 指摘 | 修正内容 | 最終状態 |
+| --- | --- | --- |
+| AV3-001 | 仕様・実装・試行・証拠を不変のsubjectへ固定し、新版へ旧合格を流用しない | closed |
+| AV3-002 | サイクル終了のowner、通知、periodic要求の保存と再送を定義 | closed |
+| AV3-003 | 取消要求IDと対象IDを分離し、反映との競合・遅延結果を処理 | closed |
+| AV3-004 | 過去の不足入力を固定した訂正検査を追加し、当時の検査実施と区別 | closed |
+| AV3-005 | domain/context定義と依拠先もsubjectへ固定し、全利用先の影響・限定監査・一括採用を定義 | closed |
 
-| 指摘ID | 重大度 | 内容 | 状態 |
-| --- | --- | --- | --- |
-| AV3-001 | major | 監査が保証する仕様・実装・証拠の版集合と、不変な参照の契約が不足 | open |
-| AV3-002 | major | 実験サイクル終了から周期監査を起動するownerと受渡しが未定義 | open |
-| AV3-003 | major | 取消要求自身のoperation IDと、取消対象operationの関連が未定義 | open |
-| AV3-004 | major | 過去3subgoalのauthoring閉包に、seam参加側入力またはその固定参照が不足 | open |
+## Astraの履歴
 
-監査後に [変更イベント](../../changes/events/EV-ASTRA-20260922-01.md) を登録した。設計の意味版はまだ修正していない。過去のmanifest、snapshot、公開記録、監査回答は上書きしていない。現在の3system閉包に参加側情報があることと、過去の閉包の不足は区別する。
+| 実行 | 対象 | 結果 |
+| --- | --- | --- |
+| [第1回](astra-bundle-round-1/report.md) | tree 18 | fail、major 4件 |
+| [第2回](astra-bundle-round-2/report.md) | tree 49 | 旧4件closed、追加AV3-005によりfail |
+| [第3回の起動記録](astra-bundle-round-3/execution.json) | tree 80 | CLIの1,048,576文字上限を超えて開始前に終了。設計判定なし |
+| [第3回の再実行](astra-bundle-round-3-retry/report.md) | tree 80 | pass、5件closed |
 
-Astraはハッシュを再計算していない。134ファイルの監査中の不変性と保存物のハッシュは主担当が別途照合した。添付していない原資料は、監査回答に記載された要約範囲での評価に留まる。
+変更は[最初のイベント](../../changes/events/EV-ASTRA-20260922-01.md)と[追加イベント](../../changes/events/EV-ASTRA-20260922-03.md)で処理し、親から再設計・再検査・再公開した。旧manifest、snapshot、CL検査記録、監査回答は上書きしていない。案内文書だけを最新判定へ更新する。
+
+設計工程内のノードレビューは主担当の自己レビューであり、ここに保存した独立CLI監査とは区別する。製品実装・製品テスト・効率改善・利用者理解の実証は後続工程である。
 
 ## 過去のGPT-5.5監査
 
@@ -35,7 +42,7 @@ Astraはハッシュを再計算していない。134ファイルの監査中の
 - [監査前後の入力照合](verification.md)
 - 実際のCLIイベントは同ディレクトリの `stdout.jsonl`、診断出力は `stderr.txt` に保存した。
 
-GPT-5.5は意味レビューの7観点と3systemをpassとした。その時点では修正不要と扱ったが、後続のAstra監査で重大指摘が見つかったため、現在の受入判定はfailである。起草者はどちらの監査回答も編集していない。
+GPT-5.5は意味レビューの7観点と3systemをpassとした。その時点では修正不要と扱ったが、後続のAstra監査で重大指摘が見つかったため、その時点の受入判定はfailとなった。現在の判定は上記の最終Astra再監査を参照する。起草者はどちらの監査回答も編集していない。
 
 監査者はハッシュの規約化再計算を行っていない。この点を監査者の検証実績へ含めない。主担当による入力の不変性と保存物のハッシュ照合は別記録に示す。実装、製品テスト、実運用での効果は依然として未検証。
 

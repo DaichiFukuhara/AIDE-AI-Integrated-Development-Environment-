@@ -5,10 +5,10 @@ title: 実験計画・実行結果・採否を管理する学習機構
 parent: A-LEARN
 depth: 3
 status: published
-revision: 6
-design_revision: 2
-parent_revision: 3
-updated_at: '2026-09-22T00:50:22+09:00'
+revision: 20
+design_revision: 6
+parent_revision: 7
+updated_at: '2026-09-22T22:34:02+09:00'
 children: []
 depends_on: []
 owned_seams: []
@@ -85,12 +85,20 @@ planned/runningの仮説を現行仕様にしない。実装が意図から外�
 
 実行失敗は失敗結果として保存。比較条件が不一致ならinconclusive。実装版が違えばevidence-mismatch。反映競合ではproposedのまま最新設計と照合する。
 
+### 不変の試行とサイクルの終了
+G-V3 §5の共通契約に従い、各試行にtrial_idを付け、実装版・評価条件版・証拠内容を不変参照で保存する。experimentsの索引へ結果を追記しても既存trialや監査subjectの参照先を変えない。再試行は新しいtrial_idを発行し、新subjectを提案する。運用結果の訂正も別証拠版として旧版を残す。
+S-CYCLEはcycle_idの終端と未送信cycle_closed通知を一緒に記録し、通知ackまで再送可能にする。reflectedは採用確定後、rejected/cancelledは関連操作の確定後に終了する。inconclusiveは「修正継続／終了」を明示する。pausedは終了通知を出さず、新しいサイクルで再開するときは元サイクルとの関係を残す。
+withdrawalは新しい要求IDで一つのplan/adoptionを指定する。実験全体を止める場合も未確定の各操作を個別に取消し、すべての確定結果を終了通知へ含める。already-appliedなら反映事実を保持し、取消できたと表示しない。実行停止は次の作業境界で行い、既存の観測を削除しない。
+
+### domain/contextの版対応
+domain/context_refsは所属の識別だけではなく、G-V3 §5のmodel_definition_refsにより意味の版を固定する。計画・試行・提案が用いた定義版を保存し、変更時は新計画と新subjectへ進める。旧定義の結果を新定義の成功と読み替えない。
+
 ## 6. 入出力と状態
 
 | 区分 | 契約 |
 | --- | --- |
 | 入力 | ユーザーの目標・制約・委任、S-CONTEXTのbundleと進行判定、実装担当からの変更箇所・テスト・運用結果。 |
-| 出力 | 版付き実験計画、実装担当への作業範囲、結果と推奨、S-PROPOSALのplan/adoption/withdrawal。 |
+| 出力 | 版付き実験計画、実装担当への作業範囲、結果と推奨、S-PROPOSALのplan/adoption/withdrawal/cycle_closed。 |
 | 状態 | planned → running → evaluated → proposed → reflected、または cancelled / inconclusive / rejected。pausedは予算や外部入力待ちで、再開条件を持つ。 |
 
 ## 7. seam と依存

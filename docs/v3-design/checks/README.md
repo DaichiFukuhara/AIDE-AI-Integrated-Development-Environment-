@@ -7,10 +7,13 @@
 - `*-structural.md`: 構造項目の照合。D〜Gについては形式的な確認範囲を示し、意味判断はreviewへ渡す。authoring時点のhandoffはdeferred、公開直前確認はprecondition-passとして区別する。
 - `*-semantic.md`: 主担当が起草後に行った意味レビュー。個別の確認理由と自己レビューであることを記録する。
 - `*-publication.md`: 両検査と一致する意味版・参照版・全体版を確認して正本化した記録。
-- [completion.md](completion.md): v2の設計完了条件との照合。
-- [final-verification.md](final-verification.md): 保存後のファイル、参照、ハッシュの最終照合。
+- [completion.md](completion.md): tree 18に対する初回の設計完了検査（履歴）。
+- [astra-repair-verification.md](astra-repair-verification.md): tree 49の修正後の文書照合（履歴）。
+- [astra-repair-round3-verification.md](astra-repair-round3-verification.md): tree 80の追加修正後の文書照合。
+- [final-verification.md](final-verification.md): tree 18に対する初回のファイル・参照・hash照合（履歴）。
+- [astra-completion.md](astra-completion.md): tree 80の設計完了と独立監査の統合記録。
 - [input-provenance.md](input-provenance.md): 参照したv2規約と既存資料のファイルハッシュ。
-- [independent-audit/README.md](independent-audit/README.md): 最新のCodex CLI / GPT-6 Astra監査はtree revision 18に対してfail、major 4件。GPT-5.5のpassは過去の判定として保持する。
+- [independent-audit/README.md](independent-audit/README.md): Codex CLI / GPT-6 Astraの最終再監査はtree 80に対してpass、重大指摘5件を解消。GPT-5.5のpassは過去の判定として保持する。
 
 役割ごとの処理は逐次実行した。今回の補助処理で並行書込みや故障注入の動作を試験したという意味ではない。
 
@@ -40,7 +43,7 @@ manifestはYAMLをオブジェクトへ読み込み、`closure_id` と `manifest
 4. tree-stateが指す3件について、全体版、対象systemの意味版、目標チェーン、契約両端、受入条件、3種類の将来検証ID、handoff passを照合する。
 5. 文書対の版、親版、条件割当、正本owner、候補・未処理変更の有無を照合する。
 
-初期のroot・subgoalのauthoring manifestでは、契約の両端はrootのowned_seamsとroot authoring closure内のstaged childの公開参照で記録される。approach以降のmanifestと、最終引渡しmanifestには `seam_participants` を直接含めた。契約の意味・版・参加側の公開参照は工程を通して変更していない。
+初期のroot authoring manifestにはstaged childの公開参照があるが、初期3subgoalのauthoring manifestはそれを明示的に固定しておらず不完全だった（AV3-004）。[訂正検査](corrections/README.md)で旧入力を合成して再確認した。当時の検査実施を遡って証明するものではない。新規authoringと現行systemのmanifestには `seam_participants` を直接含める。現在の契約版は3で、旧版1の記録を上書きしていない。
 
 過去のauthoring closureのtree版やstaged childは公開当時の状態である。現在の子の本文と一致させるために過去snapshotを更新してはならない。現在の意味が変わる場合はv2の変更手順で影響先を再検査する。
 

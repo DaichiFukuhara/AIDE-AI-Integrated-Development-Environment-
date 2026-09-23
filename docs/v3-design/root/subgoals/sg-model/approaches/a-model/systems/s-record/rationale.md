@@ -5,10 +5,10 @@ title: 現在仕様・参照・反映を管理する記録機構
 parent: A-MODEL
 depth: 3
 status: published
-revision: 6
-design_revision: 2
-parent_revision: 3
-updated_at: '2026-09-22T00:50:02+09:00'
+revision: 20
+design_revision: 6
+parent_revision: 7
+updated_at: '2026-09-22T22:34:00+09:00'
 children: []
 depends_on: []
 owned_seams: []
@@ -19,13 +19,13 @@ unit_test_id: UT-S-RECORD
 subgoal_integration_id: SIT-SG-MODEL
 final_integration_id: FIT-G-V3
 document: rationale
-base_revision: 5
+base_revision: 19
 validation:
   structural:
     result: pass
-    closure_id: CL-S-RECORD-d2-t15-8f119f32f4a9
-    checked_design_revision: 2
-    checked_parent_design_revision: 3
+    closure_id: CL-S-RECORD-d6-t72-ce8b8a1e4cb8
+    checked_design_revision: 6
+    checked_parent_design_revision: 7
     criteria:
     - A-01
     - A-02
@@ -51,9 +51,9 @@ validation:
     finding_ids: []
   semantic:
     result: pass
-    closure_id: CL-S-RECORD-d2-t15-8f119f32f4a9
-    checked_design_revision: 2
-    checked_parent_design_revision: 3
+    closure_id: CL-S-RECORD-d6-t72-ce8b8a1e4cb8
+    checked_design_revision: 6
+    checked_parent_design_revision: 7
     criteria:
     - A-01
     - A-02
@@ -95,6 +95,10 @@ next_action:
 | --- | --- | --- | --- |
 | D-S-RECORD | design.md §4〜7 | ログの転記漏れと古い承認の混同に対処するには、内容を増やすより更新する正本と一括反映点を限定する必要がある。 | SR1, SR2, SR3, SR4, SR5 |
 
+今回の修正理由: 仕様hashだけの照合では実装・証拠の差替えを検知できないためsubjectを固定する。サイクル終了と取消はcontext間の公開契約とし、内部の保存技術だけを委任する。上位の契約改訂に従い、この枝の責任と検証条件を再確認する。
+
+追加修正AV3-005: domain/contextも意味の正本なので、subjectへ不変参照集合を加える。共有定義の変更は全利用先へ影響計算し、定義と利用先を一括採用する。4階層は維持し、内容をsystem本文へ複製する方式は同期漏れを招くため採らない。
+
 ## 3. 代替案
 
 各担当がmasterと複数詳細へ直接追記する方式は部分反映を起こしやすい。初期版は反映担当一人の逐次運用とする。
@@ -124,13 +128,15 @@ next_action:
 
 ## 8. 検査結果
 
-構造検査と意味検査は `CL-S-RECORD-d2-t15-8f119f32f4a9` に対してpass。詳細: `checks/CL-S-RECORD-d2-t15-8f119f32f4a9-structural.md` と `checks/CL-S-RECORD-d2-t15-8f119f32f4a9-semantic.md`（設計ツリールート基準）。独立監査ではなく主担当の自己レビュー。
+構造検査と意味検査は `CL-S-RECORD-d6-t72-ce8b8a1e4cb8` に対してpass。詳細: `checks/CL-S-RECORD-d6-t72-ce8b8a1e4cb8-structural.md` と `checks/CL-S-RECORD-d6-t72-ce8b8a1e4cb8-semantic.md`（設計ツリールート基準）。独立監査ではなく主担当の自己レビュー。
 
 ## 9. 変更影響
 
 条件・責任・契約の変更はv2のchange eventにし、祖先統合、契約両端、条件継承先へ波及させる。意味のない表記変更で新しい意味版を発行しない。
 
-今回の意味版は新規設計。v2の既存ノードや実行規約を書き換えない。
+EV-ASTRA-20260922-01による再設計。AV3-001〜003の公開契約を改訂し、親版・両端参照を伝播する。AV3-004の旧閉包は訂正検査で補い、歴史を上書きしない。v2実行規約は変更しない。
+
+現在の再設計イベントはEV-ASTRA-20260922-03。前回の修正・訂正記録は履歴として保持する。
 
 ## 10. 現在の作業状態
 

@@ -5,10 +5,10 @@ title: 必要な監査だけで意味と整合性を保てる
 parent: G-V3
 depth: 1
 status: published
-revision: 6
-design_revision: 3
-parent_revision: 3
-updated_at: '2026-09-22T00:47:22+09:00'
+revision: 20
+design_revision: 7
+parent_revision: 5
+updated_at: '2026-09-22T22:33:53+09:00'
 children:
 - id: A-ASSURE
   relation: all_of
@@ -34,11 +34,11 @@ owned_seams: []
 seam_refs:
 - id: S-AUDIT-INPUT
   owner: G-V3
-  revision: 1
+  revision: 3
   role: consumer
 - id: S-AUDIT-RESULT
   owner: G-V3
-  revision: 1
+  revision: 3
   role: producer
 source_refs:
 - sources/requirements.md

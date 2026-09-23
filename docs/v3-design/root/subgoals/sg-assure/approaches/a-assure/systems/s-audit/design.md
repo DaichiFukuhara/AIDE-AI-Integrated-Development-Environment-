@@ -5,10 +5,10 @@ title: 変更の振り分けとDDD差分監査を管理する判定機構
 parent: A-ASSURE
 depth: 3
 status: published
-revision: 6
-design_revision: 2
-parent_revision: 3
-updated_at: '2026-09-22T00:50:43+09:00'
+revision: 20
+design_revision: 6
+parent_revision: 7
+updated_at: '2026-09-22T22:34:04+09:00'
 children: []
 depends_on: []
 owned_seams: []
@@ -99,11 +99,19 @@ audit記録はid、kind、scope、baseline、target_hash、criteria_version、re
 
 対象版欠落はblocked。候補変更はstale。意味を分類できなければ関係する最小境界を監査し、無条件に全体へ広げない。
 
+### 版集合と起動要求の照合
+G-V3 §5の共通契約に従い、subject_hashを仕様・実装・試行・証拠の不変版集合として照合する。監査対象の「意味ハッシュ」は仕様hashだけを意味しない。planの合格範囲とadoption/periodicの実装保証を分け、日常確認と監査のどちらでも対象版を固定する。変更された証拠に古い合格結果を適用しない。
+periodicの受信は、記録側がcycle_closedまたはactivity_dueから永続化した要求に基づく。S-AUDITは実験の終端を推測しない。差分・scope・期限・起点を確認し、同じ対象の重複要求を対応付け、結果を要求IDへ返す。差分なしのskipをaudit-passと表示しない。
+cancelは自身の要求IDと対象監査IDを区別し、G-V3の仮tombstone・取消・完了後応答に従う。結果が先に送信されても採用可否の最終判断は記録側にあり、取消済みproposalへの受理を要求しない。
+
+### domain/contextの版対応
+subjectのmodel_definition_refsから共通言語・責任・ルールを解決し、共有定義の参照先まで揃うことを照合する。domain/context単独の意味変更も影響利用先の限定監査対象とし、仕様本文の不変だけでは旧判定を受理しない。詳細はG-V3 §5を適用する。
+
 ## 6. 入出力と状態
 
 | 区分 | 契約 |
 | --- | --- |
-| 入力 | S-AUDIT-INPUTのplan/adoption/periodic要求。現在bundle、候補hash、最後のaudit、累積差分、委任、関連テスト・実使用結果、観測時刻。 |
+| 入力 | S-AUDIT-INPUTのplan/adoption/periodic/cancel要求。現在bundle、候補hash、最後のaudit、累積差分、委任、関連テスト・実使用結果、観測時刻。 |
 | 出力 | S-AUDIT-RESULT: daily-pass / require-review / audit-pass / blocked / stale / cancelled。理由、対象hash、指摘、次の処理、基準版と次回時期。 |
 | 状態 | requested → scoped → reviewing → passed / failed / cancelled / stale。日常確認はdaily-passとして記録し、監査基準版を更新しない。 |
 
@@ -127,7 +135,7 @@ audit記録はid、kind、scope、baseline、target_hash、criteria_version、re
 | 条件ID | 観測できる成立状態 | owner |
 | --- | --- | --- |
 | SA1 | 初回・境界変更・期限到達・小変更を定義した順序で分類し、無監査のものを監査済みと表示しない。 | S-AUDIT |
-| SA2 | DDD-01〜05とAIDE-01〜03の適用可否、根拠、対象の意味ハッシュを記録する。 | S-AUDIT |
+| SA2 | DDD-01〜05とAIDE-01〜03の適用可否、根拠、仕様・実装・証拠のsubject_hashを記録する。 | S-AUDIT |
 | SA3 | 重大指摘の反例・影響・解消条件と、minor・実験への委任を区別できる。 | S-AUDIT |
 | SA4 | 基準を増やすだけの再監査を避け、修正差分と波及先だけで指摘の解消を判定できる。 | S-AUDIT |
 | SA5 | 古い結果・取消済み候補・未知の影響・同一IDの異内容を検知し、影響範囲を示して返せる。 | S-AUDIT |

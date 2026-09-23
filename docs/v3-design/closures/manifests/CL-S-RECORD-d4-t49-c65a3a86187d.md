@@ -1,0 +1,157 @@
+---
+closure_id: CL-S-RECORD-d4-t49-c65a3a86187d
+manifest_digest: c65a3a86187d62715bed6fe3c127891adcd320ffd79ad720f63f6039c1767532
+closure_kind: system
+based_on_tree_revision: 49
+target:
+  id: S-RECORD
+  design_revision: 4
+  parent_design_revision: 5
+goal_chain:
+  root_goal: G-V3
+  subgoal: SG-MODEL
+  approach: A-MODEL
+  system: S-RECORD
+edges:
+- parent: G-V3
+  child: SG-MODEL
+  relation: all_of
+  group: null
+  acceptance:
+  - G1
+  - G2
+  constraints:
+  - C-TRACE
+  - C-ONE
+  - C-SCOPE
+  - C-EVIDENCE
+  - C-SMALL
+  - C-READ
+  - C-REVIEW
+  - C-PHASE
+- parent: SG-MODEL
+  child: A-MODEL
+  relation: all_of
+  group: null
+  acceptance:
+  - M1
+  - M2
+  - M3
+  constraints:
+  - C-TRACE
+  - C-ONE
+  - C-SCOPE
+  - C-EVIDENCE
+  - C-SMALL
+  - C-READ
+  - C-REVIEW
+  - C-PHASE
+- parent: A-MODEL
+  child: S-RECORD
+  relation: all_of
+  group: null
+  acceptance:
+  - AM1
+  - AM2
+  constraints:
+  - C-TRACE
+  - C-ONE
+  - C-SCOPE
+  - C-EVIDENCE
+  - C-SMALL
+  - C-READ
+  - C-REVIEW
+  - C-PHASE
+files:
+- path: root/design.md
+  node_id: G-V3
+  design_revision: 4
+  semantic_digest: 02dac707bde155ddd3fc7b7a294b2649dd6cef118dd94bf7ff5f4bf4278608cd
+  snapshot_path: closures/inputs/SI-02dac707bde155ddd3fc7b7a294b2649dd6cef118dd94bf7ff5f4bf4278608cd.md
+- path: root/rationale.md
+  node_id: G-V3
+  design_revision: 4
+  semantic_digest: b6f84bf78c81aace60249aede5a969dc4e359159bb836993cc200c352dd3f92c
+  snapshot_path: closures/inputs/SI-b6f84bf78c81aace60249aede5a969dc4e359159bb836993cc200c352dd3f92c.md
+- path: root/subgoals/sg-model/design.md
+  node_id: SG-MODEL
+  design_revision: 5
+  semantic_digest: 6902bcb5f2c4bffb85f8811edbb7a19e5ad96807566dd22488b8e7ce5d0febf3
+  snapshot_path: closures/inputs/SI-6902bcb5f2c4bffb85f8811edbb7a19e5ad96807566dd22488b8e7ce5d0febf3.md
+- path: root/subgoals/sg-model/rationale.md
+  node_id: SG-MODEL
+  design_revision: 5
+  semantic_digest: 54fcd157afc7fabe1b435b015b9fef2b70f8d68a28209a17814d66167ea31fa2
+  snapshot_path: closures/inputs/SI-54fcd157afc7fabe1b435b015b9fef2b70f8d68a28209a17814d66167ea31fa2.md
+- path: root/subgoals/sg-model/approaches/a-model/design.md
+  node_id: A-MODEL
+  design_revision: 5
+  semantic_digest: 91a4301b582727a3d638371b82a86f805648e8db5f25ab05ad8f519d51bd60c1
+  snapshot_path: closures/inputs/SI-91a4301b582727a3d638371b82a86f805648e8db5f25ab05ad8f519d51bd60c1.md
+- path: root/subgoals/sg-model/approaches/a-model/rationale.md
+  node_id: A-MODEL
+  design_revision: 5
+  semantic_digest: f39f7e60835bdddee20900e793e0ccd8a619e7a6dc775de823aa33b877887878
+  snapshot_path: closures/inputs/SI-f39f7e60835bdddee20900e793e0ccd8a619e7a6dc775de823aa33b877887878.md
+- path: root/subgoals/sg-model/approaches/a-model/systems/s-record/design.md
+  node_id: S-RECORD
+  design_revision: 4
+  semantic_digest: a10bad434f158ae0bf8172676b3e6cea089198115a81d642c8936ebe25595b6e
+  snapshot_path: closures/inputs/SI-a10bad434f158ae0bf8172676b3e6cea089198115a81d642c8936ebe25595b6e.md
+- path: root/subgoals/sg-model/approaches/a-model/systems/s-record/rationale.md
+  node_id: S-RECORD
+  design_revision: 4
+  semantic_digest: 66444a6e7861118592400f40e22b683782e66fa97e882dfb2b25bac3c42de372
+  snapshot_path: closures/inputs/SI-66444a6e7861118592400f40e22b683782e66fa97e882dfb2b25bac3c42de372.md
+dependencies: []
+seams:
+- id: S-CONTEXT
+  owner: G-V3
+  revision: 2
+  canonical_path: root/design.md
+- id: S-PROPOSAL
+  owner: G-V3
+  revision: 2
+  canonical_path: root/design.md
+- id: S-AUDIT-INPUT
+  owner: G-V3
+  revision: 2
+  canonical_path: root/design.md
+- id: S-AUDIT-RESULT
+  owner: G-V3
+  revision: 2
+  canonical_path: root/design.md
+acceptance_ids:
+- SR1
+- SR2
+- SR3
+- SR4
+- SR5
+future_verification:
+  unit_test_id: UT-S-RECORD
+  subgoal_integration_id: SIT-SG-MODEL
+  final_integration_id: FIT-G-V3
+sources:
+- path: sources/requirements.md
+  semantic_digest: e0cb261c6d94faf15f113363cee173fe21c265ee71971fc05394e3b3e78af3c8
+  snapshot_path: closures/inputs/SI-e0cb261c6d94faf15f113363cee173fe21c265ee71971fc05394e3b3e78af3c8.md
+active_invalidations: []
+staged_children: []
+seam_participants:
+- node_id: SG-ASSURE
+  canonical_path: root/subgoals/sg-assure/design.md
+  semantic_digest: 6ab799a77d85fcc2e0df321c26d173a5bf34319d4b8765747622289d4d001410
+  snapshot_path: closures/inputs/SI-6ab799a77d85fcc2e0df321c26d173a5bf34319d4b8765747622289d4d001410.md
+- node_id: SG-LEARN
+  canonical_path: root/subgoals/sg-learn/design.md
+  semantic_digest: 2dde9040f50a76c16083619f191d527f35ad38f3c21fb2bb83f4b473b00f25a7
+  snapshot_path: closures/inputs/SI-2dde9040f50a76c16083619f191d527f35ad38f3c21fb2bb83f4b473b00f25a7.md
+- node_id: SG-MODEL
+  canonical_path: root/subgoals/sg-model/design.md
+  semantic_digest: ed192ee595f19670e06a2bdee05ff6e8d14433fb2575418e06814d35cec034ac
+  snapshot_path: closures/inputs/SI-ed192ee595f19670e06a2bdee05ff6e8d14433fb2575418e06814d35cec034ac.md
+---
+
+# 固定した設計入力
+
+意味snapshotはfilesとsourcesから参照する。正規化はREADMEの記載に従う。結果は別記録に保存する。

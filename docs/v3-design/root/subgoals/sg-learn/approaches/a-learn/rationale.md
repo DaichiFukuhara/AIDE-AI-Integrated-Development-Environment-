@@ -5,10 +5,10 @@ title: 範囲を固定した実験と証拠付きの反映
 parent: SG-LEARN
 depth: 2
 status: published
-revision: 6
-design_revision: 3
-parent_revision: 3
-updated_at: '2026-09-22T00:48:59+09:00'
+revision: 20
+design_revision: 7
+parent_revision: 7
+updated_at: '2026-09-22T22:33:56+09:00'
 children:
 - id: S-CYCLE
   relation: all_of
@@ -37,13 +37,13 @@ unit_test_id: null
 subgoal_integration_id: SIT-SG-LEARN
 final_integration_id: FIT-G-V3
 document: rationale
-base_revision: 5
+base_revision: 19
 validation:
   structural:
     result: pass
-    closure_id: CL-A-LEARN-d3-t12-a62a96833319
-    checked_design_revision: 3
-    checked_parent_design_revision: 3
+    closure_id: CL-A-LEARN-d7-t66-d113e5afaca6
+    checked_design_revision: 7
+    checked_parent_design_revision: 7
     criteria:
     - A-01
     - A-02
@@ -69,9 +69,9 @@ validation:
     finding_ids: []
   semantic:
     result: pass
-    closure_id: CL-A-LEARN-d3-t12-a62a96833319
-    checked_design_revision: 3
-    checked_parent_design_revision: 3
+    closure_id: CL-A-LEARN-d7-t66-d113e5afaca6
+    checked_design_revision: 7
+    checked_parent_design_revision: 7
     criteria:
     - A-01
     - A-02
@@ -113,6 +113,10 @@ next_action:
 | --- | --- | --- | --- |
 | D-A-LEARN | design.md §4〜7 | 許可、仮説、証拠を分けることで人間の専門知識への依存と、試験合格を理由にした範囲拡大を減らせる。 | AL1, AL2 |
 
+今回の修正理由: 仕様hashだけの照合では実装・証拠の差替えを検知できないためsubjectを固定する。サイクル終了と取消はcontext間の公開契約とし、内部の保存技術だけを委任する。上位の契約改訂に従い、この枝の責任と検証条件を再確認する。
+
+追加修正AV3-005: domain/contextも意味の正本なので、subjectへ不変参照集合を加える。共有定義の変更は全利用先へ影響計算し、定義と利用先を一括採用する。4階層は維持し、内容をsystem本文へ複製する方式は同期漏れを招くため採らない。
+
 ## 3. 代替案
 
 常に捨てる試作品と常に本実装へ直結する方式を比較し、成果と品質条件に応じて採用または破棄を選ぶ方式にする。
@@ -128,9 +132,9 @@ next_action:
 ## 5. 分解候補
 
 ```yaml
-candidate_ref: A-LEARN-decomposition-1
+candidate_ref: A-LEARN-decomposition-3
 parent_id: A-LEARN
-parent_design_revision: 3
+parent_design_revision: 7
 next_kind: system
 children:
 - id: S-CYCLE
@@ -176,13 +180,15 @@ unexplained_overlap: []
 
 ## 8. 検査結果
 
-構造検査と意味検査は `CL-A-LEARN-d3-t12-a62a96833319` に対してpass。詳細: `checks/CL-A-LEARN-d3-t12-a62a96833319-structural.md` と `checks/CL-A-LEARN-d3-t12-a62a96833319-semantic.md`（設計ツリールート基準）。独立監査ではなく主担当の自己レビュー。
+構造検査と意味検査は `CL-A-LEARN-d7-t66-d113e5afaca6` に対してpass。詳細: `checks/CL-A-LEARN-d7-t66-d113e5afaca6-structural.md` と `checks/CL-A-LEARN-d7-t66-d113e5afaca6-semantic.md`（設計ツリールート基準）。独立監査ではなく主担当の自己レビュー。
 
 ## 9. 変更影響
 
 条件・責任・契約の変更はv2のchange eventにし、祖先統合、契約両端、条件継承先へ波及させる。意味のない表記変更で新しい意味版を発行しない。
 
-今回の意味版は新規設計。v2の既存ノードや実行規約を書き換えない。
+EV-ASTRA-20260922-01による再設計。AV3-001〜003の公開契約を改訂し、親版・両端参照を伝播する。AV3-004の旧閉包は訂正検査で補い、歴史を上書きしない。v2実行規約は変更しない。
+
+現在の再設計イベントはEV-ASTRA-20260922-03。前回の修正・訂正記録は履歴として保持する。
 
 ## 10. 現在の作業状態
 

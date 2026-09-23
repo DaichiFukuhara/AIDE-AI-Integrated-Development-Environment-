@@ -5,10 +5,10 @@ title: 正本への参照と同じ文書内の段階的説明
 parent: SG-MODEL
 depth: 2
 status: published
-revision: 6
-design_revision: 3
-parent_revision: 3
-updated_at: '2026-09-22T00:48:54+09:00'
+revision: 20
+design_revision: 7
+parent_revision: 7
+updated_at: '2026-09-22T22:33:55+09:00'
 children:
 - id: S-RECORD
   relation: all_of

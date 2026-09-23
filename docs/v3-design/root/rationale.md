@@ -5,10 +5,10 @@ title: 試して学び、意図と現在の状態を説明できる開発
 parent: null
 depth: 0
 status: published
-revision: 6
-design_revision: 3
+revision: 18
+design_revision: 5
 parent_revision: null
-updated_at: '2026-09-22T00:46:43+09:00'
+updated_at: '2026-09-22T22:33:47+09:00'
 children:
 - id: SG-MODEL
   relation: all_of
@@ -72,12 +72,12 @@ unit_test_id: null
 subgoal_integration_id: null
 final_integration_id: FIT-G-V3
 document: rationale
-base_revision: 5
+base_revision: 17
 validation:
   structural:
     result: pass
-    closure_id: CL-G-V3-d3-t2-84ada73f2f64
-    checked_design_revision: 3
+    closure_id: CL-G-V3-d5-t51-142309b2a5f5
+    checked_design_revision: 5
     checked_parent_design_revision: null
     criteria:
     - A-01
@@ -104,8 +104,8 @@ validation:
     finding_ids: []
   semantic:
     result: pass
-    closure_id: CL-G-V3-d3-t2-84ada73f2f64
-    checked_design_revision: 3
+    closure_id: CL-G-V3-d5-t51-142309b2a5f5
+    checked_design_revision: 5
     checked_parent_design_revision: null
     criteria:
     - A-01
@@ -148,6 +148,10 @@ next_action:
 | --- | --- | --- | --- |
 | D-G-V3 | design.md §4〜7 | 小規模実装の学び、現在仕様の理解、更新の信頼は別々に確認できる成果で、三つが揃って目的を満たす。 | G1, G2, G3, G4, G5, G6 |
 
+今回の修正理由: 仕様hashだけの照合では実装・証拠の差替えを検知できないためsubjectを固定する。サイクル終了と取消はcontext間の公開契約とし、内部の保存技術だけを委任する。上位の契約改訂に従い、この枝の責任と検証条件を再確認する。
+
+追加修正AV3-005: domain/contextも意味の正本なので、subjectへ不変参照集合を加える。共有定義の変更は全利用先へ影響計算し、定義と利用先を一括採用する。4階層は維持し、内容をsystem本文へ複製する方式は同期漏れを招くため採らない。
+
 ## 3. 代替案
 
 現行v2をそのまま利用する案は将来実装への引渡しで終わる。ドメインだけの木に置換する案は目的の追跡が弱くなるため不採用。
@@ -163,9 +167,9 @@ next_action:
 ## 5. 分解候補
 
 ```yaml
-candidate_ref: G-V3-decomposition-1
+candidate_ref: G-V3-decomposition-3
 parent_id: G-V3
-parent_design_revision: 3
+parent_design_revision: 5
 next_kind: subgoal
 children:
 - id: SG-MODEL
@@ -249,19 +253,19 @@ parent_retains:
 seams:
 - id: S-CONTEXT
   owner: G-V3
-  revision: 1
+  revision: 3
   canonical_ref: design.md:owned_seams
 - id: S-PROPOSAL
   owner: G-V3
-  revision: 1
+  revision: 3
   canonical_ref: design.md:owned_seams
 - id: S-AUDIT-INPUT
   owner: G-V3
-  revision: 1
+  revision: 3
   canonical_ref: design.md:owned_seams
 - id: S-AUDIT-RESULT
   owner: G-V3
-  revision: 1
+  revision: 3
   canonical_ref: design.md:owned_seams
 unassigned_required_acceptance: []
 unexplained_overlap: []
@@ -280,13 +284,15 @@ unexplained_overlap: []
 
 ## 8. 検査結果
 
-構造検査と意味検査は `CL-G-V3-d3-t2-84ada73f2f64` に対してpass。詳細: `checks/CL-G-V3-d3-t2-84ada73f2f64-structural.md` と `checks/CL-G-V3-d3-t2-84ada73f2f64-semantic.md`（設計ツリールート基準）。独立監査ではなく主担当の自己レビュー。
+構造検査と意味検査は `CL-G-V3-d5-t51-142309b2a5f5` に対してpass。詳細: `checks/CL-G-V3-d5-t51-142309b2a5f5-structural.md` と `checks/CL-G-V3-d5-t51-142309b2a5f5-semantic.md`（設計ツリールート基準）。独立監査ではなく主担当の自己レビュー。
 
 ## 9. 変更影響
 
 条件・責任・契約の変更はv2のchange eventにし、祖先統合、契約両端、条件継承先へ波及させる。意味のない表記変更で新しい意味版を発行しない。
 
-今回の意味版は新規設計。v2の既存ノードや実行規約を書き換えない。
+EV-ASTRA-20260922-01による再設計。AV3-001〜003の公開契約を改訂し、親版・両端参照を伝播する。AV3-004の旧閉包は訂正検査で補い、歴史を上書きしない。v2実行規約は変更しない。
+
+現在の再設計イベントはEV-ASTRA-20260922-03。前回の修正・訂正記録は履歴として保持する。
 
 ## 10. 現在の作業状態
 

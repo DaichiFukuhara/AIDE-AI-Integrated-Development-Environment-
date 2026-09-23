@@ -5,10 +5,10 @@ title: 監査基準版からの差分をDDDの観点で判定する
 parent: SG-ASSURE
 depth: 2
 status: published
-revision: 6
-design_revision: 3
-parent_revision: 3
-updated_at: '2026-09-22T00:49:04+09:00'
+revision: 20
+design_revision: 7
+parent_revision: 7
+updated_at: '2026-09-22T22:33:58+09:00'
 children:
 - id: S-AUDIT
   relation: all_of

@@ -5,10 +5,10 @@ title: 試して学び、意図と現在の状態を説明できる開発
 parent: null
 depth: 0
 status: published
-revision: 6
-design_revision: 3
+revision: 18
+design_revision: 5
 parent_revision: null
-updated_at: '2026-09-22T00:46:43+09:00'
+updated_at: '2026-09-22T22:33:47+09:00'
 children:
 - id: SG-MODEL
   relation: all_of
@@ -70,33 +70,37 @@ owned_seams:
   from: SG-MODEL
   to: SG-LEARN
   direction: 設計→実験
-  revision: 1
-  contract: 要求operation_idと対象goal/systemから、bundle_id、意味版集合、条件、契約、委任、現在のaudit_baselineと未監査差分、進行判定、反映の成否を返す。取得は読取り専用。採用結果は対応operation_idで照合する。
-  failure: 対象欠落・旧版・競合では理由と再読先を返す。進行許可のない候補を実験に使わない。同じ要求の再送は重複反映しない。
+  revision: 3
+  contract: 要求operation_idと対象goal/systemに対しbundle_id、spec意味版と契約版集合、委任、subjectとscope/phase別audit_baseline、未監査差分、進行判定を返す。proposal/withdrawal/cycle_closedの結果は要求IDで照合し、対象ID・現在の確定状態・反映bundleまたはperiodic要求ID/skip理由を返す。取得は読取り専用。
+    subjectとbundleは§5のmodel_definition_refsによりdomain/contextの意味と依拠先を不変版で含む。定義変更の影響scope・新要求・旧結果・一括反映も同節に従う。
+  failure: 対象欠落・競合・取消待ちでは理由と再読先を返す。旧checkedを取消後の進行許可へ流用しない。
 - id: S-PROPOSAL
   owner: G-V3
   from: SG-LEARN
   to: SG-MODEL
   direction: 実験→設計
-  revision: 1
-  contract: operation_id、kind(plan/adoption/withdrawal)、experiment_id/plan_revision、base_bundle、対象ID、変更差分と意味hash、条件・契約の影響、委任参照、証拠参照を渡す。planは試作の候補、adoptionは現在仕様への採用候補。
-  failure: 重複は同一内容なら既存結果を返す。異内容ID再利用は拒否。旧版・予算外・取消済みは反映せず理由を返す。証拠は失わない。
+  revision: 3
+  contract: operation_id、kind(plan/adoption/withdrawal/cycle_closed)、experiment_id/plan_revision、cycle_id、scopeを渡す。plan/adoptionはbase_bundle、対象ID、仕様差分、subject/subject_hash、条件・契約影響、委任参照を持つ。withdrawalはtarget_operation_id、expected_subject_hash、scopeを持つ。cycle_closedはoutcome、全関連操作IDと確定結果、反映bundle、closed_atを持つ。詳細な版集合・終了・取消の意味は本design
+    §5の共通契約を適用する。 subjectとbundleは§5のmodel_definition_refsによりdomain/contextの意味と依拠先を不変版で含む。定義変更の影響scope・新要求・旧結果・一括反映も同節に従う。
+  failure: 同内容ID再送は保存済み状態を返し、異内容ID再利用は拒否する。旧版・予算外・取消済みは反映しない。未着取消はpending-target、反映後取消はalready-applied。終了通知は周期要求保存または差分なし記録後にack。
 - id: S-AUDIT-INPUT
   owner: G-V3
   from: SG-MODEL
   to: SG-ASSURE
   direction: 設計→監査
-  revision: 1
-  contract: operation_id、kind(plan/adoption/periodic)、対象scope、候補意味hash、現在bundle、監査基準版、累積差分、委任、関連検証と実使用結果、観測時刻を渡す。初回はbaseline=null。
-  failure: 不足項目は理由と解消条件を返す。候補撤回はcancel通知として同じ操作を終了する。対象hash変更は新要求とし古い判定を流用しない。
+  revision: 3
+  contract: 新しいaudit_request_idをoperation_idとし、origin_operation_id、kind(plan/adoption/periodic/cancel)、scope、subject/subject_hash、criteria_version、基準版、累積差分、委任、観測時刻を渡す。periodicはtrigger(cycle_closed/activity_due)、対応する通知IDまたは期限を持つ。cancelは新operation_id、target_operation_id（監査要求ID）、expected_subject_hash、scopeを持つ。初回baselineはnull。§5の共通契約を適用する。
+    subjectとbundleは§5のmodel_definition_refsによりdomain/contextの意味と依拠先を不変版で含む。定義変更の影響scope・新要求・旧結果・一括反映も同節に従う。
+  failure: 版集合の欠落・可変refはblocked。対象変更は新要求。同ID異内容は拒否。取消未着はpending-target、完了後はalready-completed、未完了はcancelled。通知と要求の再送は同じ対応を保つ。
 - id: S-AUDIT-RESULT
   owner: G-V3
   from: SG-ASSURE
   to: SG-MODEL
   direction: 監査→設計
-  revision: 1
-  contract: operation_id、target_hash、result(daily-pass/require-review/audit-pass/blocked/stale/cancelled)、適用基準と証拠、finding、影響scope、次の処理、監査基準版、期限を返す。audit-passだけが対象範囲の監査基準を進める。
-  failure: hashが現候補と不一致ならstaleとして再判定。同じ結果の再送で基準を重複更新しない。重大指摘が残れば反映せず、影響外を止めない。
+  revision: 3
+  contract: operation_id（応答先監査要求ID）、origin_operation_id、subject_hash（target_hashと同義）、scope、phase、criteria_version、result(daily-pass/require-review/audit-pass/blocked/stale/cancelled/pending-target/already-completed/rejected)、証拠、finding、次の処理、基準版、期限を返す。cancel応答はtarget_operation_idも返す。audit-passの受理条件と基準更新範囲は§5に従う。
+    subjectとbundleは§5のmodel_definition_refsによりdomain/contextの意味と依拠先を不変版で含む。定義変更の影響scope・新要求・旧結果・一括反映も同節に従う。
+  failure: 記録側は監査要求・対象subject・scope・phase・基準を照合し、不一致や取消済みはstale。再送で基準を重複更新しない。重大指摘は影響範囲を保留し、現在版の自動巻戻しや影響外停止をしない。
 seam_refs: []
 source_refs:
 - sources/requirements.md
@@ -163,7 +167,7 @@ v2のpublishedは本設計を正本にしたという意味。v3における現�
 
 ### 共通識別
 v3の操作はoperation_id、対象ID、base_revision、意味のハッシュを持つ。同じoperation_id・同じ内容の再送は同じ結果を返す。内容を変えて同じIDを再利用したら拒否する。送信順や時刻だけで新旧を判断しない。
-意味変更ではsemantic_revisionを、状態・結果追記だけでは通常revisionを進める。監査の対象は意味のハッシュで固定し、結果追記によって自己失効させない。
+意味変更ではsemantic_revisionを、状態・結果追記だけでは通常revisionを進める。監査の対象は以下のsubjectで固定し、結果追記によって自己失効させない。
 書込み担当は対象の通常revisionを直前照合し、競合時は候補を保存したまま再評価する。部分反映をcurrentと表示しない。
 
 ### 統合責任
@@ -172,6 +176,33 @@ G6は根が統合所有する。記録、実験、監査の各小目標へ回復
 ### 正常・失敗・取消の扱い
 
 正常時は割当条件に沿って下位を具体化する。参照・版の矛盾は影響範囲へ返す。仮説の不成立は実験結果として残し、仕様の成功へ置換しない。取消した候補は現在仕様へ反映せず、既存の有効版を維持する。
+
+### 監査対象を固定する共通契約（AV3-001）
+監査対象subjectはscope、phase、spec意味版と契約版の集合、model_definition_refs、plan_revisionと評価条件版、implementation_ref、trial_refs、evidence_refsを一組として固定する。各refは不変コミット・内容hash・不変snapshot等で内容を一意に復元できる参照とする。編集可能なファイル名やlatestだけの参照は拒否する。subject_hashはこの版集合全体の識別値であり、仕様だけの意味hashとは別物である。以下で監査対象のtarget_hashと呼ぶ値は常にsubject_hashを指す。
+planでは未実装のimplementation_refをnull、未取得の試行・証拠を空として未検証範囲を明記できる。adoptionでは採用実装版とその検証・実使用の結果または理由付き未検証の扱いを固定する。periodicは現行の採用済み版集合を固定する。監査結果自体と状態追記はsubjectに入れず、結果追記による自己失効を防ぐ。
+結果はaudit_request_id、subject_hash、scope、phase、criteria_versionに結び付く。完全一致する対象にだけ適用できる。domain/contextの意味定義・実装・証拠・評価条件・対象範囲のいずれかが変われば新しいsubjectと新しい要求IDで分類する。古い結果は履歴と比較根拠として残すが、新対象を合格扱いにしない。仕様の意味不変な実装修正も、関連確認を経てdaily-passで採用し得るが、未監査差分に実装・証拠の版変更を加える。
+audit_baselineはscope/phaseごとの監査済みsubjectを指す。daily-passは基準を進めない。audit-passも記録側が一致を確認し受理した範囲だけを進める。plan合格はplanの基準にだけ有効で、実装保証へ昇格させない。adoption結果はcurrentの一括反映と同時に受理し、periodic結果は現在の対象版集合が一致する場合だけ受理する。対象外の差分や監査中に生じた新差分は残す。
+
+### サイクル終了と周期確認の共通契約（AV3-002）
+cycle_idは一回の実験サイクルを識別する。S-CYCLEがreflected、rejected、cancelled、または終了を決めたinconclusiveを終端として記録する。pausedと修正継続中のinconclusiveは終端ではない。終端を再開して書き換えず、追加実験には新しいcycle_idと元サイクルへの参照を付ける。
+学習側は全plan/adoption要求の確定結果を確認してから、終端状態とcycle_closed通知の未送信記録を同じ論理更新で保存する。通知は独自operation_id、cycle_id、experiment_id/plan_revision、outcome、対象scope、関連する全操作IDと確定結果、反映済みbundle（無ければnull）、closed_atを持つ。取消なら対象取消の確定を先に待ち、取消前に反映済みならその反映結果を通知にも残す。再開時は未確認通知を同じIDで再送する。
+S-RECORDが通知の受信・周期確認の起動を所有する。関連操作の確定と反映結果を自分の記録で照合し、未確定ならpendingとして保持し確定後に再開する。採用時はcurrent反映後、不採用・取消時も受信時の現行scopeにある未監査差分を確認する。終了通知の受領と、periodic要求の永続化または差分なしのskip理由を同じ論理更新で保存してからackを返す。再送では新たな要求を増やさない。既存の同じsubject/scopeの要求があれば対応付ける。
+周期要求は保存直後に監査へ渡し、中断時は次の再開で未送信要求を処理する。単に次回の任意作業まで保留しない。もう一つの起点は、最初の未監査変更から7暦日後の次の作業開始であり、S-RECORDが開始時に観測時刻を確認して同じ経路を起動する。実験終了と期限の早い方を採用する。監査中の新差分に対しても期限と終了通知を保持し、旧対象の結果だけで解消済みとしない。自動常駐処理は要求しない。
+periodicがblockedならcurrentを自動巻戻しせず影響scopeを修正待ちとして表示し、そのscopeの新しい採用・試作進行を保留する。原因解消の候補作成・限定した修正検証は既存の委任内で可能とし、無関係な枝は継続する。合格済み対象と保留範囲を区別して再開する。
+
+### 取消と反映の順序の共通契約（AV3-003）
+withdrawalのoperation_idは取消要求自身の新しいIDとし、target_operation_idで一つのplanまたはadoption要求を指定する。expected_subject_hashとscopeを付け、対象との一致と委任を照合する。同じexperimentの他操作を暗黙に取り消さない。同じID・同じ内容の再送は重複処理せず保存済みの現在の確定結果を返す。異内容でのID再利用は拒否する。
+S-RECORDは対象が未着の場合pending-targetとして取消要求を保存し、指定ID・期待hash・scopeの仮tombstoneを置く。一致する対象が後着したら取消を確定し、違えば取消をrejectedにして仮tombstoneを外す。仮状態では対象の反映を行わない。取消要求の権限・範囲が検証できなければblockedとし反映を許可しない。対象が届かない間は取消完了と表示しない。
+記録側はcurrent切替と取消確定を同じ操作台帳で直列化する。取消が先ならcancelledのtombstoneを確定し、旧要求の再送はcancelled、遅延監査結果はstaleとして反映も基準更新もしない。adoptionのcurrent切替が先ならalready-appliedとbundleを返し、巻戻しは新しいadoptionにする。planのchecked後も将来の着手をcancelledにできるが、既に行われた実行を消したり未実行と記録したりしない。S-CYCLEは次の作業境界で停止し結果を保存する。
+対象proposalとaudit_request_idの対応はS-RECORDが保存する。監査へ渡すcancelも新しいoperation_idを持ち、target_operation_idには対応する一つのaudit_request_idを指定し、同じexpected_subject_hash/scopeを渡す。S-AUDITは未着なら仮tombstone、到着後なら取消記録を保持する。先に判定完了していればalready-completedと元結果を返して履歴を残すが、記録側の取消は撤回されない。監査cancel通知の到着を待たず記録側のtombstoneで遅延結果を拒否する。取消通知も永続化して再送し、二重通知で状態を戻さない。
+
+### domain/context正本の固定と変更（AV3-005）
+subjectのmodel_definition_refsは、対象spec・契約・評価条件が意味の解釈に用いるdomain/context定義を固定する必須集合である。各要素はdomain_id、context_id（domain全体の定義ならnull）、canonical_owner、semantic_revision、immutable_ref、依拠する他定義への版付き参照を持つ。用語の意味、責任、ルールと不変条件、context間の意味の変換を含む。単なる所属IDや編集可能な文書パスだけでは不足で、内容を不変に復元できることを要求する。domain/context文書を第5階層へ追加するものではない。
+S-RECORDが対象specから依拠する定義とその参照先を再帰的に集め、重複は同一ID・同一版へ統一する。循環参照は既訪問を再展開せず、未解決参照・同一IDの矛盾する版・正本owner不明はblockedにする。依拠する定義がない場合だけ、空集合と非該当の理由を保存する。監査者と採用担当はこの集合から用語・責任を読み、subject外のlatestで補わない。scope外に所在する共有定義でも、解釈に使うものは読み取り入力として含める。
+domain/contextの意味変更も変更提案として扱い、正本を直接書き換えない。S-RECORDが版付き参照と利用索引から、変更定義を直接・間接に利用するspec、契約、計画、候補、current bundleと監査基準の影響scopeを閉包計算する。利用先の判断に必要な参照が欠ければ対象を特定できるまでその変更をblockedにし、影響外と推測しない。
+用語・責任・ルールが変わると、system本文が同じでもmodel_definition_refsを更新した新subject・新要求を作り、影響境界の即時限定監査へ渡す。旧判定は旧定義版の保証履歴として保持するが、新版の許可には使わない。未監査差分に定義の旧新版と影響scopeを含め、daily-passや表記変更として基準を進めない。意味不変の表記だけなら根拠付きで通常revisionを更新でき、不変の意味入力は変えない。
+影響scopeにあるcurrent bundleは旧定義版を参照したまま有効な過去の組として保持し、変更候補と混同しない。変更を採用する際は定義の正本版参照と全影響利用先のbundle参照を同じ論理更新で切り替える。一部だけが新版を読む状態をcurrentにせず、必要な限定監査・委任・版一致が揃うまで候補として保つ。新しい定義版を採用済みなら、旧定義へ依存する進行中候補・監査結果はstaleとして再構成する。意図的に異なる意味を共存させる場合は別のcontextまたは定義IDと変換契約を明示した別提案が必要で、単なる旧結果流用にはしない。
+S-CYCLEは計画・試行が依拠したmodel_definition_refsを不変の計画／証拠へ保存し、提案のsubjectと一致させる。計画中に定義が変われば計画版を改め、旧定義で得た結果はその限界付きの履歴とし、新定義の成功と読み替えない。S-AUDITは完全な参照集合・影響scope・旧新版の差分を照合し、DDD-01〜04とAIDE-03の根拠に使う。保存形式と索引生成方式は実装へ委任するが、意味入力の包含と波及は省略できない。
 
 ## 6. 入出力と状態
 
@@ -183,7 +214,7 @@ G6は根が統合所有する。記録、実験、監査の各小目標へ回復
 
 ## 7. seam と依存
 
-完全なseam契約はfrontmatterのowned_seamsが正本。本文には複製しない。4本で要求・応答・失敗・取消を扱う。
+seamの項目と方向の正本はfrontmatterのowned_seams、共通の意味・順序の正本は§5。両者で一つの契約を構成する。4本で要求・応答・失敗・取消を扱う。
 
 ## 8. 品質条件
 

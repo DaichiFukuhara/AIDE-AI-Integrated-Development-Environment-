@@ -1,8 +1,8 @@
 # AIDE v3 設計 — 小さく試し、結果から設計を育てる
 
-**v2の設計工程で作成した、v3の実装に向けた設計です。現在は監査指摘への修正待ちです。** 2026-09-22に4階層・10ノードを正本化しましたが、その後のAstra監査で重大な不足が見つかりました。v3の実行規約・テンプレート一式や製品コードは未実装です。
+**v2の設計工程で作成したv3設計です。Codex CLI / GPT-6 Astraの再監査に合格しました。** 4階層・10ノード、tree revision 80が対象です。v3の実行規約・テンプレート一式や製品コードは未実装です。
 
-最新の **Codex CLI / GPT-6 Astraによる独立監査はfail、open major 4件**です。GPT-5.5の過去のpassを現在の受入判定には使いません。[監査結果と実行記録](checks/independent-audit/README.md) と [未処理の変更イベント](changes/events/EV-ASTRA-20260922-01.md) を保存しています。
+最新の独立監査は **pass、open blocker / major 0件**。AV3-001〜005はclosedです。[監査結果と実行記録](checks/independent-audit/README.md)に、修正前のfailを含む履歴を保持しています。
 
 v3では、必要な枝の仮設計から小規模実装を始め、テストと実使用の結果を設計へ反映します。一度監査した範囲の内部修正は日常確認で進め、意味や責任の境界が変わる時と定期的な節目に監査します。
 
@@ -15,7 +15,7 @@ v3では、必要な枝の仮設計から小規模実装を始め、テストと
 | 小規模実装の着手条件、テスト・実使用・採否 | [学習 S-CYCLE](root/subgoals/sg-learn/approaches/a-learn/systems/s-cycle/design.md) |
 | DDD監査基準、監査の頻度、指摘の終了条件 | [監査 S-AUDIT](root/subgoals/sg-assure/approaches/a-assure/systems/s-audit/design.md) |
 | 要求・ログ・仮定の出所 | [設計入力](sources/requirements.md) |
-| 今回どこまで確認したか | [設計工程の完了検査](checks/completion.md)・[機械的な最終照合](checks/final-verification.md) |
+| 今回どこまで確認したか | [修正後の文書照合](checks/astra-repair-round3-verification.md)・[初回の検査履歴](checks/completion.md) |
 
 この文書は案内と要約です。条件の正本はリンク先の設計と根拠です。
 
@@ -100,9 +100,9 @@ DDDの観点は、共通言語、モデル境界、不変条件と整合性、�
 
 現行の [v2実行規約](../../harness-v2/README.md) に従い、intake → author → decompose → precheck → review → orchestrateを実行しました。ノードの2文書、選択した子の仮文書、検査対象の固定、検査結果、正本化、システム引渡しを保存しています。
 
-構造照合は文書検査の補助処理で行い、ノードを正本化した時点の意味レビューは主担当が行いました。続くGPT-5.5の独立監査はpassでしたが、ユーザー指定のAstraによる再監査はfailでした。過去の検査・公開記録はそのまま残し、最新指摘をv2の変更イベントとして登録しています。修正と再監査の前に、実装への引渡しを合格扱いにはしません。
+構造照合は文書検査の補助処理で行い、ノードを正本化した時点の意味レビューは主担当が行いました。続くGPT-5.5の独立監査はpassでしたが、ユーザー指定のAstraによる再監査はfailでした。過去の検査・公開記録はそのまま残し、最新指摘をv2の変更イベントで処理しました。[修正後の文書照合](checks/astra-repair-round3-verification.md)と過去3閉包の訂正検査を保存しています。Astraの最終再監査でAV3-001〜005の解消と回帰なしを確認しました。今回の完了範囲は設計です。
 
-- [tree-state.md](tree-state.md): 現在の全体版と引渡し先。最終 `tree_revision: 18`。
+- [tree-state.md](tree-state.md): 現在の全体版と引渡し先。現在 `tree_revision: 80`。
 - `root/`: 10ノードそれぞれの `design.md` と `rationale.md`。
 - `closures/manifests/`: 検査・引渡しで固定した入力一覧。
 - `closures/inputs/`: 意味の内容から名前を付けた、編集しない検査用の保存物。

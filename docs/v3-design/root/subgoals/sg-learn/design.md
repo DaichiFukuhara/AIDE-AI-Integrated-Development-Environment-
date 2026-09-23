@@ -5,10 +5,10 @@ title: 最小の動作を試し、証拠で次の方法を選べる
 parent: G-V3
 depth: 1
 status: published
-revision: 6
-design_revision: 3
-parent_revision: 3
-updated_at: '2026-09-22T00:47:17+09:00'
+revision: 20
+design_revision: 7
+parent_revision: 5
+updated_at: '2026-09-22T22:33:51+09:00'
 children:
 - id: A-LEARN
   relation: all_of
@@ -34,11 +34,11 @@ owned_seams: []
 seam_refs:
 - id: S-CONTEXT
   owner: G-V3
-  revision: 1
+  revision: 3
   role: consumer
 - id: S-PROPOSAL
   owner: G-V3
-  revision: 1
+  revision: 3
   role: producer
 source_refs:
 - sources/requirements.md

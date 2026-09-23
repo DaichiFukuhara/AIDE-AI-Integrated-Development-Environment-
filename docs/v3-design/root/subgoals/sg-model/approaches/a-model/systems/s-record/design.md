@@ -5,10 +5,10 @@ title: 現在仕様・参照・反映を管理する記録機構
 parent: A-MODEL
 depth: 3
 status: published
-revision: 6
-design_revision: 2
-parent_revision: 3
-updated_at: '2026-09-22T00:50:02+09:00'
+revision: 20
+design_revision: 6
+parent_revision: 7
+updated_at: '2026-09-22T22:34:00+09:00'
 children: []
 depends_on: []
 owned_seams: []
@@ -102,6 +102,14 @@ planのcheckedはその候補を試せるという判定だけを返す。plan�
 
 参照欠落・循環・所有者重複はcandidateのまま拒否。版競合はconflictで再読。書込み中断は最後の完全bundleをcurrentとして維持し、operation_idで再開。
 
+### 監査対象・終了通知・取消の記録責任
+G-V3 §5の共通契約を適用する。candidateには仕様hashとは別のsubject/subject_hashとaudit_request_idを保存し、採用時の実装・試行・証拠版集合を固定する。完全一致する結果だけを受理し、実装や証拠だけの変更も未監査差分に残す。基準の更新はscope/phase単位とし、現在仕様の反映と矛盾させない。
+cycle_closed受信と周期要求の保存を所有し、差分なしならskip理由を残す。daily-passの採用反映後に終了通知を受ければ、その採用分を含めて周期確認へ渡す。不採用でも既存の未監査差分を確認する。期限到達の作業開始も同じ経路へ入れる。
+withdrawal自身と対象proposal、proposalと監査要求のID対応を台帳で保持する。取消とcurrent切替の確定順を所有し、pending-target、cancelled、already-appliedを区別する。取消後に旧daily-passが再送されても反映せず、取得側にも旧checkedを有効な進行判定として返さない。
+
+### domain/contextの版対応
+domain/contextの正本はG-V3 §5のmodel_definition_refsで固定し、current bundleにもその版集合を含める。意味の依拠先を再帰的に解決し、定義変更の全利用先を影響scopeへ加える。定義と利用先参照の採用は一括とし、旧版の合格を新定義へ適用しない。
+
 ## 6. 入出力と状態
 
 | 区分 | 契約 |
@@ -132,7 +140,7 @@ planのcheckedはその候補を試せるという判定だけを返す。plan�
 | SR1 | systemの主親を一つに保ち、uses_systemsとcontext境界から参照・条件の所在を解決できる。 | S-RECORD |
 | SR2 | 文章の冒頭で主体・操作・結果・短い理由・制約・未決が分かり、詳細の条件と食い違わない。 | S-RECORD |
 | SR3 | 同じ操作の再送は重複反映せず、古いbase_revisionと部分書込みは現行仕様へ混入しない。 | S-RECORD |
-| SR4 | 対象の意味ハッシュと異なる監査結果を採用せず、小変更後に未監査差分と基準版を読める。 | S-RECORD |
+| SR4 | 仕様・実装・証拠のsubject_hashと異なる監査結果を採用せず、小変更後に未監査差分と基準版を読める。 | S-RECORD |
 | SR5 | 実験不採用・取消では設計を変更せず、採用時だけ関係する正本と根拠・参照を更新する。 | S-RECORD |
 
 ## 10. 子への割り当て
