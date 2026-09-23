@@ -3,6 +3,8 @@
 
 # node
 node_modules/
+__pycache__/
+*.pyc
 archive/legacy-cli/vscode-aide/dist/
 archive/legacy-cli/vscode-aide/engine/
 archive/legacy-cli/vscode-aide/.vscode-test/

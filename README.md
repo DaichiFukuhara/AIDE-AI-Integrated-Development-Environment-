@@ -1,32 +1,40 @@
 # AIDE
 
-**最新版は [`harness-v2/`](harness-v2/README.md) です。**
+**最新版は [`harness-v3/`](harness-v3/README.md) です。**
 
-AIDEは、AIとの対話を通じて、大本の目標を実装可能なシステム設計まで具体化するための設計ハーネスです。
-現在のハーネスはMarkdownの規約・テンプレート・役割で構成されます。
+AIDEは、AIとの対話で目標を具体化し、小さな実装・テスト・実使用から設計を育てる開発ハーネスです。
+Markdownの規約・テンプレート・役割に、監査入力を固定する補助ツールと実行例を添えています。
 
 ## はじめる
 
-1. [最新版の実行規約](harness-v2/README.md)を読む。
-2. [入力の整理](harness-v2/roles/intake.md)から、大本の目標を設計ツリーへ落とし込む。
-3. [書店の設計例](harness-v2/examples/bookstore.md)で、具体的な成果物を確認する。
+1. [v3実行規約](harness-v3/README.md)を読む。
+2. [入力の整理](harness-v3/roles/intake.md)で、目標と最初に試す範囲を決める。
+3. [小規模実装の実行例](harness-v3/examples/task-summary/README.md)を試す。
 
 AIに依頼するときの入口:
 
 ```text
-harness-v2/README.md に従って、次の目標を設計してください。
+harness-v3/README.md に従って、次の目標を開発してください。
 目標: <実現したいこと>
-保存先: design-tree/
+プロジェクト: <保存先>
+制約・既存の許可: <予算、変更範囲、外部公開の条件>
 ```
 
-`design-tree/` は利用時に作る成果物の保存先です。到達点は設計ファイルと設計閉包で、実装・テストは将来フェーズへ引き渡します。
+必要な枝から実装・検証し、採用した結果を設計へ反映します。設計だけを引き渡す場合は[v2](harness-v2/README.md)も利用できます。
 
 ## フォルダ構成
 
 ```text
 .
 ├─ README.md                 このリポジトリの入口
-├─ harness-v2/               最新版の設計ハーネス
+├─ harness-v3/               実験・修正・設計反映を行う最新版
+│  ├─ protocols/             記録・版・context間の受渡し
+│  ├─ roles/                 各担当の実行手順
+│  ├─ templates/             設計・計画・操作・監査の記録
+│  ├─ criteria/              DDDとAIDEの確認基準
+│  ├─ tools/                 不変snapshotの保存・検証
+│  └─ examples/              小規模実装と修正の実行例
+├─ harness-v2/               設計専用の旧安定版
 │  ├─ README.md              実行規約
 │  ├─ roles/                 各工程の役割
 │  ├─ criteria/              品質基準・設計前例
@@ -43,8 +51,8 @@ harness-v2/README.md に従って、次の目標を設計してください。
    └─ legacy-cli/            旧CLI・MCP・VS Code拡張・テスト
 ```
 
-設計の全体像は [AIDE v2の設計](docs/harness-v2-design.md)、旧パスの移動先は [archiveの案内](archive/README.md)を参照してください。
-`archive/` 内の「v2」「現行」などの表現は、各資料を作成した当時の呼び名です。現在使う規約は `harness-v2/README.md` を入口にしてください。
+設計の全体像は [AIDE v3の設計](docs/v3-design/README.md)、実装と検証は[v3実装記録](docs/v3-implementation/README.md)、旧パスの移動先は [archiveの案内](archive/README.md)を参照してください。
+`archive/` 内の「v2」「現行」などの表現は、各資料を作成した当時の呼び名です。現在使う規約は `harness-v3/README.md` を入口にしてください。
 
 ## 旧CLIを使う場合
 

@@ -1,6 +1,6 @@
 # AIDE v3 設計 — 小さく試し、結果から設計を育てる
 
-**v2の設計工程で作成したv3設計です。Codex CLI / GPT-6 Astraの再監査に合格しました。** 4階層・10ノード、tree revision 80が対象です。v3の実行規約・テンプレート一式や製品コードは未実装です。
+**v2の設計工程で作成したv3設計です。Codex CLI / GPT-6 Astraの再監査に合格しました。** 4階層・10ノード、tree revision 80が対象です。この判定は実装前の設計に対するものです。後続の[harness-v3実装と検証](../v3-implementation/README.md)は別記録で確認できます。
 
 最新の独立監査は **pass、open blocker / major 0件**。AV3-001〜005はclosedです。[監査結果と実行記録](checks/independent-audit/README.md)に、修正前のfailを含む履歴を保持しています。
 

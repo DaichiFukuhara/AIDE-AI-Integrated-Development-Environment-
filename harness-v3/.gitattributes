@@ -1,0 +1,2 @@
+# Keep audit input bytes stable across checkouts.
+* -text
