@@ -1,0 +1,8 @@
+{
+  "raw_stdout_sha256": "726c788d63dca717d1d99d060f8322095cc3a9e5b4aaf1b1aa4a40bbf35da397",
+  "public_stdout_sha256": "899327e1644da7501f01faa36816d47989ec8cd7ba3c50b056a2aaa43cc63af7",
+  "omitted_thinking_blocks": 1,
+  "raw_archive_location": "Local temporary storage; not committed",
+  "final_result_unchanged": true,
+  "note": "Thinking and redacted_thinking content blocks omitted from public capture; final answer, model identity, usage and result events retained."
+}

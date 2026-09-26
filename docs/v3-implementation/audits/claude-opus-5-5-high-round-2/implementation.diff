@@ -1,0 +1,522 @@
+--- a/harness-v3/criteria/README.md
++++ b/harness-v3/criteria/README.md
+@@ -19,4 +19,5 @@
+ セキュリティ、性能、データ保護、利用価値等はプロジェクトの受入条件として別途確認する。DDDだけで保証しない。
+ 
+ 監査では目的適合、十分性、境界、分解、変更耐性、入力の完全性、検証との接続を横断して確認する。
++再監査での横断確認は[再監査手順](../roles/audit.md)の今回確認と有効な前回確認の対応表で行う。変更・波及のない部分を毎回全文再審査する要求ではない。
+ 結果は基準ID・具体的反例・解消条件付きで保存する。好みだけで追加要求を増やさない。
+--- a/harness-v3/protocols/budgets.md
++++ b/harness-v3/protocols/budgets.md
+@@ -0,0 +1,29 @@
++# 実行・監査・記録の予算
++
++試行だけでなく、監査・再監査・周期監査・有料の記録作業にも同じ上限判定を適用する。
++既存の委任を出所付きで引き継ぎ、内部の作業分割を理由に再承認を求めない。予算の変更・未委任の外部費用だけを利用者の判断へ戻す。
++
++## 所属と正本
++
++stateのbudget_accountsが累積使用量と実行予約の正本。experiment/trial/auditの費用欄はこの台帳への参照と実行証拠であり、二重加算しない。
++各口座はid、owner、delegation_ref、対象activity/scope、上限ごとの単位・limit、使用量、実測不能時の保守的上限と根拠を持つ。
++実験の計画・採用・再監査は既定でその実験の予算に含める。別の監査予算が既に委任されていれば、その口座へ明示的に割り当てられる。
++複数実験をまたぐ周期監査やactivity_dueには、既存の委任がそのscopeと費用を覆う口座を指定する。終わった実験へ暗黙に請求せず、割当不明なら送信待ちにする。
++親のプロジェクト予算など共通上限もある場合は、それを含む全口座の制約を確認する。別口座へ付け替えて共通上限を回避しない。
++金額・時間・試行数・監査回数等をlimit_idごとのmapで保持する。試行数は試行のみなど、何を数えるかを各上限のactivity条件で固定する。
++上限なしはlimit=nullと既存の委任根拠で明示し、unknownや未設定を上限なしへ読み替えない。現在の委任で十分な場合に新たな上限設定を要求しない。
++
++## 外部実行の前後
++
++1. 実行元はactivity、scope、委任、account_refsと新しいexecution_idを特定する。監査要求IDと物理的な実行IDは分ける。
++2. 記録担当は、適用される全上限について「実測累計または根拠ある保守的累積上限 + 未決実行の予約上限 + 次の実行上限」がlimit以下と保証できるか確認する。上限根拠の前提も再確認する。
++3. 保証できる場合だけ、判定・根拠・execution_idごとの予約をstateの一更新で永続化してから実行/送信する。一つの予約を二つの実行へ使わない。複数口座の予約も一括する。
++4. 保証できない場合は開始しない。試行はpaused、監査はoutboxのheld-budgetとし、未監査scope・不明量・理由・再開条件を保存する。通知の受領ackは保存を確認するだけなので返せるが、監査完了とは表示しない。
++5. 実行後は証拠を使って予約を使用実績へ一度だけ精算する。結果不明・タイムアウト・中断では消費を0に戻さず、予約を保持するか使用上限へ移す。実行未開始と確認できた分だけ解放する。
++
++同じ要求の配送再送は保存済み結果を照会し、新しい有料実行を起こさない。物理的な再実行が必要なら新execution_idの追加費用を予約し、旧実行の費用も残す。
++応答不明の実行を再送時に二重起動しない。実行状態の照会や照合ができるまでin-flightとし、再開時に確認する。
++監査中に予算が下方変更された場合は次の作業境界で停止し、停止までの費用も記録する。未送信予約は新委任で再判定する。
++解除は実測回復、根拠ある上限の確定、既存委任内の小さい処理への変更、または明示的な予算変更後に行う。自己判断で上限を増やさない。
++
++記録の読み直しや手元での結果保存に外部費用がない場合、外部費用の上限は理由付き0としてよい。時間等の適用上限まで0とは扱わない。
+--- a/harness-v3/protocols/messages.md
++++ b/harness-v3/protocols/messages.md
+@@ -11,7 +11,7 @@
+ | --- | --- | --- |
+ | S-CONTEXT | 記録 → 学習 | 要求ID、対象goal/system。応答はbundle、版集合、委任、subject、phase/scope別baseline、未監査差分、進行判定、対応する確定結果 |
+ | S-PROPOSAL | 学習 → 記録 | operation_id、kind=plan/adoption/withdrawal/cycle_closed、experiment/plan_revision/cycle_id、scope、委任。計画・採用はbase_bundle、対象ID、差分、subject/hash、条件・契約影響 |
+-| S-AUDIT-INPUT | 記録 → 監査 | operation_id=audit_request_id、origin_operation_id、kind=plan/adoption/periodic/cancel、scope、subject/hash、criteria_version、baseline、累積差分、委任、観測時刻 |
++| S-AUDIT-INPUT | 記録 → 監査 | operation_id=audit_request_id、origin_operation_id、kind=plan/adoption/periodic/cancel、scope、subject/hash、criteria_version、baseline、累積差分/change_ids、委任、観測時刻、予算口座・実行予約。再監査は前回監査/subject・open指摘・修正差分・波及scope・引継ぎ確認 |
+ | S-AUDIT-RESULT | 監査 → 記録 | 応答先ID、origin_operation_id、subject_hash、scope、phase、criteria_version、result、証拠、finding、次の処理、基準、期限。cancelはtarget_operation_idも返す |
+ 
+ subjectは[対象契約](subject.md)の定義参照を含む。S-CONTEXTは読み取り専用で、取消後の古いcheckedを進行許可として返さない。
+@@ -45,12 +45,14 @@
+ 反映後の取消は反映済みの事実も残す。ack未受領なら同じ通知を再送する。
+ 
+ 記録担当は関連操作を台帳で照合する。未確定ならpendingで保持し、確定後に再開する。
+-採用完了後の現行scopeから未監査差分を確認する。不採用・取消でも既存差分を確認する。
++採用完了後の現行scopeからimplementationの未監査差分を確認し、[記録契約](records.md)の規則で要求scopeを閉じる。不採用・取消でも既存差分を確認する。plan履歴だけなら周期対象にしない。
+ 通知受領と、periodic要求の永続化または差分なしskip理由を同じstate更新へ入れてからackする。
+-同subject/scopeの未完了要求があれば対応付け、重複起動しない。保存後すぐ送信し、中断なら再開時に未送信を処理する。
++ユーザー指定でcycle_closed_enabled=falseなら、差分を残してtrigger-disabledのskip理由と次の期限を保存してackする。期限到来済みならactivity_dueを同時に処理し、設定によって期限を消さない。
++同subject/scopeと同じchange_idsの未完了要求があれば対応付け、重複起動しない。保存後は[予算契約](budgets.md)を確認し、予約できれば送信する。保証不能ならheld-budgetの送信待ちを残し、中断なら再開時に再判定する。
+ 通知ackは「周期処理を保存した」の意味で、監査完了とは区別する。
+ 
+-もう一つの起点は最初の未監査変更から7暦日後の次の作業開始。記録担当が観測時刻とプロジェクトのtimezoneで日付を比較する。
+-periodicにtrigger=cycle_closed/activity_dueと通知IDまたは期限を付ける。ユーザー指定周期があれば優先する。
++もう一つの起点は最初の未監査変更から既定7暦日後の次の作業開始。記録担当が観測時刻とstateのperiodic_policy.timezoneで日付を比較する。
++periodicにtrigger=cycle_closed/activity_dueと通知IDまたは期限、適用したpolicy_refを付ける。state.periodic_policyにcycle_closed_enabled、after_days、timezone、revision、source_refを保存し、既存のユーザー指定周期があればそれを優先する。
++再開では保存した設定を読み、既定値で上書きしない。設定変更時は未監査差分の初回日時を維持して期限を再計算し、旧設定も履歴へ残す。
+ 早い方の起点で処理し、常駐スケジューラは要求しない。監査中に増えた差分にも期限と通知を保持する。
+ 失敗時は影響scopeの新規採用・試作進行を保留し、currentを自動巻戻ししない。原因解消の候補作成・限定検証は委任内で続けられる。
+--- a/harness-v3/protocols/records.md
++++ b/harness-v3/protocols/records.md
+@@ -27,13 +27,22 @@
+ 保証phaseは`plan`（実装前の仮契約・確認計画）または`implementation`（実装と結果）。操作kindとは別で、adoption/periodicはimplementation phaseである。
+ planの合格を実装の合格へ昇格させない。daily-passは基準を進めない。
+ 
++### scopeと基準の検索
++
++scopeはプロジェクト内で一意な条件/system/contextのIDを重複除去し、辞書順に並べた集合。同じ集合の順序違いを別scopeにしない。
++基準は`(scope_id, phase, criteria_version)`ごとに保持し、各項目から保証元の集合subjectと結果を参照する。
++集合[X,Y]の合格はXとYの両方へ索引を作る。[X]の確認に[X,Y]の完全一致を要求しない。
++検索時は今回の全IDに基準があり、依拠する定義・契約・保証条件が今回と意味上互換であることを確認する。意味変更は限定監査へ渡す。
++複数の基準を使う場合、共有定義・seam両端の版と意味が一致し、共同で守る条件を扱った集合subjectの証拠が必要。各片側の合格を合成して未監査の結合保証を作らない。
++基準の検索と今回の判定は別物であり、新しいsubjectには新しい要求と判定を作る。
++
+ ## 一括反映と中断
+ 
+ 記録担当は次の順を守る。
+ 
+ 1. 操作ID、許可、基準bundle、通常版、意味参照、subject、取消台帳、影響scopeの保留を確認する。
+ 2. 必要なprecheckと判定が同じ対象を指し、open major/blockerがないことを照合する。
+-3. 全候補ファイルと参照を保存し、不変bundleを作る。途中失敗では旧currentのまま。
++3. 監査・日常確認が対象にしたsubjectの不変参照からbundleを構成する。仕様の対・定義・実装・証拠を含む全参照の内容hashを読み直して照合する。作業用候補を直接混ぜない。相違・欠落なら反映せずstale/blockedとし、新subjectへ戻す。途中失敗では旧currentのまま。
+ 4. `state.md`の新しい一組を同じディレクトリの一時ファイルへ書く。current参照、操作のcommitted結果、受理する監査基準、未監査差分、送信待ちを一つにまとめる。
+ 5. 通常版を再照合し、単一反映担当のもとで一時ファイルを原子的rename/replaceして切り替える。読者は切替前か後の完全な一組だけを見る。
+ 6. operation文書や表示用正本へ結果を反映する。ここで中断してもstateの台帳から復元する。台帳の確定結果が個別文書の古い表示に優先する。
+@@ -47,13 +56,28 @@
+ 定義の所有者を一意にし、用語・責任・ルールの変更も提案として扱う。正本を先に書き換えない。
+ 記録担当は対象定義の直接・間接利用先を、spec、契約、計画、候補、current、baselineへたどり、集合が増えなくなるまで影響を閉じる。
+ 必要な利用索引がない場合は変更をblockedとし、影響外だと推測しない。
+-影響する旧候補・結果をstaleとして保存し、新subjectで限定監査する。定義差分は未監査差分へ含める。
++影響する旧候補・結果をstaleとして保存し、新subjectで限定監査する。未採用の定義差分はpending_changesへ置き、採用時に未監査差分の規則を適用する。
+ 採用では定義と全影響利用先の参照を一括切替する。合意・検証が揃うまで旧currentを保持する。
+ 意図的な異なる意味の共存は別の定義ID/contextと変換契約を持つ別提案にする。
+ 
+ ## 未監査差分
+ 
+-scopeごとに基準subject、初回変更日時、変更操作・旧新版・条件・根拠を追記する。差分の起点を直前の小変更へ移さない。
+-実装・証拠だけの変更も対象。意味不変の説明修正は理由を残す。初回監査のないscopeはdaily-passにしない。
+-audit-pass受理時、対象のphase・scope・版一致を確認し、保証した差分だけを消し、対象外と監査中の新差分を残す。
+-adoptionはcurrent切替と基準更新を一括、periodicは現行の対象版集合が一致するときだけ基準更新する。
++unaudited_changesは、currentへ採用した変更のうちimplementation保証が未受理のものだけを保持する。
++planのdaily-passは操作と確認履歴に残し、currentもこの台帳も変えない。未採用候補はpending_changesに残す。後のadoptionでは実装保証を別に判定する。
++採用した実装・証拠・仕様表記・定義の変更も対象。初回基準のない要素はdaily-passにしない。
++
++各項目に一意のchange_id、phase=implementation、affected_scope、基準参照、first_changed_at、操作ID、旧新版、根拠を保存する。
++独立に保証できるX/Yの変更は別項目にする。seamや共有不変条件など分割できない変更はaffected_scope=[X,Y]の一項目とし、分割不能の理由を残す。
++同じ対象を続けて修正しても過去の項目と初回日時を残す。取消・巻戻しで見かけ上同じ版へ戻っても自動消去しない。
++
++周期要求は起点scopeと交わる項目を選び、そのaffected_scopeと必要な依拠先を含める。拡大後のscopeと交わる項目も再選択し、集合が増えなくなるまで閉じる。
++要求には選んだchange_ids、旧基準からcurrentまでの累積差分、対象版を固定する。差分なしなら理由付きskipとし、planの履歴だけで周期監査を起動しない。
++audit-pass受理時に消せる項目は、次のすべてを満たすものに限る。
++
++1. phaseがimplementationで、要求に固定したchange_idsに含まれる。
++2. 項目のaffected_scope全体と共同条件を、合格subjectが保証している。
++3. 固定した累積差分にその旧新版が含まれ、対象scopeのcurrent版集合が判定対象と一致する（adoptionでは一括反映する新bundleと一致）。
++
++対象外・後着の項目は残す。複数scopeの項目を部分合格で丸ごと消さない。残項目の最古first_changed_atを期限の起点とし、残項目がなくなった範囲だけ期限を解除する。
++adoptionのcurrent切替・差分追加/消去・基準更新は一括で保存する。adoption自身のaudit-passで保証した新変更は同じ更新で解消済みとして履歴に残す。
++periodicは現行の対象版集合が一致する場合だけ基準を更新する。合格の索引は保証したIDだけ更新し、対象外の基準を消さない。
+--- a/harness-v3/protocols/subject.md
++++ b/harness-v3/protocols/subject.md
+@@ -27,13 +27,14 @@
+ ## 同一性
+ 
+ subject本体をJSONへ規約化する。キー辞書順、配列は保存順、UnicodeをエスケープしないUTF-8、区切り空白なし。
++入力JSONは入れ子を含め重複キーを拒否する。scopeだけは[記録契約](records.md)の集合規則で先に正規化し、他の配列順は変更しない。
+ SHA-256をsubject_hashとする。hash自身、監査結果、通常revision、操作状態は本体へ含めない。
+ 文字列の内容は勝手に正規化しない。同じ入力順を保持する。
+ 
+ 結果は`audit_request_id, subject_hash, scope, phase, criteria_version`の完全一致する要求だけに有効。
+ 対象定義・仕様・実装・証拠・評価・scopeが変われば新subject・新要求を作る。
+ 古い結果は比較根拠として参照できるが、新対象の合格へ流用しない。変更分類はその新要求で行う。
+-意味不変の内部変更なら関連確認後にdaily-passを得られるが、未監査差分として残す。
++意味不変の内部変更なら関連確認後にdaily-passを得られる。adoptionでcurrentを変えた場合はimplementationの未監査差分として残す。currentを変えないplanは確認履歴にだけ残す。
+ 
+ 固定物を用いた監査中に、元の作業ファイルを結果入力へ混ぜない。採用時にも不変入力と最新の参照前提を照合する。
+ [補助ツール](../tools/README.md)のsnapshot IDはファイル集合の固定であり、subject_hashや意味監査の合格と同義ではない。
+--- a/harness-v3/README.md
++++ b/harness-v3/README.md
+@@ -70,6 +70,7 @@
+ - 仕様・実装・試行・証拠・domain/context定義の版を[subject](protocols/subject.md)へ固定する。
+ - 計画の許可、実験の成功、監査合格、現在仕様への採用、外部公開を区別する。
+ - 既存の許可と委任を引き継ぐ。可逆な内部選択は担当が決め、目的・予算・外部影響を暗黙に拡大しない。
++- 試行・独立監査・有料の記録作業は[予算契約](protocols/budgets.md)に従い、送信/実行前に適用上限と未決予約を確認する。
+ - 監査済みの意味を保つ小変更は関連確認で進める。意味・境界変更は即時限定監査、未監査差分は終了時または期限に周期監査する。
+ - 失敗・比較不能・未実行・人の評価未確認を成功へ置換しない。
+ - 同じ操作の再送で二重反映しない。取消と遅延結果は[受渡し契約](protocols/messages.md)に従う。
+--- a/harness-v3/roles/audit.md
++++ b/harness-v3/roles/audit.md
+@@ -2,17 +2,29 @@
+ 
+ 入力はS-AUDIT-INPUTと固定subject。出力は[audit記録](../templates/audit.md)とS-AUDIT-RESULT。
+ 対象を編集せず、[基準](../criteria/README.md)に対する証拠と限界を記録する。
++正式監査の送信・再実行前に[予算契約](../protocols/budgets.md)を確認する。監査担当も開始時に予約と委任を照合し、保証不能なら実行しない。
+ 
+ ## 分類の順序
+ 
+ 1. 許可、対象版、重大な既知不具合、取消を確認する。不一致や範囲外は理由付きで影響操作を止める。
+-2. 対象context/契約と保証phaseに基準がなければ、今回必要な範囲の初回監査。
+-3. 用語・責任・ルール・契約・品質保証・許可の意味変更は即時限定監査。API形状やsystem本文が同じでも定義の変更を含む。
+-4. 未監査差分があり終了通知または期限に達していれば、最後の基準からの周期監査。
+-5. それ以外で監査済みの意味と委任内の内部修正なら、関連回帰確認と短い影響説明でdaily-pass。失敗・必要なテスト未実行は成功扱いにしない。意味不変の表記は根拠付き非該当可。
++2. 前回の修正に対する新要求なら、下記の再監査手順を使う。初回監査がfailで基準がまだなくても、前回確認済み部分を無条件に読み直さない。
++3. それ以外では[scope別の基準検索](../protocols/records.md)を行い、対象context/契約と保証phaseに基準がなければ、今回必要な範囲の初回監査。
++4. 用語・責任・ルール・契約・品質保証・許可の意味変更は即時限定監査。API形状やsystem本文が同じでも定義の変更を含む。
++5. implementationの未監査差分があり終了通知または期限に達していれば、最後の基準からの周期監査。
++6. それ以外で監査済みの意味と委任内の内部修正なら、関連回帰確認と短い影響説明でdaily-pass。失敗・必要なテスト未実行は成功扱いにしない。意味不変の表記は根拠付き非該当可。
+ 
+ planは確認計画と未検証範囲を監査する。adoptionは対象実装の必要な結果を要求する。
+ 分類のために毎回全体を監査しない。不確かな場合は、基準・具体的な不明点・解除条件を持つ最小の限定監査へ渡す。
++
++## 修正後の再監査
++
++新要求へprevious_audit_ref、previous_subject_ref、open_finding_ids、review_delta_ref、impact_scope、reused_checksを固定する。
++review_delta_refは前回subjectと今回subjectの入力差分、impact_scopeは定義・契約・依拠先から求めた直接/間接の波及先。新subject本体は今回の保証範囲全体を保持し、修正箇所だけへ切り詰めない。
++詳しく読み直す対象はopen指摘の解消条件、入力差分と波及先、前回未確認部分。前回合格の項目は基準版・入力と依拠先のhash・証拠が同一で影響外ならreused_checksへ理由付きで引き継ぐ。
++全体の適用基準が「今回確認、条件付き未検証、理由付きN/A、有効な前回確認の引継ぎ」のいずれかで覆われることを照合する。前回のfailを今回のpassへ直接読み替えない。
++前回確認済みで変更のない部分は再審査しない。新しい重大反例を発見した場合は、具体的反例と今回追加する理由・影響範囲を記録して必要箇所だけを再開する。
++前回資料が欠ける、基準変更、依拠先不明などで引継ぎを保証できない箇所だけ確認範囲を広げ、理由を保存する。初回扱いへの一律リセットはしない。
++新要求の独立監査・許可・予算・対象版・重大指摘0件という合格条件は通常と同じ。取消や周期判定をこの経路で迂回しない。
+ 
+ ## 独立性と終了
+ 
+--- a/harness-v3/roles/experiment.md
++++ b/harness-v3/roles/experiment.md
+@@ -14,8 +14,10 @@
+ 
+ ## 追加実行前の予算確認
+ 
+-最初の実行と各追加実行の直前に、対象版・委任・残予算を確認する。中断していない修正試行も対象。
+-計測した累積使用量、または根拠付きの保守的な累積上限に、次の実行の上限を加えて、合意した予算内に収まることを確認する。
++最初の実行と各追加実行の直前に、対象版・委任・残予算、およびS-CONTEXTの現在の進行判定とblocked_scopesを確認する。中断していない修正試行も対象。
++他サイクルの監査等でscopeが保留されていれば通常の試作は進めない。台帳で許容された原因解消の限定検証だけを、範囲と根拠を記録して実行できる。
++費用の所属・予約・精算は[予算契約](../protocols/budgets.md)を使う。以下の判定には同じ口座の監査・記録費用と未決予約も含める。
++計測した累積使用量、または根拠付きの保守的な累積上限に、未決予約と次の実行の上限を加えて、合意した予算内に収まることを確認する。
+ 金額・時間・試行回数など複数の上限がある場合はすべてについて確認し、上限見積りの前提が今も成立するかを再確認する。
+ 費用が不明ならunknownとし、0や残予算ありへ読み替えない。実測が不明でも保守的な上限で収まることを保証できれば、その根拠を保存して進められる。
+ 
+--- a/harness-v3/roles/intake.md
++++ b/harness-v3/roles/intake.md
+@@ -3,7 +3,7 @@
+ 入力は利用者の目標、既存設計、制約、許可、運用ログ。出力はmasterの候補と一つの実験計画。
+ 
+ 1. 誰のどんな状態を改善するか、成功条件、対象外を短く書く。解決法を目標そのものにしない。
+-2. 既存の許可・委任を出所付きで記録する。今回の予算、終了条件、外部影響を特定する。
++2. 既存の許可・委任を出所付きで記録する。今回の予算、終了条件、外部影響を特定する。[予算契約](../protocols/budgets.md)に従い監査・記録費用を含む所属を決め、stateに口座と周期設定・出所を保存する。既存の委任や設定で足りれば再承認を求めない。
+ 3. 未確認事項を列挙し、最小の動作で判断できる一つを選ぶ。仮説、必要な枝、評価条件を[experiment](../templates/experiment.md)へ入れる。
+ 4. 可逆な内部仮定は理由と再確認条件を付けて進む。目的・予算・外部公開の変更が必要なら、判断材料と具体的な不足だけを利用者へ戻す。
+ 5. [design](design.md)へ対象IDと基準版を渡す。既存v2成果を使う場合は[移行手順](../migration.md)に従う。
+--- a/harness-v3/roles/orchestrate.md
++++ b/harness-v3/roles/orchestrate.md
+@@ -5,12 +5,12 @@
+ 1. 書込み中断があれば、最後の完全なstate/currentと台帳から表示を復元する。
+ 2. 未処理変更を影響計算し、旧候補・監査結果をstaleにする。新しい同一性で再確認する。
+ 3. 未確定取消、受信済み結果、終端通知、送信待ちをrecordへ渡す。確定済みIDを新操作へ再利用しない。
+-4. 作業開始時の観測時刻で期限を確認し、必要なperiodicを保存・送信する。既存要求と対応付ける。
+-5. 必要な監査を先に処理する。影響scopeの進行だけを保留し、原因解消の候補作成・検証は委任内で続ける。
++4. 保存したperiodic_policyと作業開始時の観測時刻でimplementation差分の期限を確認し、必要なperiodicを保存する。既存要求と対応付け、差分がなければskipする。
++5. 必要な監査を先に処理する。[予算契約](../protocols/budgets.md)の口座割当・上限確認・予約を満たしてから送信し、保証不能ならheld-budgetを維持する。影響scopeの進行だけを保留し、原因解消の候補作成・限定検証は委任と予算内で続ける。
+ 6. checkedの計画はexperimentの追加実行前の予算確認へ渡す。保証不能ならpausedを維持する。評価済みの採用候補はrecordへ、構造不足はdesignへ渡す。
+ 7. 次の未確認事項を選び、目標・予算内で新サイクルを始める。必要な枝から進め、幅を揃えない。
+ 
+-サイクルの完了は、終端、関連操作の確定、通知ack、必要な周期判定または差分なしskip、未解決事項・次の選択が保存されていること。
++サイクルの完了は、終端、関連操作の確定、通知ack、必要な周期判定または設定に沿った理由付きskip、未解決事項・次の選択が保存されていること。起点無効のskipは残差分と期限も引き継ぐ。
+ プロジェクト完了は、選択した必須条件と関連するUT/SIT/FIT、必要な実使用・人の評価、監査要件を満たすこと。
+ 計画合格や一つの試行の成功を、全体完成と表示しない。
+ 
+--- a/harness-v3/roles/record.md
++++ b/harness-v3/roles/record.md
+@@ -6,16 +6,16 @@
+ 
+ 1. S-PROPOSALを[operation](../templates/operation.md)に保存する。ID再利用、scope、委任、基準bundle、取消台帳を照合する。
+ 2. plan/adoptionでは意味入力の再帰的参照を解決してsubjectを固定し、precheckを実行する。
+-3. audit_request_idとorigin_operation_idの対応をstateへ保存し、S-AUDIT-INPUTを送信待ちにする。
++3. audit_request_idとorigin_operation_idの対応をstateへ保存し、S-AUDIT-INPUTを送信待ちにする。正式監査の送信前に[予算](../protocols/budgets.md)を予約する。修正後の要求は前回監査・subject・差分・波及先・引継ぎ確認も固定する。
+ 4. [audit](audit.md)の順序で日常確認・初回・限定・周期を分類する。結果が返ったら要求ID/hash/scope/phase/criteria_versionを照合する。
+ 
+ ## 反映する
+ 
+-- plan: 有効なdaily-pass/audit-passをcheckedとして返す。currentを切り替えない。初回はbase_bundle=nullでよい。
++- plan: 有効なdaily-pass/audit-passをcheckedとして返す。audit-passはplan基準へ記録するがcurrentとimplementationの未監査差分は変えない。初回はbase_bundle=nullでよい。
+ - adoption: 同じ対象の合格・許可・版・取消を再確認し、[一括反映](../protocols/records.md)を実行する。結果がrequire-review/blocked/staleなら反映しない。
+-- periodic: 現行scopeの対象版集合と結果が一致する場合だけ基準を更新する。仕様の意味版は変更しない。新しい差分は消さない。
++- periodic: 現行scopeの対象版集合と結果が一致する場合だけ基準を更新する。[差分消去の3条件](../protocols/records.md)を満たすchange_idsだけを解消し、対象外・新しい差分は残す。仕様の意味版は変更しない。
+ - withdrawal: 新取消IDと対象IDを用い、取消と反映の順序を台帳で確定する。反映後の取消はalready-applied。
+-- cycle_closed: 関連操作を照合してperiodic要求か差分なしskipを保存し、その後ackする。判定完了までをackの意味に含めない。
++- cycle_closed: 関連操作と保存済み周期設定を照合してperiodic要求か理由付きskipを保存し、その後ackする。起点無効のskipでは未監査差分と期限を保持する。判定完了までをackの意味に含めない。
+ 
+ 送信待ちは結果が確認できるまで残す。同じIDを再送し、古い個別文書の結果で台帳を巻戻さない。
+ domain/contextの変更は全利用先へ影響を閉じ、新定義と参照を一括採用する。
+--- a/harness-v3/templates/audit.md
++++ b/harness-v3/templates/audit.md
+@@ -10,6 +10,17 @@
+ subject_ref: <immutable-ref>
+ baseline_ref: null
+ cumulative_diff_ref: <immutable-ref-or-initial>
++change_ids: []
++previous_audit_ref: null
++previous_subject_ref: null
++open_finding_ids: []
++review_delta_ref: null
++impact_scope: []
++reused_checks: []
++budget_account_refs: []
++execution_id: null
++budget_check_ref: null
++policy_ref: null
+ criteria_version: 1
+ reviewer: <identity-session-model>
+ independence: <independent|self-check>
+@@ -29,6 +40,10 @@
+ 
+ ## 基準と根拠
+ 
++再監査ではreused_checksにcriterion、前回結果、同一の入力/依拠先hashと証拠、影響外の理由を保存する。
++previous_audit_ref等は新要求の固定入力。詳細確認の範囲と、今回のsubject全体の保証範囲を区別する。
++監査費用と予算判定はexecution_idでstateの予約・精算記録を参照する。周期要求ではpolicy_refと累積change_idsを固定する。
++
+ | criterion | 適用と証拠 | 判定・理由付きN/A |
+ | --- | --- | --- |
+ | <DDD-01〜05 / AIDE-01〜03> | <不変の対象・結果参照> | <結果> |
+--- a/harness-v3/templates/experiment.md
++++ b/harness-v3/templates/experiment.md
+@@ -12,12 +12,20 @@
+ baseline_bundle: null
+ plan_subject_ref: <immutable-ref>
+ delegation_ref: <authorization-ref>
+-budget: <limit-and-unit>
++budget_account_refs: []
++budget: <immutable-limit-definitions-ref-including-audit-and-record-costs>
+ budget_check:
+-  cumulative_used: unknown
+-  cumulative_upper_bound: null
+-  next_execution_upper_bound: null
+-  bound_evidence_ref: null
++  execution_id: null
++  limits:
++    <account-id/limit-id>:
++      unit: <currency-time-or-count>
++      limit: <value-or-explicitly-delegated-null>
++      cumulative_used: unknown
++      cumulative_upper_bound: null
++      outstanding_reserved_upper_bound: null
++      next_execution_upper_bound: null
++      bound_evidence_ref: null
++      decision: pending
+   decision: pending
+   checked_at: null
+   resume_condition: null
+@@ -36,7 +44,8 @@
+ 
+ <src/testsの対象、除外範囲、担当、予算、終了条件、許可。
+ budget_checkは各実行直前に再判定する。不明を0とせず、根拠ある上限でも予算内を保証できなければpaused。
+-複数の上限はそれぞれの判定を保存し、停止理由と再開条件を残す>
++limitsに適用される全口座/上限の判定を保存し、一つでも保証不能なら全体を止める。正本はstateの予約・実績台帳で、この欄はその判定記録への対応を持つ。
++S-CONTEXTの進行判定・blocked_scopesを照合した時刻と版、限定検証なら許容範囲、停止理由と再開条件を残す>
+ 
+ ## 固定した評価条件
+ 
+--- a/harness-v3/templates/operation.md
++++ b/harness-v3/templates/operation.md
+@@ -15,6 +15,15 @@
+ subject_hash: null
+ phase: <plan|implementation-or-null>
+ criteria_version: 1
++change_ids: []
++previous_audit_ref: null
++previous_subject_ref: null
++open_finding_ids: []
++review_delta_ref: null
++impact_scope: []
++reused_checks: []
++budget_account_refs: []
++policy_ref: null
+ delegation_ref: <authorization-ref>
+ change_refs: []
+ related_operations: []
+@@ -35,5 +44,7 @@
+ 要求payloadは作成時に固定する。通常revision/state/result_refはpayload外の進行情報。
+ withdrawal/cancelは新IDと対象ID・期待hash・scope必須。
+ cycle_closedは関連操作の確定結果・outcome・反映bundle・closed_at必須。
+-periodicはtriggerと通知IDまたは期限、現行subject、baselineと累積差分の不変参照を本文に指定する。
++periodicはtriggerと通知IDまたは期限、現行subject、baselineと累積差分/change_idsの不変参照、policy_refを指定する。
++再監査は前回監査・subject、open指摘、入力差分、波及先、引継ぎ確認を固定する。初回は前回参照をnullにできる。
++実行時のexecution_id・予約・予算判定は要求payloadへ後追いで混ぜず、state台帳の進行情報として持つ。
+ state台帳の確定結果をこの文書へ反映する。古い文書からstateを巻戻さない。
+--- a/harness-v3/templates/README.md
++++ b/harness-v3/templates/README.md
+@@ -14,5 +14,5 @@
+ | 固定する監査対象 | [subject](subject.md) |
+ | 日常確認・独立監査・取消への応答 | [audit](audit.md) |
+ 
+-版付き参照の例: `{id: S-ONE, semantic_revision: 1, immutable_ref: "SN-<hash>/design/domains/work/systems/one/design.md"}`。
++版付き参照の例（プロジェクト相対）: `{id: S-ONE, semantic_revision: 1, immutable_ref: "design/snapshots/SN-<hash>/files/design/domains/work/systems/one/design.md"}`。
+ 操作結果や監査判定を固定subjectへ書き足さない。snapshot補助ツールが保存するmanifestはツールが生成する。
+--- a/harness-v3/templates/state.md
++++ b/harness-v3/templates/state.md
+@@ -2,6 +2,12 @@
+ project_id: <id>
+ revision: 1
+ timezone: Asia/Tokyo
++periodic_policy:
++  revision: 1
++  cycle_closed_enabled: true
++  after_days: 7
++  timezone: Asia/Tokyo
++  source_ref: <existing-user-instruction-or-default-rule-ref>
+ writer: <single-record-owner>
+ current_bundle: null
+ audit_baselines: []
+@@ -12,6 +18,8 @@
+ received_notifications: {}
+ pending_changes: []
+ blocked_scopes: []
++budget_accounts: {}
++execution_reservations: {}
+ observed_at: <ISO-8601>
+ ---
+ 
+@@ -23,11 +31,14 @@
+ 
+ - operations[ID]: payload_hash、kind、subject_hash、scope、state、result、bundle、audit_request_id/origin_operation_id。
+ - tombstones[対象ID]: 取消要求ID、期待hash、scope、provisional/confirmed。確定取消を再送で解除しない。
+-- outbox: message_id、kind、payloadの不変参照、target、pending/acknowledged、対応する要求ID。再送でIDを変えない。
++- outbox: message_id、kind、payloadの不変参照、target、pending/held-budget/in-flight/acknowledged、対応する要求ID、account_refs、execution_id、保留理由・再開条件。再送でIDを変えない。
+ - received_notifications[ID]: payload_hash、cycle_id、periodic_request_idまたはskip_reason、ack状態。
+-- audit_baselines: scope、phase、subject_hash、subject_ref、audit_request_id、result_ref、criteria_version、accepted_at。
+-- unaudited_changes: scope、phase、baseline_ref、first_changed_at、operation_id、旧新版・定義差分、理由・証拠。
++- audit_baselines: scope_id、phase、criteria_versionを検索キーとし、保証元のscope/subject_hash/subject_ref、定義・依拠先/共同条件の参照、audit_request_id、result_ref、accepted_atを保存する。集合合格は全要素へ索引を作る。
++- unaudited_changes: change_id、affected_scope、phase=implementation、baseline_refs、first_changed_at、operation_id、旧新版・定義差分、共同条件と分割不能理由（該当時）、理由・証拠。currentを変えないplanは含めない。
+ - blocked_scopes: scope、原因、修正担当、解除条件、許容される限定検証。
++- periodic_policy: revision、cycle_closed_enabled、after_days、timezone、source_ref。期限はこの設定と残差分の最古日時から計算する。timezoneとprojectのtimezoneは一致させる。
++- budget_accounts[account_id]: owner、delegation_ref、scope/activity条件、parent_account_refs、limits。limits[limit_id]にunit、limit、対象activity、cumulative_used、cumulative_upper_bound、bound_evidence_refを持つ。上限なしは委任根拠付きnull。
++- execution_reservations[execution_id]: operation/audit_request ID、activity、scope、account_refs、各account/limit_idの予約上限と根拠、判定時刻、reserved/in-flight/settled/held、実績/不明量、証拠、精算記録。未決予約は使用量とは別に合算する。
+ 
+ ## 次の作業
+ 
+--- a/harness-v3/templates/trial.md
++++ b/harness-v3/templates/trial.md
+@@ -8,9 +8,15 @@
+ evaluation_ref: <immutable-ref>
+ evidence_refs: []
+ executed_at: <ISO-8601>
+-budget_used: <value-or-unknown>
+-budget_used_upper_bound: null
+-budget_bound_evidence_ref: null
++execution_id: <reservation-and-settlement-id>
++budget_account_refs: []
++budget_usage:
++  <account-id/limit-id>:
++    unit: <unit>
++    used: unknown
++    used_upper_bound: null
++    bound_evidence_ref: null
++budget_settlement_ref: <state-ledger-ref>
+ ---
+ 
+ # <今回試したこと>
+--- a/harness-v3/tests/test_snapshot.py
++++ b/harness-v3/tests/test_snapshot.py
+@@ -144,6 +144,39 @@
+         self.assertEqual(p.returncode, 1)
+         self.assertIn("snapshot:", p.stderr)
+ 
++    def test_hash_json_cli_rejects_duplicate_keys_without_emitting_hash(self):
++        source = self.root / "subject.json"
++        for body in ('{"scope": ["X"], "scope": ["Y"]}',
++                     '{"refs": [{"id": "X", "id": "Y"}]}',
++                     r'{"scope": ["X"], "\u0073cope": ["Y"]}'):
++            with self.subTest(body=body):
++                source.write_text(body, encoding="utf-8")
++                p = subprocess.run([sys.executable, str(TOOL), "hash-json", str(source)],
++                                   capture_output=True, text=True, encoding="utf-8")
++                self.assertEqual(p.returncode, 1)
++                self.assertIn("Duplicate JSON key", p.stderr)
++                self.assertEqual(p.stdout, "")
++
++    def test_hash_json_cli_preserves_valid_canonical_hash(self):
++        source = self.root / "subject.json"
++        # Repeated member names in different objects are valid.
++        value = {"refs": [{"id": "X"}, {"id": "Y"}], "name": "設計"}
++        source.write_text(json.dumps(value, ensure_ascii=True, indent=2), encoding="utf-8")
++        p = subprocess.run([sys.executable, str(TOOL), "hash-json", str(source)],
++                           capture_output=True, text=True, encoding="utf-8")
++        self.assertEqual(p.returncode, 0, p.stderr)
++        self.assertEqual(json.loads(p.stdout)["sha256"], snapshot.digest(snapshot.canonical(value)))
++
++    def test_manifest_with_shadowed_key_is_rejected(self):
++        frozen = self.freeze()
++        manifest = frozen / "manifest.json"
++        raw = manifest.read_text(encoding="utf-8")
++        self.assertIn('"format_version":1', raw)
++        manifest.write_text(raw.replace('"format_version":1',
++                                        '"format_version":9,"format_version":1'), encoding="utf-8")
++        with self.assertRaisesRegex(snapshot.SnapshotError, "Duplicate JSON key"):
++            snapshot.verify(frozen)
++
+ 
+ if __name__ == "__main__":
+     unittest.main()
+--- a/harness-v3/tools/README.md
++++ b/harness-v3/tools/README.md
+@@ -12,6 +12,7 @@
+ freezeは指定ファイルをproject相対パスで受け取る。今回必要な設計の対、親条件、契約の両端、定義と依拠先、計画、実装・証拠を明示的に列挙する。
+ 最初の例は操作方法の例で、rootの2文書だけでsystem監査が十分という意味ではない。
+ subjectテンプレートのJSON本体をhash-jsonへ渡し、返るhashをsubject_hashとして記録する。結果や状態は本体に混ぜない。
++hash-jsonとmanifest読込みは、入れ子を含む重複JSONキーを拒否する。後に書かれた値で暗黙に上書きしない。subjectのscope集合の正規化は入力を作る担当が行う。
+ 
+ 保存先は`design/snapshots/SN-<SHA-256>/`、中身は`manifest.json`と`files/<元の相対パス>`。
+ snapshot IDはformat_versionと、名前順のファイル一覧（path/sha256/size）を規約化したhash。ファイルのバイト列を変換しない。
+--- a/harness-v3/tools/snapshot.py
++++ b/harness-v3/tools/snapshot.py
+@@ -12,6 +12,20 @@
+ 
+ class SnapshotError(ValueError):
+     pass
++
++
++def unique_object(pairs):
++    """Do not silently replace an earlier JSON member, including nested ones."""
++    value = {}
++    for key, item in pairs:
++        if key in value:
++            raise SnapshotError(f"Duplicate JSON key: {key}")
++        value[key] = item
++    return value
++
++
++def read_json(path):
++    return json.loads(path.read_text(encoding="utf-8"), object_pairs_hook=unique_object)
+ 
+ 
+ def canonical(value):
+@@ -47,7 +61,7 @@
+ def verify(folder):
+     folder = Path(folder).resolve()
+     manifest_path = checked_path(folder, "manifest.json")
+-    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
++    manifest = read_json(manifest_path)
+     if set(manifest) != {"format_version", "snapshot_id", "digest", "files"}:
+         raise SnapshotError("Unexpected manifest fields")
+     body = {key: manifest[key] for key in ("format_version", "files")}
+@@ -145,7 +159,7 @@
+         elif args.command == "verify":
+             result = {"verified": verify(args.snapshot)["snapshot_id"]}
+         else:
+-            obj = json.loads(args.input.read_text(encoding="utf-8"))
++            obj = read_json(args.input)
+             if not isinstance(obj, dict):
+                 raise SnapshotError("Expected a JSON object")
+             result = {"sha256": digest(canonical(obj))}

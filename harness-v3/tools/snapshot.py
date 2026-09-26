@@ -14,6 +14,20 @@ class SnapshotError(ValueError):
     pass
 
 
+def unique_object(pairs):
+    """Do not silently replace an earlier JSON member, including nested ones."""
+    value = {}
+    for key, item in pairs:
+        if key in value:
+            raise SnapshotError(f"Duplicate JSON key: {key}")
+        value[key] = item
+    return value
+
+
+def read_json(path):
+    return json.loads(path.read_text(encoding="utf-8"), object_pairs_hook=unique_object)
+
+
 def canonical(value):
     return json.dumps(value, sort_keys=True, ensure_ascii=False,
                       separators=(",", ":"), allow_nan=False).encode("utf-8")
@@ -47,7 +61,7 @@ def checked_path(root, relative):
 def verify(folder):
     folder = Path(folder).resolve()
     manifest_path = checked_path(folder, "manifest.json")
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest = read_json(manifest_path)
     if set(manifest) != {"format_version", "snapshot_id", "digest", "files"}:
         raise SnapshotError("Unexpected manifest fields")
     body = {key: manifest[key] for key in ("format_version", "files")}
@@ -145,7 +159,7 @@ def main(argv=None):
         elif args.command == "verify":
             result = {"verified": verify(args.snapshot)["snapshot_id"]}
         else:
-            obj = json.loads(args.input.read_text(encoding="utf-8"))
+            obj = read_json(args.input)
             if not isinstance(obj, dict):
                 raise SnapshotError("Expected a JSON object")
             result = {"sha256": digest(canonical(obj))}

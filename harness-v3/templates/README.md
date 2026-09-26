@@ -14,5 +14,5 @@
 | 固定する監査対象 | [subject](subject.md) |
 | 日常確認・独立監査・取消への応答 | [audit](audit.md) |
 
-版付き参照の例: `{id: S-ONE, semantic_revision: 1, immutable_ref: "SN-<hash>/design/domains/work/systems/one/design.md"}`。
+版付き参照の例（プロジェクト相対）: `{id: S-ONE, semantic_revision: 1, immutable_ref: "design/snapshots/SN-<hash>/files/design/domains/work/systems/one/design.md"}`。
 操作結果や監査判定を固定subjectへ書き足さない。snapshot補助ツールが保存するmanifestはツールが生成する。

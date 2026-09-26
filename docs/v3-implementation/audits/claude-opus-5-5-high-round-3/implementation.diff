@@ -1,0 +1,156 @@
+--- a/harness-v3/protocols/budgets.md
++++ b/harness-v3/protocols/budgets.md
+@@ -5,7 +5,9 @@
+ 
+ ## 所属と正本
+ 
+-stateのbudget_accountsが累積使用量と実行予約の正本。experiment/trial/auditの費用欄はこの台帳への参照と実行証拠であり、二重加算しない。
++予算の定義・配分と試行を進める判断は学習contextが所有し、上限変更の権限は利用者の委任に従う。監査送信・記録作業の開始判断は記録context、監査内容の判断は監査contextが所有する。
++stateのbudget_accountsは使用実績と実行予約の正本であり、予算の意味を記録担当が再定義するものではない。予算定義は学習側の不変計画・委任参照で固定する。experiment/trial/auditの費用欄は台帳への参照と実行証拠であり、二重加算しない。
++初期実装では一人のローカル担当が役割を切り替える。[受渡し契約の運用範囲](messages.md)に従い、学習役の判定後に記録役として再照合・予約し、予約済みの試行だけを学習役として実行する。別の作業者にstateの直接更新を委任しない。
+ 各口座はid、owner、delegation_ref、対象activity/scope、上限ごとの単位・limit、使用量、実測不能時の保守的上限と根拠を持つ。
+ 実験の計画・採用・再監査は既定でその実験の予算に含める。別の監査予算が既に委任されていれば、その口座へ明示的に割り当てられる。
+ 複数実験をまたぐ周期監査やactivity_dueには、既存の委任がそのscopeと費用を覆う口座を指定する。終わった実験へ暗黙に請求せず、割当不明なら送信待ちにする。
+@@ -16,7 +18,7 @@
+ ## 外部実行の前後
+ 
+ 1. 実行元はactivity、scope、委任、account_refsと新しいexecution_idを特定する。監査要求IDと物理的な実行IDは分ける。
+-2. 記録担当は、適用される全上限について「実測累計または根拠ある保守的累積上限 + 未決実行の予約上限 + 次の実行上限」がlimit以下と保証できるか確認する。上限根拠の前提も再確認する。
++2. 開始判断の所有者が、適用される全上限について「実測累計または根拠ある保守的累積上限 + 未決実行の予約上限 + 次の実行上限」がlimit以下と保証できるか判断し、記録役は保存直前に最新台帳で同じ条件を再照合する。上限根拠の前提も再確認する。
+ 3. 保証できる場合だけ、判定・根拠・execution_idごとの予約をstateの一更新で永続化してから実行/送信する。一つの予約を二つの実行へ使わない。複数口座の予約も一括する。
+ 4. 保証できない場合は開始しない。試行はpaused、監査はoutboxのheld-budgetとし、未監査scope・不明量・理由・再開条件を保存する。通知の受領ackは保存を確認するだけなので返せるが、監査完了とは表示しない。
+ 5. 実行後は証拠を使って予約を使用実績へ一度だけ精算する。結果不明・タイムアウト・中断では消費を0に戻さず、予約を保持するか使用上限へ移す。実行未開始と確認できた分だけ解放する。
+--- a/harness-v3/protocols/messages.md
++++ b/harness-v3/protocols/messages.md
+@@ -49,6 +49,10 @@
+ 通知受領と、periodic要求の永続化または差分なしskip理由を同じstate更新へ入れてからackする。
+ ユーザー指定でcycle_closed_enabled=falseなら、差分を残してtrigger-disabledのskip理由と次の期限を保存してackする。期限到来済みならactivity_dueを同時に処理し、設定によって期限を消さない。
+ 同subject/scopeと同じchange_idsの未完了要求があれば対応付け、重複起動しない。保存後は[予算契約](budgets.md)を確認し、予約できれば送信する。保証不能ならheld-budgetの送信待ちを残し、中断なら再開時に再判定する。
++完了済みも、subject_hash・scope・phase・criteria_version・正規化したchange_idsの組で検索する。同じ組の非pass結果があり、そのblocked_scopesが未解除なら新しい周期要求・費用予約を作らず、修正待ちとして失敗要求と指摘を参照する。
++作業開始・別サイクル終了は修正待ちを解除しない。通知は失敗要求への対応付けと待機理由を保存してackし、差分・期限・保留を残す。未解決の周期判定を完了扱いにしない。
++修正ができたら新subject・新要求を前回監査参照付きで再監査する。対象外の変更だけで同じ失敗対象を新規起動しない。対象版が不変のまま予算・通信だけを回復した場合は、元の保留要求の実行状態を確認して再開する（新規の周期要求を量産しない）。
++解消済み非passの履歴も消さず、解除根拠と後続要求を結ぶ。内容不変の再実行の例外は通信・実行基盤の一時障害の回復に限る。回復証拠と理由を同じ要求へ記録し、[予算契約](budgets.md)で新しい物理実行だけを予約する。設計上のmajorが残る対象をこの例外で再起動しない。
+ 通知ackは「周期処理を保存した」の意味で、監査完了とは区別する。
+ 
+ もう一つの起点は最初の未監査変更から既定7暦日後の次の作業開始。記録担当が観測時刻とstateのperiodic_policy.timezoneで日付を比較する。
+@@ -56,3 +60,10 @@
+ 再開では保存した設定を読み、既定値で上書きしない。設定変更時は未監査差分の初回日時を維持して期限を再計算し、旧設定も履歴へ残す。
+ 早い方の起点で処理し、常駐スケジューラは要求しない。監査中に増えた差分にも期限と通知を保持する。
+ 失敗時は影響scopeの新規採用・試作進行を保留し、currentを自動巻戻ししない。原因解消の候補作成・限定検証は委任内で続けられる。
++
++## 初期実装の予算処理
++
++このMarkdown版では一人のローカル実行担当が、学習/記録の役割を順次切り替えて[予算契約](budgets.md)の判断・予約・精算を行う。予算予約は別プロセスからstateへ書き込む新しい通信seamではない。
++試行の開始判断は学習役、監査送信・記録作業の開始判断は記録役が担う。どちらも一人の記録役だけがstateへ予約を書き、役割ごとの判断根拠をexecution_idに残す。
++外部の実装作業者・独立監査者は予約済みexecution_idと上限内の一実行だけを受け持ち、追加実行やstate更新を独自に始めない。結果・使用量をローカル担当へ戻し、記録役が精算する。
++学習と記録を別プロセスへ分離して自律予約する拡張はこの初期実装の対象外。必要なら受渡し契約を別途設計・監査してから行う。
+--- a/harness-v3/protocols/records.md
++++ b/harness-v3/protocols/records.md
+@@ -70,8 +70,12 @@
+ 独立に保証できるX/Yの変更は別項目にする。seamや共有不変条件など分割できない変更はaffected_scope=[X,Y]の一項目とし、分割不能の理由を残す。
+ 同じ対象を続けて修正しても過去の項目と初回日時を残す。取消・巻戻しで見かけ上同じ版へ戻っても自動消去しない。
+ 
+-周期要求は起点scopeと交わる項目を選び、そのaffected_scopeと必要な依拠先を含める。拡大後のscopeと交わる項目も再選択し、集合が増えなくなるまで閉じる。
+-要求には選んだchange_ids、旧基準からcurrentまでの累積差分、対象版を固定する。差分なしなら理由付きskipとし、planの履歴だけで周期監査を起動しない。
++周期要求と正式なadoption監査は起点scopeと交わる既存の項目をすべて選び、そのaffected_scopeと必要な依拠先を含める。拡大後のscopeと交わる項目も再選択し、集合が増えなくなるまで閉じる。
++adoptionでは提案差分にも先にchange_idを割り当て、新旧両方の項目を要求へ固定する。新項目は候補の間はpending_changesにあり、未監査の採用時だけunaudited_changesへ移す。daily-passでの採用は既存項目を消さず基準も進めない。
++要求のbaseline_refsはscope_idごとの起点mapとする。既存項目があればその項目群に保存された最古のbaseline_refsを使い、なければ最新の受理済み基準を使う。初回で基準がなければinitialとする。
++選んだchange_ids、その起点から各項目の旧新版を通って今回対象版へ至る累積差分を固定する。periodicの終点はcurrent、adoptionの終点は提案bundle。複数基準の系譜が合流する場合は各差分経路を保持し、比較不能な起点を時刻だけで一つへ潰さない。
++最新のaudit_baselinesが進んでも、残項目のbaseline_refs・旧新版・first_changed_atを付け替えない。差分起点の保存物が欠ける場合はblockedとし、直近基準からの空差分へ置換しない。
++選択項目がなく新提案もない場合だけ差分なしskipにできる。planの履歴だけで周期監査を起動しない。
+ audit-pass受理時に消せる項目は、次のすべてを満たすものに限る。
+ 
+ 1. phaseがimplementationで、要求に固定したchange_idsに含まれる。
+@@ -79,5 +83,6 @@
+ 3. 固定した累積差分にその旧新版が含まれ、対象scopeのcurrent版集合が判定対象と一致する（adoptionでは一括反映する新bundleと一致）。
+ 
+ 対象外・後着の項目は残す。複数scopeの項目を部分合格で丸ごと消さない。残項目の最古first_changed_atを期限の起点とし、残項目がなくなった範囲だけ期限を解除する。
+-adoptionのcurrent切替・差分追加/消去・基準更新は一括で保存する。adoption自身のaudit-passで保証した新変更は同じ更新で解消済みとして履歴に残す。
++adoptionのcurrent切替・差分追加/消去・基準更新は一括で保存する。audit-passで保証した新変更と、要求に含めて3条件を満たした既存項目を同じ更新で解消済みとして履歴に残す。
++基準の索引を進めるIDについて、採用前からある関連項目を要求から漏らしたり、累積差分の保証が欠けたりしていれば結果を受理せず、不足を埋めた要求へ戻す。候補が既存変更を含むというだけで監査済みと扱わない。
+ periodicは現行の対象版集合が一致する場合だけ基準を更新する。合格の索引は保証したIDだけ更新し、対象外の基準を消さない。
+--- a/harness-v3/README.md
++++ b/harness-v3/README.md
+@@ -57,8 +57,8 @@
+ 
+ | context | 所有する判断・状態 | 実行ロール |
+ | --- | --- | --- |
+-| 記録 | 現在仕様、候補、参照、採用、取消と反映の確定順 | design / precheck / record |
+-| 学習 | 計画、試行、観測、採否の提案、予算、サイクル終端 | intake / experiment |
++| 記録 | 現在仕様、候補、参照、採用、取消と反映の確定順、予算の使用・予約台帳、監査送信の開始判断 | design / precheck / record |
++| 学習 | 計画、試行、観測、採否の提案、予算の定義・配分と試行の開始判断、サイクル終端 | intake / experiment |
+ | 監査 | 確認範囲、監査判定、指摘 | audit |
+ 
+ ロールは手順の担当名で、設計ツリーの子や別プロセスの必須指定ではありません。
+--- a/harness-v3/roles/audit.md
++++ b/harness-v3/roles/audit.md
+@@ -10,10 +10,11 @@
+ 2. 前回の修正に対する新要求なら、下記の再監査手順を使う。初回監査がfailで基準がまだなくても、前回確認済み部分を無条件に読み直さない。
+ 3. それ以外では[scope別の基準検索](../protocols/records.md)を行い、対象context/契約と保証phaseに基準がなければ、今回必要な範囲の初回監査。
+ 4. 用語・責任・ルール・契約・品質保証・許可の意味変更は即時限定監査。API形状やsystem本文が同じでも定義の変更を含む。
+-5. implementationの未監査差分があり終了通知または期限に達していれば、最後の基準からの周期監査。
++5. implementationの未監査差分があり終了通知または期限に達していれば、[各項目に保持した起点](../protocols/records.md)からの周期監査。同じ対象の完了済み非passが修正待ちなら新規起動せず、保存結果へ対応付ける。
+ 6. それ以外で監査済みの意味と委任内の内部修正なら、関連回帰確認と短い影響説明でdaily-pass。失敗・必要なテスト未実行は成功扱いにしない。意味不変の表記は根拠付き非該当可。
+ 
+ planは確認計画と未検証範囲を監査する。adoptionは対象実装の必要な結果を要求する。
++正式なadoption監査も、交わる既存change_idsと提案差分を含む累積差分を確認する。baseline_refsの起点と今回subjectの終点を明示し、最新基準だけとの差分へ短縮しない。
+ 分類のために毎回全体を監査しない。不確かな場合は、基準・具体的な不明点・解除条件を持つ最小の限定監査へ渡す。
+ 
+ ## 修正後の再監査
+--- a/harness-v3/roles/orchestrate.md
++++ b/harness-v3/roles/orchestrate.md
+@@ -5,7 +5,7 @@
+ 1. 書込み中断があれば、最後の完全なstate/currentと台帳から表示を復元する。
+ 2. 未処理変更を影響計算し、旧候補・監査結果をstaleにする。新しい同一性で再確認する。
+ 3. 未確定取消、受信済み結果、終端通知、送信待ちをrecordへ渡す。確定済みIDを新操作へ再利用しない。
+-4. 保存したperiodic_policyと作業開始時の観測時刻でimplementation差分の期限を確認し、必要なperiodicを保存する。既存要求と対応付け、差分がなければskipする。
++4. 保存したperiodic_policyと作業開始時の観測時刻でimplementation差分の期限を確認し、必要なperiodicを保存する。未完了要求に加え、同じ対象の完了済み非passと未解除のblocked_scopesも照合し、修正待ちなら既存結果へ対応付けて新規起動しない。差分がなければskipする。
+ 5. 必要な監査を先に処理する。[予算契約](../protocols/budgets.md)の口座割当・上限確認・予約を満たしてから送信し、保証不能ならheld-budgetを維持する。影響scopeの進行だけを保留し、原因解消の候補作成・限定検証は委任と予算内で続ける。
+ 6. checkedの計画はexperimentの追加実行前の予算確認へ渡す。保証不能ならpausedを維持する。評価済みの採用候補はrecordへ、構造不足はdesignへ渡す。
+ 7. 次の未確認事項を選び、目標・予算内で新サイクルを始める。必要な枝から進め、幅を揃えない。
+--- a/harness-v3/templates/audit.md
++++ b/harness-v3/templates/audit.md
+@@ -8,7 +8,7 @@
+ phase: <plan|implementation>
+ subject_hash: <hash>
+ subject_ref: <immutable-ref>
+-baseline_ref: null
++baseline_refs: {} # scope_id -> oldest selected change origins, or latest baseline / initial
+ cumulative_diff_ref: <immutable-ref-or-initial>
+ change_ids: []
+ previous_audit_ref: null
+--- a/harness-v3/templates/operation.md
++++ b/harness-v3/templates/operation.md
+@@ -16,6 +16,7 @@
+ phase: <plan|implementation-or-null>
+ criteria_version: 1
+ change_ids: []
++baseline_refs: {} # scope_id -> immutable origin references
+ previous_audit_ref: null
+ previous_subject_ref: null
+ open_finding_ids: []
+@@ -44,7 +45,8 @@
+ 要求payloadは作成時に固定する。通常revision/state/result_refはpayload外の進行情報。
+ withdrawal/cancelは新IDと対象ID・期待hash・scope必須。
+ cycle_closedは関連操作の確定結果・outcome・反映bundle・closed_at必須。
+-periodicはtriggerと通知IDまたは期限、現行subject、baselineと累積差分/change_idsの不変参照、policy_refを指定する。
++periodicはtriggerと通知IDまたは期限、現行subject、baseline_refsと累積差分/change_idsの不変参照、policy_refを指定する。
++正式なadoption監査も交わる既存項目と提案差分のchange_ids、各項目の起点baseline_refsを固定する。提案分のIDは採用前に割り当てる。
+ 再監査は前回監査・subject、open指摘、入力差分、波及先、引継ぎ確認を固定する。初回は前回参照をnullにできる。
+ 実行時のexecution_id・予約・予算判定は要求payloadへ後追いで混ぜず、state台帳の進行情報として持つ。
+ state台帳の確定結果をこの文書へ反映する。古い文書からstateを巻戻さない。
+--- a/harness-v3/templates/state.md
++++ b/harness-v3/templates/state.md
+@@ -32,10 +32,10 @@
+ - operations[ID]: payload_hash、kind、subject_hash、scope、state、result、bundle、audit_request_id/origin_operation_id。
+ - tombstones[対象ID]: 取消要求ID、期待hash、scope、provisional/confirmed。確定取消を再送で解除しない。
+ - outbox: message_id、kind、payloadの不変参照、target、pending/held-budget/in-flight/acknowledged、対応する要求ID、account_refs、execution_id、保留理由・再開条件。再送でIDを変えない。
+-- received_notifications[ID]: payload_hash、cycle_id、periodic_request_idまたはskip_reason、ack状態。
++- received_notifications[ID]: payload_hash、cycle_id、periodic_request_idまたはskip_reason、ack状態。修正待ちなら失敗要求ID、未解除理由、待機状態を持つ。新規要求を作らない対応付けも保存する。
+ - audit_baselines: scope_id、phase、criteria_versionを検索キーとし、保証元のscope/subject_hash/subject_ref、定義・依拠先/共同条件の参照、audit_request_id、result_ref、accepted_atを保存する。集合合格は全要素へ索引を作る。
+ - unaudited_changes: change_id、affected_scope、phase=implementation、baseline_refs、first_changed_at、operation_id、旧新版・定義差分、共同条件と分割不能理由（該当時）、理由・証拠。currentを変えないplanは含めない。
+-- blocked_scopes: scope、原因、修正担当、解除条件、許容される限定検証。
++- blocked_scopes: scope、原因、修正担当、解除条件、許容される限定検証、失敗audit_request_id、subject_hash/phase/criteria_version/change_ids、解除根拠と後続要求。修正待ちの同対象は周期起動し直さない。
+ - periodic_policy: revision、cycle_closed_enabled、after_days、timezone、source_ref。期限はこの設定と残差分の最古日時から計算する。timezoneとprojectのtimezoneは一致させる。
+ - budget_accounts[account_id]: owner、delegation_ref、scope/activity条件、parent_account_refs、limits。limits[limit_id]にunit、limit、対象activity、cumulative_used、cumulative_upper_bound、bound_evidence_refを持つ。上限なしは委任根拠付きnull。
+ - execution_reservations[execution_id]: operation/audit_request ID、activity、scope、account_refs、各account/limit_idの予約上限と根拠、判定時刻、reserved/in-flight/settled/held、実績/不明量、証拠、精算記録。未決予約は使用量とは別に合算する。

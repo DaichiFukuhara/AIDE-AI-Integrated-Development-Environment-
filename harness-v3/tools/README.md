@@ -12,6 +12,7 @@ python harness-v3/tools/snapshot.py hash-json <subject-body.json>
 freezeは指定ファイルをproject相対パスで受け取る。今回必要な設計の対、親条件、契約の両端、定義と依拠先、計画、実装・証拠を明示的に列挙する。
 最初の例は操作方法の例で、rootの2文書だけでsystem監査が十分という意味ではない。
 subjectテンプレートのJSON本体をhash-jsonへ渡し、返るhashをsubject_hashとして記録する。結果や状態は本体に混ぜない。
+hash-jsonとmanifest読込みは、入れ子を含む重複JSONキーを拒否する。後に書かれた値で暗黙に上書きしない。subjectのscope集合の正規化は入力を作る担当が行う。
 
 保存先は`design/snapshots/SN-<SHA-256>/`、中身は`manifest.json`と`files/<元の相対パス>`。
 snapshot IDはformat_versionと、名前順のファイル一覧（path/sha256/size）を規約化したhash。ファイルのバイト列を変換しない。

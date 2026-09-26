@@ -11,7 +11,7 @@
 | --- | --- | --- |
 | S-CONTEXT | 記録 → 学習 | 要求ID、対象goal/system。応答はbundle、版集合、委任、subject、phase/scope別baseline、未監査差分、進行判定、対応する確定結果 |
 | S-PROPOSAL | 学習 → 記録 | operation_id、kind=plan/adoption/withdrawal/cycle_closed、experiment/plan_revision/cycle_id、scope、委任。計画・採用はbase_bundle、対象ID、差分、subject/hash、条件・契約影響 |
-| S-AUDIT-INPUT | 記録 → 監査 | operation_id=audit_request_id、origin_operation_id、kind=plan/adoption/periodic/cancel、scope、subject/hash、criteria_version、baseline、累積差分、委任、観測時刻 |
+| S-AUDIT-INPUT | 記録 → 監査 | operation_id=audit_request_id、origin_operation_id、kind=plan/adoption/periodic/cancel、scope、subject/hash、criteria_version、baseline、累積差分/change_ids、委任、観測時刻、予算口座・実行予約。再監査は前回監査/subject・open指摘・修正差分・波及scope・引継ぎ確認 |
 | S-AUDIT-RESULT | 監査 → 記録 | 応答先ID、origin_operation_id、subject_hash、scope、phase、criteria_version、result、証拠、finding、次の処理、基準、期限。cancelはtarget_operation_idも返す |
 
 subjectは[対象契約](subject.md)の定義参照を含む。S-CONTEXTは読み取り専用で、取消後の古いcheckedを進行許可として返さない。
@@ -45,12 +45,25 @@ paused、修正継続中のinconclusiveは終端ではない。終端後の追�
 反映後の取消は反映済みの事実も残す。ack未受領なら同じ通知を再送する。
 
 記録担当は関連操作を台帳で照合する。未確定ならpendingで保持し、確定後に再開する。
-採用完了後の現行scopeから未監査差分を確認する。不採用・取消でも既存差分を確認する。
+採用完了後の現行scopeからimplementationの未監査差分を確認し、[記録契約](records.md)の規則で要求scopeを閉じる。不採用・取消でも既存差分を確認する。plan履歴だけなら周期対象にしない。
 通知受領と、periodic要求の永続化または差分なしskip理由を同じstate更新へ入れてからackする。
-同subject/scopeの未完了要求があれば対応付け、重複起動しない。保存後すぐ送信し、中断なら再開時に未送信を処理する。
+ユーザー指定でcycle_closed_enabled=falseなら、差分を残してtrigger-disabledのskip理由と次の期限を保存してackする。期限到来済みならactivity_dueを同時に処理し、設定によって期限を消さない。
+同subject/scopeと同じchange_idsの未完了要求があれば対応付け、重複起動しない。保存後は[予算契約](budgets.md)を確認し、予約できれば送信する。保証不能ならheld-budgetの送信待ちを残し、中断なら再開時に再判定する。
+完了済みも、subject_hash・scope・phase・criteria_version・正規化したchange_idsの組で検索する。同じ組の非pass結果があり、そのblocked_scopesが未解除なら新しい周期要求・費用予約を作らず、修正待ちとして失敗要求と指摘を参照する。
+作業開始・別サイクル終了は修正待ちを解除しない。通知は失敗要求への対応付けと待機理由を保存してackし、差分・期限・保留を残す。未解決の周期判定を完了扱いにしない。
+修正ができたら新subject・新要求を前回監査参照付きで再監査する。対象外の変更だけで同じ失敗対象を新規起動しない。対象版が不変のまま予算・通信だけを回復した場合は、元の保留要求の実行状態を確認して再開する（新規の周期要求を量産しない）。
+解消済み非passの履歴も消さず、解除根拠と後続要求を結ぶ。内容不変の再実行の例外は通信・実行基盤の一時障害の回復に限る。回復証拠と理由を同じ要求へ記録し、[予算契約](budgets.md)で新しい物理実行だけを予約する。設計上のmajorが残る対象をこの例外で再起動しない。
 通知ackは「周期処理を保存した」の意味で、監査完了とは区別する。
 
-もう一つの起点は最初の未監査変更から7暦日後の次の作業開始。記録担当が観測時刻とプロジェクトのtimezoneで日付を比較する。
-periodicにtrigger=cycle_closed/activity_dueと通知IDまたは期限を付ける。ユーザー指定周期があれば優先する。
+もう一つの起点は最初の未監査変更から既定7暦日後の次の作業開始。記録担当が観測時刻とstateのperiodic_policy.timezoneで日付を比較する。
+periodicにtrigger=cycle_closed/activity_dueと通知IDまたは期限、適用したpolicy_refを付ける。state.periodic_policyにcycle_closed_enabled、after_days、timezone、revision、source_refを保存し、既存のユーザー指定周期があればそれを優先する。
+再開では保存した設定を読み、既定値で上書きしない。設定変更時は未監査差分の初回日時を維持して期限を再計算し、旧設定も履歴へ残す。
 早い方の起点で処理し、常駐スケジューラは要求しない。監査中に増えた差分にも期限と通知を保持する。
 失敗時は影響scopeの新規採用・試作進行を保留し、currentを自動巻戻ししない。原因解消の候補作成・限定検証は委任内で続けられる。
+
+## 初期実装の予算処理
+
+このMarkdown版では一人のローカル実行担当が、学習/記録の役割を順次切り替えて[予算契約](budgets.md)の判断・予約・精算を行う。予算予約は別プロセスからstateへ書き込む新しい通信seamではない。
+試行の開始判断は学習役、監査送信・記録作業の開始判断は記録役が担う。どちらも一人の記録役だけがstateへ予約を書き、役割ごとの判断根拠をexecution_idに残す。
+外部の実装作業者・独立監査者は予約済みexecution_idと上限内の一実行だけを受け持ち、追加実行やstate更新を独自に始めない。結果・使用量をローカル担当へ戻し、記録役が精算する。
+学習と記録を別プロセスへ分離して自律予約する拡張はこの初期実装の対象外。必要なら受渡し契約を別途設計・監査してから行う。

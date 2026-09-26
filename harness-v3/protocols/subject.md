@@ -27,13 +27,14 @@ scope外の定義でも意味の解釈に使うなら含める。同じIDの矛�
 ## 同一性
 
 subject本体をJSONへ規約化する。キー辞書順、配列は保存順、UnicodeをエスケープしないUTF-8、区切り空白なし。
+入力JSONは入れ子を含め重複キーを拒否する。scopeだけは[記録契約](records.md)の集合規則で先に正規化し、他の配列順は変更しない。
 SHA-256をsubject_hashとする。hash自身、監査結果、通常revision、操作状態は本体へ含めない。
 文字列の内容は勝手に正規化しない。同じ入力順を保持する。
 
 結果は`audit_request_id, subject_hash, scope, phase, criteria_version`の完全一致する要求だけに有効。
 対象定義・仕様・実装・証拠・評価・scopeが変われば新subject・新要求を作る。
 古い結果は比較根拠として参照できるが、新対象の合格へ流用しない。変更分類はその新要求で行う。
-意味不変の内部変更なら関連確認後にdaily-passを得られるが、未監査差分として残す。
+意味不変の内部変更なら関連確認後にdaily-passを得られる。adoptionでcurrentを変えた場合はimplementationの未監査差分として残す。currentを変えないplanは確認履歴にだけ残す。
 
 固定物を用いた監査中に、元の作業ファイルを結果入力へ混ぜない。採用時にも不変入力と最新の参照前提を照合する。
 [補助ツール](../tools/README.md)のsnapshot IDはファイル集合の固定であり、subject_hashや意味監査の合格と同義ではない。

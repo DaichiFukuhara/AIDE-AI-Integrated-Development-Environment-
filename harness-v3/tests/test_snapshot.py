@@ -144,6 +144,39 @@ class SnapshotTests(unittest.TestCase):
         self.assertEqual(p.returncode, 1)
         self.assertIn("snapshot:", p.stderr)
 
+    def test_hash_json_cli_rejects_duplicate_keys_without_emitting_hash(self):
+        source = self.root / "subject.json"
+        for body in ('{"scope": ["X"], "scope": ["Y"]}',
+                     '{"refs": [{"id": "X", "id": "Y"}]}',
+                     r'{"scope": ["X"], "\u0073cope": ["Y"]}'):
+            with self.subTest(body=body):
+                source.write_text(body, encoding="utf-8")
+                p = subprocess.run([sys.executable, str(TOOL), "hash-json", str(source)],
+                                   capture_output=True, text=True, encoding="utf-8")
+                self.assertEqual(p.returncode, 1)
+                self.assertIn("Duplicate JSON key", p.stderr)
+                self.assertEqual(p.stdout, "")
+
+    def test_hash_json_cli_preserves_valid_canonical_hash(self):
+        source = self.root / "subject.json"
+        # Repeated member names in different objects are valid.
+        value = {"refs": [{"id": "X"}, {"id": "Y"}], "name": "設計"}
+        source.write_text(json.dumps(value, ensure_ascii=True, indent=2), encoding="utf-8")
+        p = subprocess.run([sys.executable, str(TOOL), "hash-json", str(source)],
+                           capture_output=True, text=True, encoding="utf-8")
+        self.assertEqual(p.returncode, 0, p.stderr)
+        self.assertEqual(json.loads(p.stdout)["sha256"], snapshot.digest(snapshot.canonical(value)))
+
+    def test_manifest_with_shadowed_key_is_rejected(self):
+        frozen = self.freeze()
+        manifest = frozen / "manifest.json"
+        raw = manifest.read_text(encoding="utf-8")
+        self.assertIn('"format_version":1', raw)
+        manifest.write_text(raw.replace('"format_version":1',
+                                        '"format_version":9,"format_version":1'), encoding="utf-8")
+        with self.assertRaisesRegex(snapshot.SnapshotError, "Duplicate JSON key"):
+            snapshot.verify(frozen)
+
 
 if __name__ == "__main__":
     unittest.main()

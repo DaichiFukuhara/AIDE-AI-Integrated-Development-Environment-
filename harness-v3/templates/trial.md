@@ -8,9 +8,15 @@ model_definition_refs: []
 evaluation_ref: <immutable-ref>
 evidence_refs: []
 executed_at: <ISO-8601>
-budget_used: <value-or-unknown>
-budget_used_upper_bound: null
-budget_bound_evidence_ref: null
+execution_id: <reservation-and-settlement-id>
+budget_account_refs: []
+budget_usage:
+  <account-id/limit-id>:
+    unit: <unit>
+    used: unknown
+    used_upper_bound: null
+    bound_evidence_ref: null
+budget_settlement_ref: <state-ledger-ref>
 ---
 
 # <今回試したこと>
