@@ -2,6 +2,8 @@
 operation_id: <new-id>
 revision: 1
 kind: <plan|adoption|withdrawal|cycle_closed|periodic|cancel>
+review_mode: normal
+recovery_ref: null
 origin_operation_id: null
 target_operation_id: null
 expected_subject_hash: null
@@ -46,6 +48,7 @@ result_ref: null
 withdrawal/cancelは新IDと対象ID・期待hash・scope必須。
 cycle_closedは関連操作の確定結果・outcome・反映bundle・closed_at必須。
 periodicはtriggerと通知IDまたは期限、現行subject、baseline_refsと累積差分/change_idsの不変参照、policy_refを指定する。
+起点喪失の回復はkind=periodicまたはadoptionで、review_mode=baseline-recovery、recovery_ref、baseline_refsのinitial起点、全対象change_idsを必須とし、subjectにも同じrecovery_refを含める。adoptionは修正提案bundleと新変更ID、元の失敗要求/open指摘、base_bundleも固定する。
 正式なadoption監査も交わる既存項目と提案差分のchange_ids、各項目の起点baseline_refsを固定する。提案分のIDは採用前に割り当てる。
 再監査は前回監査・subject、open指摘、入力差分、波及先、引継ぎ確認を固定する。初回は前回参照をnullにできる。
 実行時のexecution_id・予約・予算判定は要求payloadへ後追いで混ぜず、state台帳の進行情報として持つ。

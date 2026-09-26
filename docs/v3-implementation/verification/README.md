@@ -1,11 +1,18 @@
 # 実装検証の範囲
 
+[round 7後の実装確定と最終照合](acceptance-round-7.md)を保存した。
+
 - 最新の補助ツール: [15テストpass・skipなし](claude-fixes-round-1/snapshot-tests.json)。重複JSONキーの拒否・正常hash維持を追加。実行環境はWindows / Python 3.13。
 - 製品演習: [実行結果](claude-fixes-round-1/exercise.json)。意図的な不具合を検出後、同じ5テストとサンプルCLI操作がpass。旧試行は固定したまま。
 - [Claude指摘の手動シナリオ](claude-fixes-round-1/scenarios.md): 差分消去・限定再監査・監査予算等の16ケースを規約へ照合。
 - [追加指摘の手動シナリオ](claude-fixes-round-2/scenarios.md): 失敗済み監査の再起動防止、基準更新後の差分起点、予算の担当分担を8ケースで照合。
+- [予算正本・完了・回復の手動シナリオ](claude-fixes-round-3/scenarios.md): 11ケース。
+- [回復採用・完了条件・保留解除の手動シナリオ](claude-fixes-round-4/scenarios.md): 8ケース。
+- [回復情報の受渡しの手動シナリオ](claude-fixes-round-5/scenarios.md): 5ケース。
+- [操作kind別の手動シナリオ](claude-fixes-round-6/scenarios.md): plan・adoption・withdrawal・cycle_closedの4ケース。
 - [予算の手動シナリオ](budget-scenarios.md): 不明額のある反復で、停止と継続の条件を照合。
-- [最新パッケージ照合](claude-fixes-round-2/package.json): 67個の相対リンクと9テンプレートfrontmatterを確認。コード・テスト・演習7ファイルは15件/5件成功時と同一hashであり、規約だけの追加修正ではテストを再実行していない。
+- [最新パッケージ照合](claude-fixes-round-6/package.json): 69個の相対リンクと9テンプレートfrontmatterを確認。コード・テスト・演習7ファイルは15件/5件成功時と同一hashであり、規約だけの追加修正ではテストを再実行していない。
+- [最新の独立監査](../audits/claude-opus-5-5-high-round-7/report.md): Opus 5.5 / High、CIV3-001〜020 closed、open blocker/major/minorすべて0。
 - 前回の63リンクと実行時の実装hashは[claude-fixes-round-1](claude-fixes-round-1/package.json)に保存。
 - 以前の12テストと51リンクの記録はround-2に履歴として残す。
 - 初回の9テストと演習記録はこのディレクトリ直下に履歴として残す。

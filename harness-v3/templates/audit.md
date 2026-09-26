@@ -4,6 +4,8 @@ audit_request_id: <request-id>
 origin_operation_id: <proposal-or-trigger-id>
 target_operation_id: null
 kind: <plan|adoption|periodic|cancel>
+review_mode: normal
+recovery_ref: null
 scope: []
 phase: <plan|implementation>
 subject_hash: <hash>
@@ -43,6 +45,7 @@ next_due: null
 再監査ではreused_checksにcriterion、前回結果、同一の入力/依拠先hashと証拠、影響外の理由を保存する。
 previous_audit_ref等は新要求の固定入力。詳細確認の範囲と、今回のsubject全体の保証範囲を区別する。
 監査費用と予算判定はexecution_idでstateの予約・精算記録を参照する。周期要求ではpolicy_refと累積change_idsを固定する。
+baseline-recoveryではloss record参照と対象change_idsを固定し、scopeごとのbaseline_refsをinitialとする。periodicでは現行subject、adoptionでは修正提案subject全体の証拠を確認し、失われた履歴を保証しないことも明示する。
 
 | criterion | 適用と証拠 | 判定・理由付きN/A |
 | --- | --- | --- |

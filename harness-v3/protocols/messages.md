@@ -9,12 +9,16 @@
 
 | seam | 提供 → 利用 | 必須の受渡し |
 | --- | --- | --- |
-| S-CONTEXT | 記録 → 学習 | 要求ID、対象goal/system。応答はbundle、版集合、委任、subject、phase/scope別baseline、未監査差分、進行判定、対応する確定結果 |
-| S-PROPOSAL | 学習 → 記録 | operation_id、kind=plan/adoption/withdrawal/cycle_closed、experiment/plan_revision/cycle_id、scope、委任。計画・採用はbase_bundle、対象ID、差分、subject/hash、条件・契約影響 |
+| S-CONTEXT | 記録 → 学習 | 要求ID、対象goal/system。応答はbundle、版集合、委任、subject、phase/scope別baseline、未監査差分、進行判定、対応する確定結果。回復中scopeにはadoption向けの有効なrecovery_ref（loss record）・要求すべきreview_mode、対象change_idsと元の失敗監査/open指摘も含む |
+| S-PROPOSAL | 学習 → 記録 | operation_id、kind=plan/adoption/withdrawal/cycle_closed、experiment/plan_revision/cycle_id、scope、委任。計画・採用はbase_bundle、対象ID、差分、subject/hash、条件・契約影響。回復adoptionはS-CONTEXTで得たreview_mode/recovery_refをoperationとsubjectへ含める |
 | S-AUDIT-INPUT | 記録 → 監査 | operation_id=audit_request_id、origin_operation_id、kind=plan/adoption/periodic/cancel、scope、subject/hash、criteria_version、baseline、累積差分/change_ids、委任、観測時刻、予算口座・実行予約。再監査は前回監査/subject・open指摘・修正差分・波及scope・引継ぎ確認 |
 | S-AUDIT-RESULT | 監査 → 記録 | 応答先ID、origin_operation_id、subject_hash、scope、phase、criteria_version、result、証拠、finding、次の処理、基準、期限。cancelはtarget_operation_idも返す |
 
 subjectは[対象契約](subject.md)の定義参照を含む。S-CONTEXTは読み取り専用で、取消後の古いcheckedを進行許可として返さない。
+学習役は回復adoptionを作る直前にS-CONTEXTを照会し、返されたrecovery_refとreview_modeを使ってsubject/hashを固定する。記録役はこれを照合し、参照を黙って追加・差替えしない。
+回復中scopeへのadoption提案でrecovery_ref/review_modeが欠落・不一致なら、記録役は必要な参照・対象scope/change_ids・再提出条件を示してblockedを返す。学習役は再照会して新subject・新operation_idで提出し直す。元のpayloadは変えない。
+plan/withdrawal/cycle_closedはreview_mode=normal・recovery_ref=nullのまま通常規則で扱い、このadoption専用の欠落判定を適用しない。planはplan phaseの基準で判定し、implementationの回復状態は進行判定・保留として返す。計画合格で実装の保留を解除せず、許容された原因解消の候補作成・限定検証だけを進める。
+scopeの閉包に必要なloss recordが未準備ならS-CONTEXTは準備待ちと理由を返す。記録役が別の更新で対象全体を覆うloss recordを固定してから再照会する。参照を推測したり、S-CONTEXTの読取りでstateを書き換えたりしない。
 resultはdaily-pass / require-review / audit-pass / blocked / stale / cancelled / pending-target / already-completed / rejected。
 記録担当が返す採用応答にはapplied / already-applied / conflictもある。確定結果と現行bundleを要求IDで取得できるようにする。
 同ID・同payloadの再送は台帳の確定状態を返す。同ID異payloadはrejected。時刻や受信順だけで版を推測しない。
@@ -54,6 +58,8 @@ paused、修正継続中のinconclusiveは終端ではない。終端後の追�
 修正ができたら新subject・新要求を前回監査参照付きで再監査する。対象外の変更だけで同じ失敗対象を新規起動しない。対象版が不変のまま予算・通信だけを回復した場合は、元の保留要求の実行状態を確認して再開する（新規の周期要求を量産しない）。
 解消済み非passの履歴も消さず、解除根拠と後続要求を結ぶ。内容不変の再実行の例外は通信・実行基盤の一時障害の回復に限る。回復証拠と理由を同じ要求へ記録し、[予算契約](budgets.md)で新しい物理実行だけを予約する。設計上のmajorが残る対象をこの例外で再起動しない。
 通知ackは「周期処理を保存した」の意味で、監査完了とは区別する。
+修正待ち・予算待ち・実行中は「実験は終了、サイクル全体は未完了」とする。後続結果の受理・基準/差分更新・条件を満たした保留解除・元通知との対応更新を同じstate更新に入れ、orchestrateが完了を再判定する。
+起点喪失の回復だけは[回復契約](records.md)に従い、loss recordを含む新subjectで初回相当のperiodicまたは修正版のadoptionを起動できる。S-AUDIT-INPUT/RESULTはreview_mode=baseline-recovery、recovery_ref、change_idsも一致させる。喪失記録だけで既知の指摘や保留を解除しない。
 
 もう一つの起点は最初の未監査変更から既定7暦日後の次の作業開始。記録担当が観測時刻とstateのperiodic_policy.timezoneで日付を比較する。
 periodicにtrigger=cycle_closed/activity_dueと通知IDまたは期限、適用したpolicy_refを付ける。state.periodic_policyにcycle_closed_enabled、after_days、timezone、revision、source_refを保存し、既存のユーザー指定周期があればそれを優先する。

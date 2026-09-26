@@ -21,6 +21,7 @@ subject_hash: <SHA-256-of-body-json>
   "trial_refs": [],
   "evidence_refs": [],
   "delegation_ref": "<immutable-authorization-ref>",
+  "recovery_ref": null,
   "unverified": []
 }
 ```

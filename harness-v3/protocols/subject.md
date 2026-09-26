@@ -15,6 +15,7 @@ subjectは「何を保証する判定か」を固定した入力集合。[テン
 | implementation_ref | 採用対象の不変コミットまたはファイルhash集合。planの未実装はnull可 |
 | trial_refs / evidence_refs | 実装版に結び付く不変試行・関連テスト・実使用・人の評価・限界 |
 | delegation_ref / unverified | 既存の許可・委任の根拠と、確認できていない範囲の扱い |
+| recovery_ref | 通常はnull。差分起点が復元不能なときの不変loss record。喪失参照・復元試行・影響範囲・現在版・失われた保証を含む |
 
 各refは`id, semantic_revision, immutable_ref`を持つ。実装・証拠等に意味版がなければ不変IDと内容hashを使う。
 定義refには`domain_id, context_id, canonical_owner, dependencies`も必要。domain全体の定義はcontext_id=null。
@@ -33,6 +34,7 @@ SHA-256をsubject_hashとする。hash自身、監査結果、通常revision、�
 
 結果は`audit_request_id, subject_hash, scope, phase, criteria_version`の完全一致する要求だけに有効。
 対象定義・仕様・実装・証拠・評価・scopeが変われば新subject・新要求を作る。
+起点喪失からの回復もrecovery_refを含む新subjectへ固定し、以前と同じ対象として失敗結果を繰り返し受理しない。
 古い結果は比較根拠として参照できるが、新対象の合格へ流用しない。変更分類はその新要求で行う。
 意味不変の内部変更なら関連確認後にdaily-passを得られる。adoptionでcurrentを変えた場合はimplementationの未監査差分として残す。currentを変えないplanは確認履歴にだけ残す。
 

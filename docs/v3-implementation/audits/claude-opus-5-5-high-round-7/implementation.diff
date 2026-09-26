@@ -1,0 +1,20 @@
+--- a/harness-v3/protocols/messages.md
++++ b/harness-v3/protocols/messages.md
+@@ -9,14 +9,15 @@
+ 
+ | seam | 提供 → 利用 | 必須の受渡し |
+ | --- | --- | --- |
+-| S-CONTEXT | 記録 → 学習 | 要求ID、対象goal/system。応答はbundle、版集合、委任、subject、phase/scope別baseline、未監査差分、進行判定、対応する確定結果。回復中scopeには有効なrecovery_ref（loss record）、要求すべきreview_mode、対象change_idsと元の失敗監査/open指摘も含む |
++| S-CONTEXT | 記録 → 学習 | 要求ID、対象goal/system。応答はbundle、版集合、委任、subject、phase/scope別baseline、未監査差分、進行判定、対応する確定結果。回復中scopeにはadoption向けの有効なrecovery_ref（loss record）・要求すべきreview_mode、対象change_idsと元の失敗監査/open指摘も含む |
+ | S-PROPOSAL | 学習 → 記録 | operation_id、kind=plan/adoption/withdrawal/cycle_closed、experiment/plan_revision/cycle_id、scope、委任。計画・採用はbase_bundle、対象ID、差分、subject/hash、条件・契約影響。回復adoptionはS-CONTEXTで得たreview_mode/recovery_refをoperationとsubjectへ含める |
+ | S-AUDIT-INPUT | 記録 → 監査 | operation_id=audit_request_id、origin_operation_id、kind=plan/adoption/periodic/cancel、scope、subject/hash、criteria_version、baseline、累積差分/change_ids、委任、観測時刻、予算口座・実行予約。再監査は前回監査/subject・open指摘・修正差分・波及scope・引継ぎ確認 |
+ | S-AUDIT-RESULT | 監査 → 記録 | 応答先ID、origin_operation_id、subject_hash、scope、phase、criteria_version、result、証拠、finding、次の処理、基準、期限。cancelはtarget_operation_idも返す |
+ 
+ subjectは[対象契約](subject.md)の定義参照を含む。S-CONTEXTは読み取り専用で、取消後の古いcheckedを進行許可として返さない。
+ 学習役は回復adoptionを作る直前にS-CONTEXTを照会し、返されたrecovery_refとreview_modeを使ってsubject/hashを固定する。記録役はこれを照合し、参照を黙って追加・差替えしない。
+-回復中scopeへの提案でrecovery_ref/review_modeが欠落・不一致なら、記録役は必要な参照・対象scope/change_ids・再提出条件を示してblockedを返す。学習役は再照会して新subject・新operation_idで提出し直す。元のpayloadは変えない。
++回復中scopeへのadoption提案でrecovery_ref/review_modeが欠落・不一致なら、記録役は必要な参照・対象scope/change_ids・再提出条件を示してblockedを返す。学習役は再照会して新subject・新operation_idで提出し直す。元のpayloadは変えない。
++plan/withdrawal/cycle_closedはreview_mode=normal・recovery_ref=nullのまま通常規則で扱い、このadoption専用の欠落判定を適用しない。planはplan phaseの基準で判定し、implementationの回復状態は進行判定・保留として返す。計画合格で実装の保留を解除せず、許容された原因解消の候補作成・限定検証だけを進める。
+ scopeの閉包に必要なloss recordが未準備ならS-CONTEXTは準備待ちと理由を返す。記録役が別の更新で対象全体を覆うloss recordを固定してから再照会する。参照を推測したり、S-CONTEXTの読取りでstateを書き換えたりしない。
+ resultはdaily-pass / require-review / audit-pass / blocked / stale / cancelled / pending-target / already-completed / rejected。
+ 記録担当が返す採用応答にはapplied / already-applied / conflictもある。確定結果と現行bundleを要求IDで取得できるようにする。

@@ -1,0 +1,52 @@
+--- a/harness-v3/protocols/messages.md
++++ b/harness-v3/protocols/messages.md
+@@ -9,12 +9,15 @@
+ 
+ | seam | 提供 → 利用 | 必須の受渡し |
+ | --- | --- | --- |
+-| S-CONTEXT | 記録 → 学習 | 要求ID、対象goal/system。応答はbundle、版集合、委任、subject、phase/scope別baseline、未監査差分、進行判定、対応する確定結果 |
+-| S-PROPOSAL | 学習 → 記録 | operation_id、kind=plan/adoption/withdrawal/cycle_closed、experiment/plan_revision/cycle_id、scope、委任。計画・採用はbase_bundle、対象ID、差分、subject/hash、条件・契約影響 |
++| S-CONTEXT | 記録 → 学習 | 要求ID、対象goal/system。応答はbundle、版集合、委任、subject、phase/scope別baseline、未監査差分、進行判定、対応する確定結果。回復中scopeには有効なrecovery_ref（loss record）、要求すべきreview_mode、対象change_idsと元の失敗監査/open指摘も含む |
++| S-PROPOSAL | 学習 → 記録 | operation_id、kind=plan/adoption/withdrawal/cycle_closed、experiment/plan_revision/cycle_id、scope、委任。計画・採用はbase_bundle、対象ID、差分、subject/hash、条件・契約影響。回復adoptionはS-CONTEXTで得たreview_mode/recovery_refをoperationとsubjectへ含める |
+ | S-AUDIT-INPUT | 記録 → 監査 | operation_id=audit_request_id、origin_operation_id、kind=plan/adoption/periodic/cancel、scope、subject/hash、criteria_version、baseline、累積差分/change_ids、委任、観測時刻、予算口座・実行予約。再監査は前回監査/subject・open指摘・修正差分・波及scope・引継ぎ確認 |
+ | S-AUDIT-RESULT | 監査 → 記録 | 応答先ID、origin_operation_id、subject_hash、scope、phase、criteria_version、result、証拠、finding、次の処理、基準、期限。cancelはtarget_operation_idも返す |
+ 
+ subjectは[対象契約](subject.md)の定義参照を含む。S-CONTEXTは読み取り専用で、取消後の古いcheckedを進行許可として返さない。
++学習役は回復adoptionを作る直前にS-CONTEXTを照会し、返されたrecovery_refとreview_modeを使ってsubject/hashを固定する。記録役はこれを照合し、参照を黙って追加・差替えしない。
++回復中scopeへの提案でrecovery_ref/review_modeが欠落・不一致なら、記録役は必要な参照・対象scope/change_ids・再提出条件を示してblockedを返す。学習役は再照会して新subject・新operation_idで提出し直す。元のpayloadは変えない。
++scopeの閉包に必要なloss recordが未準備ならS-CONTEXTは準備待ちと理由を返す。記録役が別の更新で対象全体を覆うloss recordを固定してから再照会する。参照を推測したり、S-CONTEXTの読取りでstateを書き換えたりしない。
+ resultはdaily-pass / require-review / audit-pass / blocked / stale / cancelled / pending-target / already-completed / rejected。
+ 記録担当が返す採用応答にはapplied / already-applied / conflictもある。確定結果と現行bundleを要求IDで取得できるようにする。
+ 同ID・同payloadの再送は台帳の確定状態を返す。同ID異payloadはrejected。時刻や受信順だけで版を推測しない。
+--- a/harness-v3/protocols/records.md
++++ b/harness-v3/protocols/records.md
+@@ -96,6 +96,7 @@
+ 
+ 回復はkind=periodicまたはadoption、phase=implementation、review_mode=baseline-recoveryの新要求とする。periodicの終点はcurrent、修正が必要なadoptionの終点は提案bundle。要求のbaseline_refsは対象scopeごとにinitialとし、recovery_refを含む新subjectに終点の全入力と必要な再検証結果を固定する。通常の修正待ちとの対応付けを残し、同じrecovery_id/subjectの回復を重複起動しない。
+ 回復監査で既知不具合が見つかった場合も、原因解消の候補作成・限定検証は委任内で進められる。修正提案は喪失項目と新項目の全change_ids、元の失敗監査とopen指摘を含め、adoptionのbaseline-recoveryへ渡す。起点欠落を理由にこの回復adoptionを通常の累積差分経路へ戻さない。
++記録役は回復情報をS-CONTEXTで学習役へ提供する。学習役が固定した提案と監査要求は同じrecovery_ref・subject/hashを使い、取消のexpected_subject_hashにもそのhashを使う。不足・不一致は必要な参照を示してblockedとし、記録役だけで別subjectへ書き換えない。
+ これは終点の版全体の初回相当の独立監査である。旧基準の失われた保証を引き継がず、予算・許可・入力完全性・既知の指摘・現在必要な受入条件を通常どおり確認する。履歴がないことだけを理由に必須条件をN/Aへ変えない。
+ 
+ 合格後、記録役は次のすべてを照合してから一つのstate更新で基準を再設定する。
+--- a/harness-v3/roles/experiment.md
++++ b/harness-v3/roles/experiment.md
+@@ -8,7 +8,7 @@
+ 4. 関連する回帰、境界の整合、仮説の比較、実使用を確認する。実装の行を写しただけのテストを保証にしない。未実行・失敗・非該当理由を区別する。
+ 5. [trial](../templates/trial.md)へtrial_id、固定計画版、実装版、実行条件、コマンド、終了コード、観測、評価、費用、限界を保存する。試行や証拠の訂正は別版とし、以前の参照先を変えない。
+ 6. 同じ評価計画の修正は新trial。評価指標・予算・境界・定義が変わる場合は新plan_revisionと新subjectへ戻す。成功条件を途中で都合よく変えない。
+-7. 採用はadoptionとしてrecordへ提案する。失敗・比較不能・不採用・保留にも理由を残す。テスト成功だけで利用価値や許可を獲得したと扱わない。
++7. 採用はadoptionとしてrecordへ提案する。直前のS-CONTEXTで回復中scopeのrecovery_ref/review_modeと対象change_ids・失敗監査/open指摘を取得し、回復adoptionではoperationとsubjectへ同じ参照を入れてhashを固定する。準備待ちなら参照を推測せず待つ。失敗・比較不能・不採用・保留にも理由を残す。テスト成功だけで利用価値や許可を獲得したと扱わない。
+ 8. 採用応答のbundleを記録する。競合ならproposedのまま新基準で再評価し、未反映であることを示す。
+ 9. 全関連操作の確定を確認し、終端とcycle_closed送信待ちを実験記録の一つの更新へ保存する。[終了・取消契約](../protocols/messages.md)に従ってackまで再送する。
+ 
+--- a/harness-v3/roles/record.md
++++ b/harness-v3/roles/record.md
+@@ -5,7 +5,7 @@
+ ## 受け取る
+ 
+ 1. S-PROPOSALを[operation](../templates/operation.md)に保存する。ID再利用、scope、委任、基準bundle、取消台帳を照合する。
+-2. plan/adoptionでは意味入力の再帰的参照を解決してsubjectを固定し、precheckを実行する。
++2. plan/adoptionでは提案の意味入力を再帰的に照合し、同じsubject/hashでprecheckを実行する。回復adoptionのreview_mode/recovery_refもS-CONTEXTの有効な参照と照合する。不足・不一致は必要な参照と再提出条件付きblockedとし、提案subjectを黙って変更しない。
+ 3. audit_request_idとorigin_operation_idの対応をstateへ保存し、S-AUDIT-INPUTを送信待ちにする。正式監査の送信前に[予算](../protocols/budgets.md)を予約する。修正後の要求は前回監査・subject・差分・波及先・引継ぎ確認も固定する。
+ 4. [audit](audit.md)の順序で日常確認・初回・限定・周期を分類する。結果が返ったら要求ID/hash/scope/phase/criteria_versionを照合する。
+ 
