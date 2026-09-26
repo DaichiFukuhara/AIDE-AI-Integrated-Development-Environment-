@@ -1,7 +1,9 @@
 # AIDE v3の実装
 
 [harness-v3](../../harness-v3/README.md)に、監査済み設計tree 80をMarkdownハーネスとして実装した。
-この実装は実行規約、役割手順、テンプレート、入力固定ツール、実行例で構成する。Codex CLI / GPT-6 Astraの再監査はpass。初回のmajor 1件・minor 2件を解消した。[監査の原文と実行記録](audits/README.md)を保存している。
+この実装は実行規約、役割手順、テンプレート、入力固定ツール、実行例で構成する。Codex CLI / GPT-6 Astraの再監査では初回のmajor 1件・minor 2件を解消しpassとなった。その後のClaude CLI / Opus 5.5 / Highの独立監査はfailで、新規のmajor 3件・minor 6件が未修正。[監査の原文と実行記録](audits/README.md)を保存している。
+
+最新の重大指摘は、未監査差分のscope/phase別管理、修正後の再監査範囲、監査費用の予算確認である。[修正対象](audits/claude-opus-5-5-high-round-1/follow-up.md)を参照。今回の確認では実装を変更していない。
 
 ## 設計との対応
 

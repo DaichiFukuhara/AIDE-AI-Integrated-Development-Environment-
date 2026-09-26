@@ -1,11 +1,22 @@
 # v3実装の独立監査
 
-**最新: Codex CLI / GPT-6 Astraによる再監査pass。AIV3-001〜003は解消。**
+**最新: Claude CLI / Opus 5.5 / Highによる独立監査はfail。重大3件・軽微6件が未修正。過去のAIV3-001〜003は解消済みと再確認された。**
 
 | 回 | 対象 | 結果 |
 | --- | --- | --- |
 | [初回](astra-round-1/report.md) | 実行規約・テンプレート・補助ツール・実行例 | fail、major 1件・minor 2件 |
 | [再監査](astra-round-2/report.md) | 予算停止条件、障害注入、junction検出を修正した実装 | pass |
+| [Claude独立監査](claude-opus-5-5-high-round-1/report.md) | 同じ実装を別モデルで照合 | fail、major 3件・minor 6件 |
+
+## Claudeによる最新の確認
+
+- Claude Code 2.1.282、`claude-opus-5-5`、`--effort high`。起動・回答イベントのモデルも一致。代替モデルなし。
+- [固定入力97ファイル](claude-opus-5-5-high-round-1/prompt.md) / [実行情報](claude-opus-5-5-high-round-1/execution.json) / [入力・回答の照合](claude-opus-5-5-high-round-1/verification.md)
+- 重大指摘は、scope/phase別の未監査差分の消去規則、修正後の再監査範囲、監査費用の予算確認の3件。[修正対象と受け止め](claude-opus-5-5-high-round-1/follow-up.md)を保存した。
+- ツールを無効にした静的監査。既存テストの実行記録は参照したが、Claude自身は再実行していない。
+- この回は確認と記録のみ。実装の修正・再監査は未実施であり、以前のAstra passを現在の総合合格として扱わない。
+
+## Astraによる過去の確認
 
 - [再監査の固定入力](astra-round-2/prompt.md) / [CLI実行情報](astra-round-2/execution.json) / [入力・回答の照合](astra-round-2/verification.md)
 - モデルは`gpt-6-astra`、CLI 0.155.1、high、read-only、新規の独立セッション。代替モデルなし。
