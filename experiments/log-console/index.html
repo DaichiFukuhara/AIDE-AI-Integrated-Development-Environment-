@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f6f7f9">
+  <title>AIDE — Agent Log</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol>
+    <symbol id="i-branch" viewBox="0 0 24 24"><circle cx="6" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M6 7v10M18 7c0 6-12 3-12 9"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H5v18h14V8zM14 3v5h5M8 12h8M8 16h5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-5-5 5 5-5 5"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 4 12 8-12 8z"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-code" viewBox="0 0 24 24"><path d="m7 6-6 6 6 6m10-12 6 6-6 6M14 3l-4 18"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="m12 3 10 18H2zM12 9v5M12 17h.01"/></symbol>
+    <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V3m-5 5 5-5 5 5M4 16v5h16v-5"/></symbol>
+  </svg>
+  <aside class="sidebar">
+    <a class="brand" href="./" aria-label="AIDE ホーム"><span class="brand-mark">a<span>i</span></span><span>AIDE<span class="brand-sub">AGENT WORKSPACE</span></span></a>
+    <div class="workspace"><span class="workspace-avatar">H</span><div>Harness Lab<small>実験用ワークスペース</small></div><span class="workspace-dot"></span></div>
+    <div class="nav-label">WORKSPACE</div>
+    <nav aria-label="メインナビゲーション">
+      <button class="nav-item active" data-view="logs"><svg><use href="#i-list"/></svg>実行ログ<span class="nav-count" id="nav-count">8</span></button>
+      <button class="nav-item" data-view="decisions"><svg><use href="#i-branch"/></svg>判断の記録</button>
+      <button class="nav-item" data-view="artifacts"><svg><use href="#i-file"/></svg>成果物</button>
+    </nav>
+    <div class="nav-label session-label">SESSIONS <span>03</span></div>
+    <div id="session-list" class="session-list"></div>
+    <div class="sidebar-bottom">
+      <div class="local-card"><span class="local-indicator"></span><strong>ローカルで記録中</strong><p id="storage-note">このブラウザに自動保存します。</p><button id="import-button"><svg><use href="#i-upload"/></svg>ログをインポート<svg><use href="#i-arrow"/></svg></button></div>
+      <div class="profile"><span class="profile-avatar">HL</span><div>Harness Lab<small>Personal workspace</small></div><span class="version">v0.1</span></div>
+    </div>
+  </aside>
+
+  <div class="app-shell">
+    <header class="topbar"><div class="breadcrumb">ワークスペース <span>/</span> <strong id="breadcrumb-current">実行ログ</strong></div><div class="topbar-right"><span class="experiment-badge">EXPERIMENTAL</span><span class="topbar-divider"></span><span class="topbar-note">小さく試し、記録から学ぶ。</span></div></header>
+    <main>
+      <div class="page-heading"><div><div class="eyebrow"><span></span> OBSERVE. UNDERSTAND. IMPROVE.</div><h1 id="page-title">実行ログ<span>Agent Log</span></h1><p id="page-description">AIの行動と判断を、一つのタイムラインに。</p></div><div class="heading-actions"><button class="button" id="export-button"><svg><use href="#i-download"/></svg>書き出す</button><button class="button primary" id="add-button"><svg><use href="#i-plus"/></svg>ログを追加</button></div></div>
+
+      <div class="mobile-tools"><select id="mobile-session" aria-label="セッションを切り替え"></select><button class="button" id="mobile-import" aria-label="ログをインポート"><svg><use href="#i-upload"/></svg></button></div>
+      <section class="session-card" aria-labelledby="session-title"><div class="session-info"><div class="session-kicker"><span class="session-id" id="session-id"></span><span class="pill" id="session-status"></span><span class="sample-label">SAMPLE SESSION</span></div><h2 id="session-title"></h2><p id="session-goal"></p><div class="session-metadata"><span><svg><use href="#i-clock"/></svg><span id="session-date"></span></span><span><svg><use href="#i-branch"/></svg>harness / v3</span><span class="agent-avatars"><b>P</b><b>B</b><b>R</b><span>3 agents</span></span></div></div><div class="session-control"><div class="demo-label"><span class="status-dot" id="demo-dot"></span><span id="demo-status">記録を再生できます</span></div><button class="button" id="demo-button"><svg><use href="#i-play"/></svg>デモを実行</button><small>サンプルログを順に追加</small></div></section>
+
+      <section class="metrics" aria-label="セッションの集計"><article class="metric"><div class="metric-top">記録したイベント<svg><use href="#i-list"/></svg></div><div class="metric-value"><span id="stat-events">8</span><small>events</small><span class="mini-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></div><div class="metric-foot">行動・判断・検証のすべて</div></article><article class="metric"><div class="metric-top">意思決定<svg><use href="#i-branch"/></svg></div><div class="metric-value"><span id="stat-decisions">2</span><small>decisions</small></div><div class="metric-foot"><span class="tiny-dot green"></span>理由と根拠をセットで記録</div></article><article class="metric"><div class="metric-top">検証結果<svg><use href="#i-check"/></svg></div><div class="metric-value"><span id="stat-checks">2</span><small>checks passed</small></div><div class="metric-foot" id="check-foot"></div></article><article class="metric"><div class="metric-top">要確認<svg><use href="#i-alert"/></svg></div><div class="metric-value"><span id="stat-issues">1</span><small>open issues</small></div><div class="metric-foot" id="issue-foot"></div></article></section>
+
+      <div class="content-grid"><section class="timeline-panel" aria-labelledby="timeline-title"><div class="panel-heading"><div><h2 id="timeline-title">タイムライン</h2><span id="event-count"></span></div><label class="compact-toggle"><input type="checkbox" id="compact-toggle"><span class="switch"></span>コンパクト表示</label></div><div class="timeline-toolbar"><div class="filter-tabs" role="group" aria-label="ログの種類"><button class="active" data-filter="all">すべて <span></span></button><button data-filter="decision">判断 <span></span></button><button data-filter="action">実行 <span></span></button><button data-filter="check">検証 <span></span></button><button data-filter="issue">要確認 <span></span></button></div><div class="search-row"><label class="search-box"><svg><use href="#i-search"/></svg><input id="search" type="search" placeholder="ログ、エージェント、根拠を検索…" aria-label="ログを検索"><kbd>/</kbd></label><button class="icon-button" id="bookmark-filter" aria-label="重要なログのみ表示" aria-pressed="false" title="重要なログのみ表示"><svg><use href="#i-bookmark"/></svg></button><select id="sort-order" aria-label="表示順"><option value="asc">古い順</option><option value="desc">新しい順</option></select></div></div><div class="timeline-date"><span id="timeline-date"></span><span>SESSION START</span></div><div id="timeline" class="timeline"></div><div class="timeline-footer"><span class="tiny-dot green"></span><span id="save-status">すべてのログはこのブラウザに保存されます</span><span class="footer-code">END OF LOG</span></div></section>
+
+      <aside class="context-column"><section class="context-card objective-card"><div class="context-heading"><span class="context-icon"><svg><use href="#i-grid"/></svg></span><h2>この実験の目的</h2></div><p id="objective-text"></p><div class="context-divider"></div><div class="small-label">完了の条件</div><ul id="criteria-list" class="criteria-list"></ul><div class="context-note">実験の成功と、設計への採用は別に記録します。</div></section><section class="context-card"><div class="context-heading"><h2>参加エージェント</h2><span class="quiet-count">03</span></div><div class="agent-row"><span class="agent-avatar planner">P</span><div><strong>Planner</strong><small>計画・判断</small></div><span class="agent-event-count" data-agent-count="Planner"></span></div><div class="agent-row"><span class="agent-avatar builder">B</span><div><strong>Builder</strong><small>実装・実行</small></div><span class="agent-event-count" data-agent-count="Builder"></span></div><div class="agent-row"><span class="agent-avatar reviewer">R</span><div><strong>Reviewer</strong><small>検証・観測</small></div><span class="agent-event-count" data-agent-count="Reviewer"></span></div><p class="agent-note">サンプル内の役割です。独立監査の証明ではありません。</p></section><section class="context-card next-card"><div class="context-heading"><h2>次のアクション</h2><svg><use href="#i-arrow"/></svg></div><span class="next-label">UP NEXT</span><p id="next-action"></p><div class="next-owner"><span class="agent-avatar planner">P</span><span>Planner</span><span>引き継ぎ事項</span></div></section><div class="design-note"><span class="design-note-line"></span><p>結果だけでなく、<br>そこに至る判断も残そう。</p><span>AIDE / HARNESS LAB</span></div></aside></div>
+      <footer class="page-footer"><span>AIDE <span>Agent observability, made simple.</span></span><span>ローカルプロトタイプ · 外部送信なし</span></footer>
+    </main>
+  </div>
+
+  <dialog id="log-dialog"><form id="log-form"><div class="dialog-heading"><div><div class="eyebrow">NEW EVENT</div><h2>ログを追加</h2></div><button type="button" class="icon-button" data-close="log-dialog" aria-label="閉じる"><svg><use href="#i-close"/></svg></button></div><p class="dialog-description">観測した事実と、短い判断理由を残します。</p><div class="form-grid"><label>種類<select name="type"><option value="action">実行</option><option value="decision">判断</option><option value="check">検証</option><option value="issue">要確認</option></select></label><label>担当<select name="agent"><option>Builder</option><option>Planner</option><option>Reviewer</option><option>Human</option></select></label></div><label>タイトル <span>必須</span><input name="title" required maxlength="100" placeholder="例：コンテキストの圧縮方式を選択"></label><label>内容・観測した結果 <span>必須</span><textarea name="body" required rows="3" maxlength="3000" placeholder="何を行い、どんな結果になったか"></textarea></label><label>判断理由<textarea name="reason" rows="2" maxlength="2000" placeholder="採用した理由や、ほかの案との違いを短く"></textarea></label><div class="form-grid"><label>根拠・参照<input name="evidence" maxlength="300" placeholder="例：tests/context.test.js"></label><label>結果<select name="outcome"><option value="recorded">記録済み</option><option value="passed">検証成功</option><option value="failed">検証失敗</option><option value="open">未解決</option><option value="resolved">解決済み</option></select></label></div><label>次のアクション<input name="next" maxlength="500" placeholder="引き継ぐ作業があれば記入"></label><div class="dialog-actions"><button class="button" type="button" data-close="log-dialog">キャンセル</button><button class="button primary" type="submit">ログを保存<svg><use href="#i-arrow"/></svg></button></div></form></dialog>
+  <dialog id="export-dialog"><div class="dialog-heading"><div><div class="eyebrow">TAKE YOUR RECORDS</div><h2>セッションを書き出す</h2></div><button class="icon-button" data-close="export-dialog" aria-label="閉じる"><svg><use href="#i-close"/></svg></button></div><p class="dialog-description">選択中のセッションの全ログと引き継ぎ事項を書き出します。</p><button class="export-option" data-export="md"><span class="file-type">MD</span><div><strong>Markdown</strong><small>振り返りや、次のAIへの引き継ぎに</small></div><svg><use href="#i-download"/></svg></button><button class="export-option" data-export="json"><span class="file-type">{ }</span><div><strong>JSON</strong><small>バックアップ・再取り込み・ハーネス連携に</small></div><svg><use href="#i-download"/></svg></button></dialog>
+  <input id="import-file" type="file" accept=".json,application/json" hidden>
+  <div id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

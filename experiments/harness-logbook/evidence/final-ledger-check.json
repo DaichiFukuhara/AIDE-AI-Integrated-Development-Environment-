@@ -1,0 +1,26 @@
+{
+  "checked_at": "2026-09-29T06:57:30.435478+00:00",
+  "state_revision": 32,
+  "result": "pass",
+  "checks": [
+    "Adoption committed",
+    "Cycle closure acknowledged with reasoned periodic skip",
+    "No active finding or pending changes",
+    "All execution reservations settled and outbox acknowledged",
+    "Working implementation equals adopted frozen implementation",
+    "Current bundle hash matches"
+  ],
+  "current_bundle": {
+    "id": "BUNDLE-001",
+    "immutable_ref": "design/snapshots/SN-afb709d14befc37ffe909fc08aef67e96574f36710a9ebc26941d66bb7be34ac/files/design/candidates/OP-ADOPT-002/bundle.json",
+    "sha256": "b4090fe0cb3fcdfbef7c013da3416adc84b7279fef4e28546cbf8ba836fe8348"
+  },
+  "event_count": 11,
+  "human_evaluation": "unverified",
+  "budget_used": {
+    "external_spend": 0,
+    "trials": 3,
+    "audits": 3,
+    "record_batches": 3
+  }
+}

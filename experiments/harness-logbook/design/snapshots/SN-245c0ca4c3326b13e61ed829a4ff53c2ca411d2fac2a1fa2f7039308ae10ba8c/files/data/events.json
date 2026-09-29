@@ -1,0 +1,116 @@
+{
+  "version": 1,
+  "events": [
+    {
+      "id": "REAL-001",
+      "actor": "Codex / intake",
+      "phase": "intake",
+      "kind": "decision",
+      "title": "ハーネスを実際に使う実験としてやり直す",
+      "body": "利用者の訂正を受け、前回の独立した試作を保存し、別プロジェクトで実験を開始しました。これは記録経路の完成後に追記した事後記録です。",
+      "reason": "見た目の試作だけでは、計画・試行・監査・採用の手順を使ったことにならなかったため。",
+      "next": "今回の仮説と必要な枝を固定する。",
+      "outcome": "recorded",
+      "evidence": [
+        "operations/delegation.md"
+      ],
+      "time": "2026-09-27T08:32:59.876022+00:00"
+    },
+    {
+      "id": "REAL-002",
+      "actor": "Codex / design",
+      "phase": "design",
+      "kind": "decision",
+      "title": "ログの成功と、監査・採用の状態を分ける",
+      "body": "4階層の目的と記録の定義を用意し、ファイルを正本にする方針を固定しました。計画時に決めた内容の事後記録です。",
+      "reason": "ログに「成功」と書くだけで、未監査の実装が採用済みに見える誤解を避けるため。",
+      "next": "記録ファイルの追記と、台帳の読み取りを別の経路にする。",
+      "outcome": "recorded",
+      "evidence": [
+        "design/domains/log/design.md",
+        "design/master.md"
+      ],
+      "time": "2026-09-27T08:33:00.384510+00:00"
+    },
+    {
+      "id": "REAL-003",
+      "actor": "Codex / record",
+      "phase": "plan",
+      "kind": "issue",
+      "title": "Windowsの権限でスナップショット保存が中断",
+      "body": "最初の保存は一時フォルダ内のPermissionErrorで失敗しました。権限付き再実行で保存・ハッシュ検証まで進められました。失敗した事実を残す事後記録です。",
+      "reason": "ハーネスの実使用で見つかった環境依存の制約を、製品テスト成功で隠さないため。",
+      "next": "今後のsnapshot操作にも同じ環境制約を考慮する。",
+      "outcome": "fail",
+      "evidence": [
+        "evidence/intake-observations.md",
+        "evidence/precheck-plan-001.json"
+      ],
+      "time": "2026-09-27T08:33:00.868650+00:00"
+    },
+    {
+      "id": "REAL-004",
+      "actor": "Codex / record",
+      "phase": "audit",
+      "kind": "check",
+      "title": "別担当の初回計画監査を受理",
+      "body": "harness_auditorが固定計画を独立に監査し、重大指摘0件のaudit-passを返しました。記録役が対象hashを照合し、計画をcheckedへ進めました。実装開始前に完了した処理の事後記録です。",
+      "reason": "",
+      "next": "計画合格と実装採用を分けたまま、実装と検証を進める。",
+      "outcome": "pass",
+      "evidence": [
+        "audits/AUD-PLAN-001.md",
+        "operations/OP-PLAN-001.md"
+      ],
+      "time": "2026-09-27T08:33:01.439928+00:00"
+    },
+    {
+      "id": "REAL-005",
+      "actor": "Codex / experiment",
+      "phase": "implementation",
+      "kind": "action",
+      "title": "AIの記録経路とログ画面を実装",
+      "body": "Python CLIの追記・読取専用HTTP・HTML/CSS/JSの画面を作成し、実装版を固定して最初の検証を開始しました。自動採用や架空の初期ログは実装していません。",
+      "reason": "",
+      "next": "この記録自体を画面で読み、検索・根拠・更新失敗を確認する。",
+      "outcome": "recorded",
+      "evidence": [
+        "experiments/implementation-001.json",
+        "src/logbook.py",
+        "src/app.js"
+      ],
+      "time": "2026-09-27T08:33:01.899396+00:00"
+    },
+    {
+      "id": "REAL-006",
+      "actor": "Codex / experiment",
+      "phase": "verification",
+      "kind": "issue",
+      "title": "実使用で根拠の表示経路に問題を発見",
+      "body": "第1試行で自動テスト17件は成功しましたが、アプリ内ブラウザがMarkdownへの直接遷移を拒否しました。狭い画面では更新ボタンの操作名も不足していました。旧結果を残し、同じ評価条件で修正します。",
+      "reason": "",
+      "next": "根拠の画面内表示と操作名を修正して第2試行を行う。",
+      "outcome": "fail",
+      "evidence": [
+        "experiments/trials/TRIAL-001.md"
+      ],
+      "time": "2026-09-27T08:37:04.658327+00:00"
+    },
+    {
+      "id": "REAL-007",
+      "actor": "Codex / experiment",
+      "phase": "verification",
+      "kind": "check",
+      "title": "修正版の検証とブラウザ実使用が完了",
+      "body": "自動テスト17件に加え、実ログの検索・工程絞り込み・詳細・根拠の画面内表示・再読保持・390pxと1440pxの幅・接続失敗時の前回データ保持と再起動後の復旧を確認しました。本人の使いやすさ評価は未確認です。",
+      "reason": "",
+      "next": "固定した実装と証拠を別担当の採用監査へ渡す。",
+      "outcome": "pass",
+      "evidence": [
+        "evidence/TRIAL-002-automated.json",
+        "evidence/TRIAL-002-browser.json"
+      ],
+      "time": "2026-09-27T08:40:02.313383+00:00"
+    }
+  ]
+}

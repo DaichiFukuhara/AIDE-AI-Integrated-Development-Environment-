@@ -1,0 +1,55 @@
+{
+  "trial_id": "TRIAL-003",
+  "observed_at": "2026-09-29T06:51:52.170453+00:00",
+  "result": "pass",
+  "fresh_checks": [
+    "Fresh Python server on 4183 loaded 7 real records with major finding and adoption held, human unverified",
+    "Actual CLI appended REAL-008; reload displayed 8 records in correct Japanese",
+    "Search stored-log title produced exactly one real record",
+    "Click audit evidence opened inline source with F-ADOPT-001 and require-review"
+  ],
+  "reused_checks": {
+    "source": "evidence/TRIAL-002-browser.json",
+    "count": 12,
+    "reason": "Frontend and server hashes unchanged; syntax-validator change covered by full automated regression and fresh real CLI/UI proof smoke. 12 old checks not rerun.",
+    "unchanged_files": [
+      {
+        "id": "src/app.js",
+        "immutable_ref": "design/snapshots/SN-ab067bd158eaf063473f087a2db3fc6f7a726f8375951c5666669ac1a750a91c/files/src/app.js",
+        "sha256": "daf1ba56650ce07bf3d2ed23442e72b2b71cdf5a4455eed266f30f6e066ac0a3"
+      },
+      {
+        "id": "src/index.html",
+        "immutable_ref": "design/snapshots/SN-ab067bd158eaf063473f087a2db3fc6f7a726f8375951c5666669ac1a750a91c/files/src/index.html",
+        "sha256": "797b2928e2b29737841953f6412ed1ce7ae6542a35b0e3982cc5c4a31a9ddbe8"
+      },
+      {
+        "id": "src/server.py",
+        "immutable_ref": "design/snapshots/SN-ab067bd158eaf063473f087a2db3fc6f7a726f8375951c5666669ac1a750a91c/files/src/server.py",
+        "sha256": "2b54a5225adb2601bb8feb57386909808ea0ca7c632ccb342c3f8a206c02ff69"
+      },
+      {
+        "id": "src/styles.css",
+        "immutable_ref": "design/snapshots/SN-ab067bd158eaf063473f087a2db3fc6f7a726f8375951c5666669ac1a750a91c/files/src/styles.css",
+        "sha256": "8998f2e819f50b7c2fa53fd4dd9596f19a9e0ad1882050db90017433a86c3726"
+      },
+      {
+        "id": "src/view.mjs",
+        "immutable_ref": "design/snapshots/SN-ab067bd158eaf063473f087a2db3fc6f7a726f8375951c5666669ac1a750a91c/files/src/view.mjs",
+        "sha256": "1daae34f73ea0026f14c4042289b01b071ed905d632434f770884fa53bbb77a6"
+      },
+      {
+        "id": "tests/view.test.mjs",
+        "immutable_ref": "design/snapshots/SN-ab067bd158eaf063473f087a2db3fc6f7a726f8375951c5666669ac1a750a91c/files/tests/view.test.mjs",
+        "sha256": "8aaf5fc78a257c67759d59406a72cf9e89b12b3acd5b0b019251bafa8d12fe93"
+      },
+      {
+        "id": "README.md",
+        "immutable_ref": "design/snapshots/SN-ab067bd158eaf063473f087a2db3fc6f7a726f8375951c5666669ac1a750a91c/files/README.md",
+        "sha256": "6f6b77740fd70cac52a66bca45909112b4abdf22e536e6370afb6c4ef3e017ad"
+      }
+    ]
+  },
+  "screenshot": "evidence/TRIAL-003-screen.png",
+  "human_evaluation": "unverified"
+}

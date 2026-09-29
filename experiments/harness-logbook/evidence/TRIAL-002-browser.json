@@ -1,0 +1,63 @@
+{
+  "trial_id": "TRIAL-002",
+  "observed_at": "2026-09-27T08:39:51.523Z",
+  "observer": "Codex browser operator; not user evaluation",
+  "results": [
+    {
+      "check": "search-real-log",
+      "pass": true
+    },
+    {
+      "check": "phase-filter",
+      "pass": true
+    },
+    {
+      "check": "detail-shows-reason-and-next",
+      "pass": true
+    },
+    {
+      "check": "inline-evidence-original",
+      "pass": true
+    },
+    {
+      "check": "sort-real-timestamps",
+      "pass": true
+    },
+    {
+      "check": "persistent-real-logs",
+      "pass": true
+    },
+    {
+      "check": "copy-or-explicit-fallback",
+      "pass": true
+    },
+    {
+      "check": "desktop-overflow",
+      "pass": true
+    },
+    {
+      "check": "mobile-overflow",
+      "pass": true
+    },
+    {
+      "check": "mobile-action-labels",
+      "pass": true
+    },
+    {
+      "check": "offline-keeps-last-complete-pair",
+      "pass": true,
+      "observation": "更新できません · 前回取得した記録を表示しています"
+    },
+    {
+      "check": "recovery-after-restart",
+      "pass": true
+    }
+  ],
+  "result": "pass",
+  "human_evaluation": "unverified",
+  "notes": [
+    "Verified 6 real work events, including explicitly retrospective preparation records.",
+    "A local server was deliberately stopped and restarted to exercise retrieval failure.",
+    "Download payload correctness is covered by HTTP tests; local download destination is not an acceptance condition."
+  ]
+}

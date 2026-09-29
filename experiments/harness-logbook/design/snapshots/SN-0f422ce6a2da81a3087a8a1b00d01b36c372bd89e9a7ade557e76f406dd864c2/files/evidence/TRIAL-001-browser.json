@@ -1,0 +1,50 @@
+{
+  "trial_id": "TRIAL-001",
+  "observed_at": "2026-09-27T08:35:30.752Z",
+  "observer": "Codex browser operator; not user evaluation",
+  "results": [
+    {
+      "check": "desktop-overflow",
+      "pass": true
+    },
+    {
+      "check": "search",
+      "pass": true
+    },
+    {
+      "check": "phase-filter",
+      "pass": true
+    },
+    {
+      "check": "detail-reason-next-proof",
+      "pass": true
+    },
+    {
+      "check": "evidence-navigation",
+      "pass": false,
+      "observation": "In-app browser refused direct Markdown evidence navigation with ERR_BLOCKED_BY_CLIENT. Root will add inline plain-text viewing."
+    },
+    {
+      "check": "chronological-sort",
+      "pass": true
+    },
+    {
+      "check": "reload-persistence",
+      "pass": true
+    },
+    {
+      "check": "mobile-overflow",
+      "pass": true
+    },
+    {
+      "check": "mobile-action-label",
+      "pass": false,
+      "observation": "At narrow width action text is hidden and accessible names are only arrows; add aria-label."
+    }
+  ],
+  "result": "needs-fix",
+  "unverified": [
+    "Network failure behavior not yet exercised",
+    "Evidence navigation blocked"
+  ]
+}

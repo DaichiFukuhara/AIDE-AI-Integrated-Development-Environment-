@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "session": {
+    "id": "EXP-025",
+    "title": "ログ形式の受け渡しを試す",
+    "status": "進行中",
+    "sample": true,
+    "goal": "ハーネスが出力したJSONを読み込み、作業を引き継げるか。",
+    "objective": "外部から取り込んだログでも、実行結果・根拠・次の操作を同じ画面で確認できることを確かめる。",
+    "criteria": [
+      { "text": "担当と操作結果を確認できる", "done": false },
+      { "text": "次の操作を特定できる", "done": false }
+    ],
+    "next": "このファイルをインポートして、項目の表示を確認する。",
+    "events": [
+      {
+        "id": "import-example-01",
+        "time": "2026-09-27T11:00:00+09:00",
+        "type": "action",
+        "agent": "Builder",
+        "title": "受け渡し用JSONを作成",
+        "body": "取り込み用のサンプルを作成しました。実際のハーネスの実行結果ではありません。",
+        "reason": "同じ形式で外部の記録を取り込めるかを試すため。",
+        "evidence": "example-session.json",
+        "outcome": "recorded",
+        "next": "このファイルをインポートして、項目の表示を確認する。",
+        "bookmarked": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,58 @@
+---
+{
+  "operation_id": "OP-CLOSE-001",
+  "kind": "cycle_closed",
+  "cycle_id": "C-001",
+  "experiment_id": "E-001",
+  "plan_revision": 1,
+  "outcome": "reflected",
+  "scope": [
+    "CTX-LOG",
+    "FIT-01",
+    "SIT-01",
+    "SYS-LOG"
+  ],
+  "related_operations": [
+    {
+      "operation_id": "OP-PLAN-001",
+      "state": "checked",
+      "result": "audit-pass"
+    },
+    {
+      "operation_id": "OP-ADOPT-001",
+      "state": "rejected",
+      "result": "require-review"
+    },
+    {
+      "operation_id": "OP-ADOPT-002",
+      "state": "committed",
+      "result": "applied"
+    }
+  ],
+  "reflected_bundle": {
+    "id": "BUNDLE-001",
+    "immutable_ref": "design/snapshots/SN-afb709d14befc37ffe909fc08aef67e96574f36710a9ebc26941d66bb7be34ac/files/design/candidates/OP-ADOPT-002/bundle.json",
+    "sha256": "b4090fe0cb3fcdfbef7c013da3416adc84b7279fef4e28546cbf8ba836fe8348"
+  },
+  "closed_at": "2026-09-29T06:56:51.893775+00:00",
+  "review_mode": "normal",
+  "recovery_ref": null,
+  "delegation_ref": {
+    "id": "DELEGATION-01",
+    "immutable_ref": "design/snapshots/SN-ed7cf25577bf4438dabd943f2768c463cc17624d4ad11a6905c949fed4b1a585/files/operations/delegation.md",
+    "sha256": "b8a963b0b669b593a5bf1262149940e23563f42cf0b5f322b2190d83c9da750f",
+    "semantic_revision": 1
+  },
+  "revision": 2,
+  "state": "committed",
+  "payload_hash": "bba208d27ef66f317980f5dc7d0ff4b2bbe3fbd47e294b5dff590adf3bc89e91",
+  "result": "acknowledged",
+  "result_ref": "design/state.md#received_notifications/OP-CLOSE-001"
+}
+---
+
+# サイクル終了通知
+
+学習担当から記録担当へ。採用確定結果と固定した通知を一度だけ送信する。
+
+stateに受領と差分なしskipを同時保存してackした。

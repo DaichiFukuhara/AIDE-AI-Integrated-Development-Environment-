@@ -1,0 +1,4 @@
+# Interrupted snapshot staging and transient writer files are not evidence.
+/design/snapshots/.pending-*/
+/data/.writer.lock
+/data/.events-*.tmp

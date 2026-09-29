@@ -1,0 +1,51 @@
+{
+  "id": "IMPL-002",
+  "snapshot_ref": "design/snapshots/SN-a10ed5b19b8cb592953ed36ffbd6194f968b5da9c179af681753ca131062e508",
+  "files": [
+    {
+      "id": "src/app.js",
+      "immutable_ref": "design/snapshots/SN-a10ed5b19b8cb592953ed36ffbd6194f968b5da9c179af681753ca131062e508/files/src/app.js",
+      "sha256": "daf1ba56650ce07bf3d2ed23442e72b2b71cdf5a4455eed266f30f6e066ac0a3"
+    },
+    {
+      "id": "src/index.html",
+      "immutable_ref": "design/snapshots/SN-a10ed5b19b8cb592953ed36ffbd6194f968b5da9c179af681753ca131062e508/files/src/index.html",
+      "sha256": "797b2928e2b29737841953f6412ed1ce7ae6542a35b0e3982cc5c4a31a9ddbe8"
+    },
+    {
+      "id": "src/logbook.py",
+      "immutable_ref": "design/snapshots/SN-a10ed5b19b8cb592953ed36ffbd6194f968b5da9c179af681753ca131062e508/files/src/logbook.py",
+      "sha256": "bd4e6a7e84b993176076faa43249ed50105bc3abe52ff3d9e649f23aa3154cf6"
+    },
+    {
+      "id": "src/server.py",
+      "immutable_ref": "design/snapshots/SN-a10ed5b19b8cb592953ed36ffbd6194f968b5da9c179af681753ca131062e508/files/src/server.py",
+      "sha256": "2b54a5225adb2601bb8feb57386909808ea0ca7c632ccb342c3f8a206c02ff69"
+    },
+    {
+      "id": "src/styles.css",
+      "immutable_ref": "design/snapshots/SN-a10ed5b19b8cb592953ed36ffbd6194f968b5da9c179af681753ca131062e508/files/src/styles.css",
+      "sha256": "8998f2e819f50b7c2fa53fd4dd9596f19a9e0ad1882050db90017433a86c3726"
+    },
+    {
+      "id": "src/view.mjs",
+      "immutable_ref": "design/snapshots/SN-a10ed5b19b8cb592953ed36ffbd6194f968b5da9c179af681753ca131062e508/files/src/view.mjs",
+      "sha256": "1daae34f73ea0026f14c4042289b01b071ed905d632434f770884fa53bbb77a6"
+    },
+    {
+      "id": "tests/test_logbook.py",
+      "immutable_ref": "design/snapshots/SN-a10ed5b19b8cb592953ed36ffbd6194f968b5da9c179af681753ca131062e508/files/tests/test_logbook.py",
+      "sha256": "054f898f5718736ac86d3aaebf2b22f70ea6b7a94ce8d44e0ebd5d73fc12cb33"
+    },
+    {
+      "id": "tests/view.test.mjs",
+      "immutable_ref": "design/snapshots/SN-a10ed5b19b8cb592953ed36ffbd6194f968b5da9c179af681753ca131062e508/files/tests/view.test.mjs",
+      "sha256": "8aaf5fc78a257c67759d59406a72cf9e89b12b3acd5b0b019251bafa8d12fe93"
+    },
+    {
+      "id": "README.md",
+      "immutable_ref": "design/snapshots/SN-a10ed5b19b8cb592953ed36ffbd6194f968b5da9c179af681753ca131062e508/files/README.md",
+      "sha256": "6f6b77740fd70cac52a66bca45909112b4abdf22e536e6370afb6c4ef3e017ad"
+    }
+  ]
+}

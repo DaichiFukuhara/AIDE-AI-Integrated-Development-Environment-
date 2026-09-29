@@ -1,0 +1,2 @@
+# Preserve exact bytes for audited files and SHA-256 snapshot references.
+** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

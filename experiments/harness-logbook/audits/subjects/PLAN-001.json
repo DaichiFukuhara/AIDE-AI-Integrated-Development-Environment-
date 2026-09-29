@@ -1,0 +1,117 @@
+{
+  "scope": [
+    "CTX-LOG",
+    "FIT-01",
+    "SIT-01",
+    "SYS-LOG"
+  ],
+  "phase": "plan",
+  "spec_refs": [
+    {
+      "id": "G-LOG",
+      "immutable_ref": "design/snapshots/SN-ed7cf25577bf4438dabd943f2768c463cc17624d4ad11a6905c949fed4b1a585/files/design/master.md",
+      "sha256": "5833f3b13f899a8bfdd199bb406e35366cb7fc4e9923b166a244c63b57491a78",
+      "semantic_revision": 1
+    },
+    {
+      "id": "SG-TRACE",
+      "immutable_ref": "design/snapshots/SN-ed7cf25577bf4438dabd943f2768c463cc17624d4ad11a6905c949fed4b1a585/files/design/goals/trace/design.md",
+      "sha256": "82e27facc37a9bdf2946ae9f07ab2173fdc54bdac3e98ca6f9b2b2b55d18b8d9",
+      "semantic_revision": 1
+    },
+    {
+      "id": "AP-FILE",
+      "immutable_ref": "design/snapshots/SN-ed7cf25577bf4438dabd943f2768c463cc17624d4ad11a6905c949fed4b1a585/files/design/goals/trace/approaches/file/design.md",
+      "sha256": "b81829ee8e0b3e59cd17cbae8360741115cd3d85d0801cc6f300bf8275e124cd",
+      "semantic_revision": 1
+    },
+    {
+      "id": "SYS-LOG",
+      "immutable_ref": "design/snapshots/SN-ed7cf25577bf4438dabd943f2768c463cc17624d4ad11a6905c949fed4b1a585/files/design/domains/log/systems/console/design.md",
+      "sha256": "faba5b5cea6f48b780501ae91d054b36cd0490dd765aa269a40af1a767c843a8",
+      "semantic_revision": 1
+    },
+    {
+      "id": "G-LOG-rationale",
+      "immutable_ref": "design/snapshots/SN-ed7cf25577bf4438dabd943f2768c463cc17624d4ad11a6905c949fed4b1a585/files/design/rationale.md",
+      "sha256": "49baddeb1eb6295a94e4ef06e9da554c809db5e0808080f895339261bad3fd7c",
+      "semantic_revision": 1
+    },
+    {
+      "id": "SG-TRACE-rationale",
+      "immutable_ref": "design/snapshots/SN-ed7cf25577bf4438dabd943f2768c463cc17624d4ad11a6905c949fed4b1a585/files/design/goals/trace/rationale.md",
+      "sha256": "6ae9361703a282352fd40375c5cbf4490047ac907fe58add49a47c56fb22e6a6",
+      "semantic_revision": 1
+    },
+    {
+      "id": "AP-FILE-rationale",
+      "immutable_ref": "design/snapshots/SN-ed7cf25577bf4438dabd943f2768c463cc17624d4ad11a6905c949fed4b1a585/files/design/goals/trace/approaches/file/rationale.md",
+      "sha256": "035eb14bdaf69c8ae045f4a760e5e3bd945f353a2da0a4debbecb73c2946743c",
+      "semantic_revision": 1
+    },
+    {
+      "id": "SYS-LOG-rationale",
+      "immutable_ref": "design/snapshots/SN-ed7cf25577bf4438dabd943f2768c463cc17624d4ad11a6905c949fed4b1a585/files/design/domains/log/systems/console/rationale.md",
+      "sha256": "627603ecfdff421acb1a3fd7edae09207092985a1e965bdb79cdbe5264328cca",
+      "semantic_revision": 1
+    }
+  ],
+  "contract_refs": [],
+  "contracts_not_applicable_reason": "製品内contextは1つ。CLI/HTTPは同context内のSYS-LOG所有境界。開発ハーネスの4seamは製品seamではない。",
+  "model_definition_refs": [
+    {
+      "id": "DEF-LOG-01",
+      "immutable_ref": "design/snapshots/SN-ed7cf25577bf4438dabd943f2768c463cc17624d4ad11a6905c949fed4b1a585/files/design/domains/log/design.md",
+      "sha256": "6b0c6ef8e5310605a2c70e694216c3389241333a9b69275cfc4cb203b9dc9f80",
+      "semantic_revision": 1,
+      "domain_id": "D-LOG",
+      "context_id": "CTX-LOG",
+      "canonical_owner": "SYS-LOG",
+      "dependencies": []
+    },
+    {
+      "id": "DEF-LOG-01-rationale",
+      "immutable_ref": "design/snapshots/SN-ed7cf25577bf4438dabd943f2768c463cc17624d4ad11a6905c949fed4b1a585/files/design/domains/log/rationale.md",
+      "sha256": "7ee274e0e6c2356eaaf36e4955d8b3a27df20e5bbff0ad2ff0e763f0e4715f29",
+      "semantic_revision": 1,
+      "domain_id": "D-LOG",
+      "context_id": "CTX-LOG",
+      "canonical_owner": "SYS-LOG",
+      "dependencies": []
+    }
+  ],
+  "model_definitions_not_applicable_reason": null,
+  "plan_ref": {
+    "id": "E-001",
+    "immutable_ref": "design/snapshots/SN-ed7cf25577bf4438dabd943f2768c463cc17624d4ad11a6905c949fed4b1a585/files/experiments/E-001-plan.md",
+    "sha256": "58965cddce100a3539fbca080dfdba3e8a19c0bf153c0bdb34b29addbd40ad7d",
+    "semantic_revision": 1
+  },
+  "plan_revision": 1,
+  "evaluation_ref": {
+    "id": "EVAL-001",
+    "immutable_ref": "design/snapshots/SN-ed7cf25577bf4438dabd943f2768c463cc17624d4ad11a6905c949fed4b1a585/files/experiments/E-001-plan.md",
+    "sha256": "58965cddce100a3539fbca080dfdba3e8a19c0bf153c0bdb34b29addbd40ad7d",
+    "semantic_revision": 1
+  },
+  "implementation_ref": null,
+  "trial_refs": [],
+  "evidence_refs": [],
+  "delegation_ref": {
+    "id": "DELEGATION-01",
+    "immutable_ref": "design/snapshots/SN-ed7cf25577bf4438dabd943f2768c463cc17624d4ad11a6905c949fed4b1a585/files/operations/delegation.md",
+    "sha256": "b8a963b0b669b593a5bf1262149940e23563f42cf0b5f322b2190d83c9da750f",
+    "semantic_revision": 1
+  },
+  "budget_definition_ref": {
+    "id": "BUDGET-01",
+    "immutable_ref": "design/snapshots/SN-ed7cf25577bf4438dabd943f2768c463cc17624d4ad11a6905c949fed4b1a585/files/experiments/budget-definition.md",
+    "sha256": "58e88a8bfe1fcfc2aaa89810e08e04c234919e954046fc0a7c9e5877f3095e08",
+    "semantic_revision": 1
+  },
+  "recovery_ref": null,
+  "unverified": [
+    "製品実装・UT/SIT/FITは未実施。plan段階として許容。",
+    "HUMAN-01は明示的に今回の技術的試験採用の必須条件から除外。次の実験で本人確認。"
+  ]
+}

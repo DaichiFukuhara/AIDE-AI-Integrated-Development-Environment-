@@ -1,0 +1,61 @@
+"""Build a handoff only from the committed ledger; do not infer completion."""
+from records import *
+import sys
+sys.path.insert(0, str(ROOT / 'src'))
+from logbook import read_events
+
+state, _ = read_md('design/state.md')
+assert state['cycle_status']['state'] == 'complete'
+assert state['operations']['OP-ADOPT-002']['result'] == 'applied'
+assert not state['pending_changes'] and not state['unaudited_changes']
+assert all(item['state'] != 'active' for item in state['blocked_scopes'])
+assert all(item['state'] == 'settled' for item in state['execution_reservations'].values())
+assert all(item['state'] == 'acknowledged' for item in state['outbox'])
+bundle = snapshot.read_json(ROOT / state['current_bundle']['immutable_ref'])
+for item in bundle['implementation_ref']['files']:
+    assert hashlib.sha256((ROOT / item['id']).read_bytes()).hexdigest() == item['sha256']
+assert hashlib.sha256((ROOT / state['current_bundle']['immutable_ref']).read_bytes()).hexdigest() == state['current_bundle']['sha256']
+events = read_events(ROOT)
+write_json('evidence/final-ledger-check.json', {'checked_at': now(), 'state_revision': state['revision'], 'result': 'pass',
+    'checks': ['Adoption committed', 'Cycle closure acknowledged with reasoned periodic skip', 'No active finding or pending changes',
+    'All execution reservations settled and outbox acknowledged', 'Working implementation equals adopted frozen implementation', 'Current bundle hash matches'],
+    'current_bundle': state['current_bundle'], 'event_count': len(events['events']), 'human_evaluation': 'unverified',
+    'budget_used': {key: value['cumulative_used'] for key,value in state['budget_accounts']['LOCAL-01']['limits'].items()}})
+write_md('RESULT.md', {'recorded_at': now(), 'project': 'HARNESS-LOGBOOK', 'cycle': 'C-001', 'bundle': 'BUNDLE-001', 'implementation': 'IMPL-003', 'human_evaluation': 'unverified'}, '''
+# ログ画面を、ハーネスで作った実験
+
+HTML/CSS/JavaScriptの画面とPython標準ライブラリの保存CLI・読取サーバーを実装。AIが記録した実ログを検索し、判断理由・根拠・次の操作まで追える。今回の作業そのものを記録している。
+
+## 開く・記録する
+
+画面: http://127.0.0.1:4183/
+
+停止している場合、このディレクトリで `python -B src/server.py --port 4183` を実行する。使い方と追記コマンドは[README](README.md)へ。
+
+## 実際に通したハーネスの流れ
+
+1. 4階層の目的・設計・理由と記録の定義、評価条件・予算を固定。
+2. 別エージェントによる計画監査に合格してから実装。
+3. 第1試行は自動17件成功でも、実ブラウザで根拠遷移と操作名の不足が見つかり失敗を保存。
+4. 第2試行で修正し、自動17件・画面12項目を確認。
+5. 採用監査で既存ログの不正な根拠パスを受理する重大指摘F-ADOPT-001。採用を保留して修正。
+6. 第3試行で自動19件成功。破損ログの拒否・byte不変・HTTPエラーと、後日根拠が消えた正常履歴の保持を確認。実CLI追記・画面の検索と根拠表示も再確認。変更のない画面12項目は同一hashを確かめ第2試行の証拠を再利用。
+7. 独立再監査で指摘解消を確認してBUNDLE-001を試験採用。cycle_closedを受領し、未監査変更がないことを根拠に追加の周期監査をskipしてサイクル完了。
+
+## この実験で分かったこと
+
+自動テストだけでは画面の問題が残り、画面の確認だけでも保存処理の問題が残った。固定版・実使用・独立監査を順に通すことで、今回それぞれを発見できた。失敗を消さずに、どの版で直ったかを追跡できる。
+
+一方、小さなUIに対して文書・台帳・版固定の作業量が多く、Windowsのsnapshot作成/読取では追加権限も必要だった。手順の準備負荷は観測したが、品質改善率や時間短縮は測定していない。既存ハーネス本体は変更していない。
+
+## 正本と確認範囲
+
+- [状態台帳](design/state.md): 採用版、保証基準、費用予約・精算、指摘解消と終了処理。
+- [独立再監査](audits/AUD-ADOPT-002.md): 判定と確認根拠。
+- [第3試行](experiments/trials/TRIAL-003.md): 自動19件と実使用・再利用した証拠。
+- [サイクル結果](experiments/E-001.md): 失敗から採用までの経緯。
+- [終了時照合](evidence/final-ledger-check.json): 保存済み台帳と採用版の一致。
+
+本人の使いやすさ評価・長期運用・他環境での再現性は未確認。技術的な試験採用と実験サイクルの完了を、製品全体の完成とは区別している。監査も同じCodex環境内の別エージェントであり、第三者機関の保証ではない。
+''')
+print(json.dumps({'result': 'pass', 'state_revision': state['revision'], 'events': len(events['events']), 'handoff': 'RESULT.md'}, ensure_ascii=False))

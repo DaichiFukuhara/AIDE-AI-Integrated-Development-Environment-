@@ -1,0 +1,99 @@
+{
+  "trial_id": "TRIAL-001",
+  "implementation": {
+    "id": "IMPL-001",
+    "snapshot_ref": "design/snapshots/SN-dc1980eca48d8de29a34d6f7ba56f3ddfb939d7a8551145d512106dabc3dfaf1",
+    "files": [
+      {
+        "id": "src/app.js",
+        "immutable_ref": "design/snapshots/SN-dc1980eca48d8de29a34d6f7ba56f3ddfb939d7a8551145d512106dabc3dfaf1/files/src/app.js",
+        "sha256": "e13b7a8bb68e12579ecf469e2fe78fa069c8e4ef5657a05be6949a0c977799c8"
+      },
+      {
+        "id": "src/index.html",
+        "immutable_ref": "design/snapshots/SN-dc1980eca48d8de29a34d6f7ba56f3ddfb939d7a8551145d512106dabc3dfaf1/files/src/index.html",
+        "sha256": "35a2d11686480900505939b7672505f67269ea033a105be74418a7039a8a7034"
+      },
+      {
+        "id": "src/logbook.py",
+        "immutable_ref": "design/snapshots/SN-dc1980eca48d8de29a34d6f7ba56f3ddfb939d7a8551145d512106dabc3dfaf1/files/src/logbook.py",
+        "sha256": "bd4e6a7e84b993176076faa43249ed50105bc3abe52ff3d9e649f23aa3154cf6"
+      },
+      {
+        "id": "src/server.py",
+        "immutable_ref": "design/snapshots/SN-dc1980eca48d8de29a34d6f7ba56f3ddfb939d7a8551145d512106dabc3dfaf1/files/src/server.py",
+        "sha256": "2b54a5225adb2601bb8feb57386909808ea0ca7c632ccb342c3f8a206c02ff69"
+      },
+      {
+        "id": "src/styles.css",
+        "immutable_ref": "design/snapshots/SN-dc1980eca48d8de29a34d6f7ba56f3ddfb939d7a8551145d512106dabc3dfaf1/files/src/styles.css",
+        "sha256": "8998f2e819f50b7c2fa53fd4dd9596f19a9e0ad1882050db90017433a86c3726"
+      },
+      {
+        "id": "src/view.mjs",
+        "immutable_ref": "design/snapshots/SN-dc1980eca48d8de29a34d6f7ba56f3ddfb939d7a8551145d512106dabc3dfaf1/files/src/view.mjs",
+        "sha256": "1daae34f73ea0026f14c4042289b01b071ed905d632434f770884fa53bbb77a6"
+      },
+      {
+        "id": "tests/test_logbook.py",
+        "immutable_ref": "design/snapshots/SN-dc1980eca48d8de29a34d6f7ba56f3ddfb939d7a8551145d512106dabc3dfaf1/files/tests/test_logbook.py",
+        "sha256": "054f898f5718736ac86d3aaebf2b22f70ea6b7a94ce8d44e0ebd5d73fc12cb33"
+      },
+      {
+        "id": "tests/view.test.mjs",
+        "immutable_ref": "design/snapshots/SN-dc1980eca48d8de29a34d6f7ba56f3ddfb939d7a8551145d512106dabc3dfaf1/files/tests/view.test.mjs",
+        "sha256": "8aaf5fc78a257c67759d59406a72cf9e89b12b3acd5b0b019251bafa8d12fe93"
+      },
+      {
+        "id": "README.md",
+        "immutable_ref": "design/snapshots/SN-dc1980eca48d8de29a34d6f7ba56f3ddfb939d7a8551145d512106dabc3dfaf1/files/README.md",
+        "sha256": "c18b5b3b4e09c8b9452816fa93e6fa3b17a90e6f78f586931c6fd242a944857d"
+      }
+    ]
+  },
+  "results": [
+    {
+      "command": [
+        "C:\\Users\\daich\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "started_at": "2026-09-27T08:31:55.156519+00:00",
+      "finished_at": "2026-09-27T08:32:00.511919+00:00",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "test_corrupt_context_is_failure_not_success (test_logbook.HTTPTests.test_corrupt_context_is_failure_not_success) ... 127.0.0.1 - - [27/Sep/2026 17:31:56] \"GET /api/context HTTP/1.1\" 500 -\nok\ntest_evidence_is_readable_text_and_traversal_is_rejected (test_logbook.HTTPTests.test_evidence_is_readable_text_and_traversal_is_rejected) ... 127.0.0.1 - - [27/Sep/2026 17:31:57] \"GET /evidence/proof.md HTTP/1.1\" 200 -\n127.0.0.1 - - [27/Sep/2026 17:31:57] \"GET /evidence/../README.md HTTP/1.1\" 404 -\n127.0.0.1 - - [27/Sep/2026 17:31:57] \"GET /evidence/%2e%2e/README.md HTTP/1.1\" 404 -\n127.0.0.1 - - [27/Sep/2026 17:31:57] \"GET /evidence/C:/Windows/win.ini HTTP/1.1\" 404 -\n127.0.0.1 - - [27/Sep/2026 17:31:57] \"GET /evidence/missing.md HTTP/1.1\" 404 -\nok\ntest_post_does_not_mutate (test_logbook.HTTPTests.test_post_does_not_mutate) ... 127.0.0.1 - - [27/Sep/2026 17:31:57] \"POST /api/events HTTP/1.1\" 405 -\nok\ntest_real_cli_to_http_and_export (test_logbook.HTTPTests.test_real_cli_to_http_and_export) ... 127.0.0.1 - - [27/Sep/2026 17:31:58] \"GET /api/events HTTP/1.1\" 200 -\n127.0.0.1 - - [27/Sep/2026 17:31:58] \"GET /export/events.json HTTP/1.1\" 200 -\n127.0.0.1 - - [27/Sep/2026 17:31:58] \"GET /export/events.md HTTP/1.1\" 200 -\n127.0.0.1 - - [27/Sep/2026 17:31:58] \"GET /api/context HTTP/1.1\" 200 -\nok\ntest_atomic_replace_failure_preserves_old_and_releases_own_lock (test_logbook.StorageTests.test_atomic_replace_failure_preserves_old_and_releases_own_lock) ... ok\ntest_conflicting_id_keeps_original_bytes (test_logbook.StorageTests.test_conflicting_id_keeps_original_bytes) ... ok\ntest_corruption_and_duplicate_json_keys_are_not_overwritten (test_logbook.StorageTests.test_corruption_and_duplicate_json_keys_are_not_overwritten) ... ok\ntest_evidence_escape_missing_url_absolute_and_backslash_rejected (test_logbook.StorageTests.test_evidence_escape_missing_url_absolute_and_backslash_rejected) ... ok\ntest_historical_event_survives_later_missing_evidence (test_logbook.StorageTests.test_historical_event_survives_later_missing_evidence) ... ok\ntest_invalid_fields_rejected (test_logbook.StorageTests.test_invalid_fields_rejected) ... ok\ntest_lock_collision_does_not_overwrite_or_remove_other_lock (test_logbook.StorageTests.test_lock_collision_does_not_overwrite_or_remove_other_lock) ... ok\ntest_persistent_append_and_idempotent_retry_without_time (test_logbook.StorageTests.test_persistent_append_and_idempotent_retry_without_time) ... ok\ntest_symlink_evidence_rejected (test_logbook.StorageTests.test_symlink_evidence_rejected) ... ok\n\n----------------------------------------------------------------------\nRan 13 tests in 3.893s\n\nOK\n"
+    },
+    {
+      "command": [
+        "node",
+        "--test",
+        "tests/view.test.mjs"
+      ],
+      "started_at": "2026-09-27T08:32:00.511959+00:00",
+      "finished_at": "2026-09-27T08:32:01.333651+00:00",
+      "exit_code": 0,
+      "stdout": "TAP version 13\n# Subtest: search includes reasons and evidence and combines with phase\nok 1 - search includes reasons and evidence and combines with phase\n  ---\n  duration_ms: 8.468\n  type: 'test'\n  ...\n# Subtest: sort uses real instant and does not mutate source\nok 2 - sort uses real instant and does not mutate source\n  ---\n  duration_ms: 0.6488\n  type: 'test'\n  ...\n# Subtest: malformed and partial pairs rejected, never become an empty success\nok 3 - malformed and partial pairs rejected, never become an empty success\n  ---\n  duration_ms: 3.0129\n  type: 'test'\n  ...\n# Subtest: proof URL is project-relative, encoded, and cannot execute a scheme\nok 4 - proof URL is project-relative, encoded, and cannot execute a scheme\n  ---\n  duration_ms: 0.6256\n  type: 'test'\n  ...\n1..4\n# tests 4\n# suites 0\n# pass 4\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 474.5209\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "node",
+        "--input-type=module",
+        "--check"
+      ],
+      "started_at": "2026-09-27T08:32:01.333682+00:00",
+      "finished_at": "2026-09-27T08:32:01.581424+00:00",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "result": "pass",
+  "human_evaluation": "unverified"
+}
