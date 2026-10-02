@@ -1,0 +1,85 @@
+{
+  "observedAt": "2026-10-02T18:41:54.204Z",
+  "result": "pass",
+  "checks": [
+    {
+      "id": "FIT-authenticated-cli-logs",
+      "pass": true
+    },
+    {
+      "id": "FIT-detail-reason-evidence",
+      "pass": true
+    },
+    {
+      "id": "FIT-filter-search",
+      "pass": true
+    },
+    {
+      "id": "FIT-json-export",
+      "pass": true
+    },
+    {
+      "id": "FIT-markdown-export",
+      "pass": true
+    },
+    {
+      "id": "FIT-mobile390",
+      "pass": true,
+      "dimensions": {
+        "client": 375,
+        "scroll": 375,
+        "viewport": 390
+      },
+      "previousMeasurement": {
+        "scroll": 375,
+        "width": 375
+      },
+      "note": "Initial assertion compared client width with viewport width; scrollbar consumes 16px. Corrected measurement verifies viewport size and absence of horizontal overflow."
+    },
+    {
+      "id": "FIT-desktop1280",
+      "pass": true,
+      "dimensions": {
+        "client": 1265,
+        "scroll": 1265,
+        "viewport": 1280
+      },
+      "previousMeasurement": {
+        "scroll": 1265,
+        "width": 1265
+      },
+      "note": "Initial assertion compared client width with viewport width; scrollbar consumes 16px. Corrected measurement verifies viewport size and absence of horizontal overflow."
+    },
+    {
+      "id": "FIT-offline-stale",
+      "pass": true
+    },
+    {
+      "id": "FIT-offline-logout-clear",
+      "pass": true
+    },
+    {
+      "id": "FIT-empty-state",
+      "pass": true,
+      "note": "Fresh memory fixture after restart showed explicit empty state; actual records subsequently replayed without changing content/time."
+    },
+    {
+      "id": "FIT-export-copy",
+      "pass": true,
+      "note": "Copied actual generated JSON through visible textbox controls."
+    },
+    {
+      "id": "FIT-online-logout-clear",
+      "pass": true
+    }
+  ],
+  "exports": {
+    "json": "{\n  \"exportedAt\": \"2026-10-02T18:37:42.911Z\",\n  \"scope\": \"loaded-events-only\",\n  \"count\": 1,\n  \"events\": [\n    {\n      \"actor\": \"Codex\",\n      \"body\": \"初回実行は子プロセスを起動できず、spawn EPERMで停止した。製品の動作結果はこの実行から判断できない。\",\n      \"evidence\": [\n        \"evidence/TRIAL-001-automated.json\"\n      ],\n      \"id\": \"CLOUD002\",\n      \"kind\": \"issue\",\n      \"next\": \"固定実装のまま必要な権限で再実行する\",\n      \"outcome\": \"fail\",\n      \"phase\": \"verification\",\n      \"project\": \"aide\",\n      \"reason\": \"失敗した検証を残すため\",\n      \"run\": \"cloud-logbook-001\",\n      \"source\": \"codex-local\",\n      \"time\": \"2026-10-02T18:31:09.148Z\",\n      \"title\": \"Windowsの権限制約でテスト起動が停止\"\n    }\n  ]\n}",
+    "markdown": "# 作業ログ\n\n取得済み 1件（全件とは限りません）。\n\n## Windowsの権限制約でテスト起動が停止\n\n2026-10-02T18:31:09.148Z / codex-local / aide / cloud-logbook-001\n\n初回実行は子プロセスを起動できず、spawn EPERMで停止した。製品の動作結果はこの実行から判断できない。\n\n理由: 失敗した検証を残すため\n\n次: 固定実装のまま必要な権限で再実行する\n\n根拠: evidence/TRIAL-001-automated.json\n\n結果: fail\n\nID: CLOUD002"
+  },
+  "unverified": [
+    "Native file-download completion in this in-app browser; generated output and keyboard copy verified.",
+    "Live Supabase/Postgres/RLS, Vercel HTTPS, four actual source environments and human evaluation."
+  ],
+  "offlineSnapshot": "- banner:\n  - link \"L. / LOGBOOK\":\n    - /url: /\n  - generic: AIと人の、作業の記録\n  - button \"ログアウト\"\n- main:\n  - generic: WORK IN CONTEXT\n  - heading \"何をしたか。 次に、何をするか。\" [level=1]:\n    - text: 何をしたか。\n    - text: 次に、何をするか。\n  - paragraph: 判断と根拠を残して、作業の続きを見つける。\n  - text: LOCAL → CLOUD\n  - text: ログは観測の記録です。\n  - text: 監査合格や正式な採用状態とは別に管理します。\n  - generic: ローカル検証モード · 保存先はメモリです。本番接続・4実環境からの送信は未確認。\n  - status: 通信できませんでした。 前回取得したログを表示しています。更新されていません。\n  - heading \"作業ログ 4\" [level=2]\n  - paragraph: reader@example.test\n  - button \"更新\"\n  - button \"JSONを保存\"\n  - button \"Markdownを保存\"\n  - text: プロジェクト\n  - textbox \"プロジェクト\":\n    - /placeholder: \"例: aide\"\n    - text: aide\n  - text: 実行環境\n  - combobox \"実行環境\":\n    - option \"すべての環境\"\n    - option \"codex-local\" [selected]\n    - option \"claude-local\"\n    - option \"codex-cloud\"\n    - option \"claude-cloud\"\n  - text: 作業ID\n  - textbox \"作業ID\":\n    - /placeholder: \"例: cloud-logbook-001\"\n    - text: cloud-logbook-001\n  - text: 検索\n  - textbox \"検索\":\n    - /placeholder: 判断・内容・根拠を検索\n  - button \"絞り込む\"\n  - generic: TIME / CONTEXT\n  - generic: ACTIVITY / NEXT STEP\n  - article:\n    - time: 2026/10/3 3:31:10\n    - generic: codex-local\n    - generic: aide / cloud-logbook-001\n    - generic: Codex\n    - button \"本番配備はアカウント接続後に確認\"\n    - generic: implementation\n    - generic: decision\n    - generic: unverified\n    - paragraph: 利用者はVercelとSupabaseのアカウントを持つがプロジェクトは未作成。PCのCLIも未ログイン。本番接続・4実環境・本人評価は未確認。\n    - strong: NEXT →\n    - generic: ローカル検証後、プロジェクトと認証を設定する\n  - article:\n    - time: 2026/10/3 3:31:09\n    - generic: codex-local\n    - generic: aide / cloud-logbook-001\n    - generic: Codex\n    - button \"APIとCLIの自動検証8件に合格\"\n    - generic: verification\n    - generic: check\n    - generic: pass\n    - paragraph: 実CLIからローカルHTTP APIへの保存と読取、未送信保持、再送、権限分離、検索とページ取得を確認。保存先は明示した境界stub。\n    - strong: NEXT →\n    - generic: 画面を実ブラウザで確認する\n  - article:\n    - time: 2026/10/3 3:31:09\n    - generic: codex-local\n    - generic: aide / cloud-logbook-001\n    - generic: Codex\n    - button \"Windowsの権限制約でテスト起動が停止\"\n    - generic: verification\n    - generic: issue\n    - generic: fail\n    - paragraph: 初回実行は子プロセスを起動できず、spawn EPERMで停止した。製品の動作結果はこの実行から判断できない。\n    - strong: NEXT →\n    - generic: 固定実装のまま必要な権限で再実行する\n  - article:\n    - time: 2026/10/3 3:31:08\n    - generic: codex-local\n    - generic: aide / cloud-logbook-001\n    - generic: Codex\n    - button \"クラウド版の計画監査に合格\"\n    - generic: plan\n    - generic: check\n    - generic: pass\n    - paragraph: 固定計画を独立担当が確認。major・blockerともに0件。これは実装前の結果の事後記録。\n    - strong: NEXT →\n    - generic: 計画に沿って実装する\n  - generic: 取得済み 4件のみを書き出します。\n  - generic: LOGBOOK / 記録して、再開する。\n  - generic: 送信者の認証と閲覧者の認証を分けています。"
+}

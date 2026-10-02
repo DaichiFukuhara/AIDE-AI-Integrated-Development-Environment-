@@ -1,0 +1,40 @@
+{
+  "audit_request_id": "AR-PLAN-001",
+  "origin_operation_id": "OP-PLAN-001",
+  "kind": "plan",
+  "scope": [
+    "CTX-LOG",
+    "FIT-01",
+    "SIT-01",
+    "SYS-LOG"
+  ],
+  "phase": "plan",
+  "criteria_version": 1,
+  "subject_ref": "audits/subjects/PLAN-001.json",
+  "subject_hash": "f87f44efbd5f5def45d4a83459cf6582ce192dc98a6fb335c4ce81de2097fdbb",
+  "baseline_refs": {
+    "CTX-LOG": "initial",
+    "FIT-01": "initial",
+    "SIT-01": "initial",
+    "SYS-LOG": "initial"
+  },
+  "cumulative_diff_ref": "initial",
+  "change_ids": [],
+  "execution_id": "EXEC-AUDIT-PLAN-001",
+  "budget_account_refs": [
+    "LOCAL-01"
+  ],
+  "budget_check_ref": "design/state.md#EXEC-AUDIT-PLAN-001",
+  "delegation_ref": {
+    "id": "DELEGATION-01",
+    "immutable_ref": "design/snapshots/SN-93aa04c2045e9a8d9427752b0e72563365d6a8911c6c54fa472c697ebd2b76c4/files/operations/delegation.md",
+    "sha256": "391c97b9a2e3c17dd871740b80991832d713002c97d8207d7c5b9fe59c772d45",
+    "semantic_revision": 1
+  },
+  "review_mode": "normal",
+  "recovery_ref": null,
+  "previous_audit_ref": null,
+  "previous_subject_ref": null,
+  "open_finding_ids": [],
+  "observed_at": "2026-10-02T18:10:59.235969+00:00"
+}

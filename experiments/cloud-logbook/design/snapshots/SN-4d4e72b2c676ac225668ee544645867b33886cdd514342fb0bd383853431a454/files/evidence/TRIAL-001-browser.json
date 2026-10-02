@@ -1,0 +1,32 @@
+{
+  "observedAt": "2026-10-02T18:32:49.528Z",
+  "result": "needs-fix",
+  "checks": [
+    {
+      "id": "FIT-login-cli",
+      "pass": true
+    },
+    {
+      "id": "FIT-detail",
+      "pass": true
+    },
+    {
+      "id": "FIT-automation-retarget",
+      "pass": true,
+      "note": "Close control accessible name was 詳細を閉じる; initial selector corrected after fresh DOM, product unchanged."
+    },
+    {
+      "id": "FIT-source-filter",
+      "pass": false,
+      "note": "codex-local missing option opening tag, confirmed visible DOM and DOM options."
+    }
+  ],
+  "unexecuted": [
+    "remaining filters",
+    "export",
+    "offline",
+    "mobile",
+    "logout"
+  ],
+  "detailSnapshot": "- banner:\n  - link \"L. / LOGBOOK\":\n    - /url: /\n  - generic: AIと人の、作業の記録\n  - button \"ログアウト\"\n- main:\n  - generic: WORK IN CONTEXT\n  - heading \"何をしたか。 次に、何をするか。\" [level=1]:\n    - text: 何をしたか。\n    - text: 次に、何をするか。\n  - paragraph: 判断と根拠を残して、作業の続きを見つける。\n  - text: LOCAL → CLOUD\n  - text: ログは観測の記録です。\n  - text: 監査合格や正式な採用状態とは別に管理します。\n  - generic: ローカル検証モード · 保存先はメモリです。本番接続・4実環境からの送信は未確認。\n  - status: 保存先から取得しました。\n  - heading \"作業ログ 4\" [level=2]\n  - paragraph: reader@example.test\n  - button \"更新\"\n  - button \"JSONを保存\"\n  - button \"Markdownを保存\"\n  - text: プロジェクト\n  - textbox \"プロジェクト\":\n    - /placeholder: \"例: aide\"\n  - text: 実行環境\n  - combobox \"実行環境\":\n    - option \"すべての環境\" [selected]\n    - text: codex-local\n    - option \"claude-local\"\n    - option \"codex-cloud\"\n    - option \"claude-cloud\"\n  - text: 作業ID\n  - textbox \"作業ID\":\n    - /placeholder: \"例: cloud-logbook-001\"\n  - text: 検索\n  - textbox \"検索\":\n    - /placeholder: 判断・内容・根拠を検索\n  - button \"絞り込む\"\n  - generic: TIME / CONTEXT\n  - generic: ACTIVITY / NEXT STEP\n  - article:\n    - time: 2026/10/3 3:31:10\n    - generic: codex-local\n    - generic: aide / cloud-logbook-001\n    - generic: Codex\n    - button \"本番配備はアカウント接続後に確認\"\n    - generic: implementation\n    - generic: decision\n    - generic: unverified\n    - paragraph: 利用者はVercelとSupabaseのアカウントを持つがプロジェクトは未作成。PCのCLIも未ログイン。本番接続・4実環境・本人評価は未確認。\n    - strong: NEXT →\n    - generic: ローカル検証後、プロジェクトと認証を設定する\n  - article:\n    - time: 2026/10/3 3:31:09\n    - generic: codex-local\n    - generic: aide / cloud-logbook-001\n    - generic: Codex\n    - button \"APIとCLIの自動検証8件に合格\"\n    - generic: verification\n    - generic: check\n    - generic: pass\n    - paragraph: 実CLIからローカルHTTP APIへの保存と読取、未送信保持、再送、権限分離、検索とページ取得を確認。保存先は明示した境界stub。\n    - strong: NEXT →\n    - generic: 画面を実ブラウザで確認する\n  - article:\n    - time: 2026/10/3 3:31:09\n    - generic: codex-local\n    - generic: aide / cloud-logbook-001\n    - generic: Codex\n    - button \"Windowsの権限制約でテスト起動が停止\"\n    - generic: verification\n    - generic: issue\n    - generic: fail\n    - paragraph: 初回実行は子プロセスを起動できず、spawn EPERMで停止した。製品の動作結果はこの実行から判断できない。\n    - strong: NEXT →\n    - generic: 固定実装のまま必要な権限で再実行する\n  - article:\n    - time: 2026/10/3 3:31:08\n    - generic: codex-local\n    - generic: aide / cloud-logbook-001\n    - generic: Codex\n    - button \"クラウド版の計画監査に合格\"\n    - generic: plan\n    - generic: check\n    - generic: pass\n    - paragraph: 固定計画を独立担当が確認。major・blockerともに0件。これは実装前の結果の事後記録。\n    - strong: NEXT →\n    - generic: 計画に沿って実装する\n  - generic: 取得済み 4件のみを書き出します。\n  - generic: LOGBOOK / 記録して、再開する。\n  - generic: 送信者の認証と閲覧者の認証を分けています。\n- dialog:\n  - generic: EVENT DETAIL\n  - button \"詳細を閉じる\" [active]: 閉じる\n  - heading \"APIとCLIの自動検証8件に合格\" [level=2]\n  - generic: CLOUD003 · aide / cloud-logbook-001 · codex-local\n  - heading \"記録日時\" [level=3]\n  - paragraph: 2026/10/3 3:31:09\n  - heading \"記録者\" [level=3]\n  - paragraph: Codex\n  - heading \"内容\" [level=3]\n  - paragraph: 実CLIからローカルHTTP APIへの保存と読取、未送信保持、再送、権限分離、検索とページ取得を確認。保存先は明示した境界stub。\n  - heading \"判断の理由\" [level=3]\n  - paragraph: 通信と保存のつながりを確かめるため\n  - heading \"次の作業\" [level=3]\n  - paragraph: 画面を実ブラウザで確認する\n  - heading \"記録上の結果\" [level=3]\n  - paragraph: verification / check / pass\n  - heading \"根拠\" [level=3]\n  - generic: evidence/TRIAL-001-automated-permission-retry.json（参照パス）\n  - paragraph: 記録の訂正は、新しいイベントとして追記します。正式な監査・採用状態は別の台帳を参照してください。"
+}

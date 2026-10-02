@@ -1,0 +1,19 @@
+{
+  "implementation": "IMPL-002",
+  "observed_at": "2026-10-02T18:33:42.600888+00:00",
+  "result": "pass",
+  "runs": [
+    {
+      "command": [
+        "node",
+        "--test",
+        "tests/service.test.mjs",
+        "tests/integration.test.mjs"
+      ],
+      "exit_code": 0,
+      "stdout": "TAP version 13\n# Subtest: actual CLI saves offline, flushes unchanged into actual API and reads authenticated logs\nok 1 - actual CLI saves offline, flushes unchanged into actual API and reads authenticated logs\n  ---\n  duration_ms: 8159.8769\n  type: 'test'\n  ...\n# Subtest: CLI refuses redirects and retains pending event without exposing token\nok 2 - CLI refuses redirects and retains pending event without exposing token\n  ---\n  duration_ms: 1164.8831\n  type: 'test'\n  ...\n# Subtest: event validation rejects malformed paths, dates, unknown fields and normalizes time\nok 3 - event validation rejects malformed paths, dates, unknown fields and normalizes time\n  ---\n  duration_ms: 8.4433\n  type: 'test'\n  ...\n# Subtest: configuration refuses insecure cloud, bad writer and origin\nok 4 - configuration refuses insecure cloud, bad writer and origin\n  ---\n  duration_ms: 2.1315\n  type: 'test'\n  ...\n# Subtest: writer denial, scoped write, idempotence and immutable conflict under concurrency\nok 5 - writer denial, scoped write, idempotence and immutable conflict under concurrency\n  ---\n  duration_ms: 63.6881\n  type: 'test'\n  ...\n# Subtest: viewer isolation, login CSRF, pagination, search, refresh and logout\nok 6 - viewer isolation, login CSRF, pagination, search, refresh and logout\n  ---\n  duration_ms: 35.0008\n  type: 'test'\n  ...\n# Subtest: run and source restrictions, body size and sanitized backend failure\nok 7 - run and source restrictions, body size and sanitized backend failure\n  ---\n  duration_ms: 4.2293\n  type: 'test'\n  ...\n# Subtest: Supabase boundary uses service key only for insertion and viewer JWT only for reader\nok 8 - Supabase boundary uses service key only for insertion and viewer JWT only for reader\n  ---\n  duration_ms: 3.1535\n  type: 'test'\n  ...\n1..8\n# tests 8\n# suites 0\n# pass 8\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 9821.4969\n",
+      "stderr": ""
+    }
+  ],
+  "boundary": "Local in-memory Supabase boundary stub; SQL/RLS/live PostgreSQL not executed."
+}

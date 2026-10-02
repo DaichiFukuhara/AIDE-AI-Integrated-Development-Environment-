@@ -1,0 +1,77 @@
+{
+  "exportedAt": "2026-10-02T18:39:46.602Z",
+  "scope": "loaded-events-only",
+  "count": 4,
+  "events": [
+    {
+      "actor": "Codex",
+      "body": "利用者はVercelとSupabaseのアカウントを持つがプロジェクトは未作成。PCのCLIも未ログイン。本番接続・4実環境・本人評価は未確認。",
+      "evidence": [],
+      "id": "CLOUD004",
+      "kind": "decision",
+      "next": "ローカル検証後、プロジェクトと認証を設定する",
+      "outcome": "unverified",
+      "phase": "implementation",
+      "project": "aide",
+      "reason": "ローカル試験結果と本番実績を区別するため",
+      "run": "cloud-logbook-001",
+      "source": "codex-local",
+      "time": "2026-10-02T18:31:10.750Z",
+      "title": "本番配備はアカウント接続後に確認"
+    },
+    {
+      "actor": "Codex",
+      "body": "実CLIからローカルHTTP APIへの保存と読取、未送信保持、再送、権限分離、検索とページ取得を確認。保存先は明示した境界stub。",
+      "evidence": [
+        "evidence/TRIAL-001-automated-permission-retry.json"
+      ],
+      "id": "CLOUD003",
+      "kind": "check",
+      "next": "画面を実ブラウザで確認する",
+      "outcome": "pass",
+      "phase": "verification",
+      "project": "aide",
+      "reason": "通信と保存のつながりを確かめるため",
+      "run": "cloud-logbook-001",
+      "source": "codex-local",
+      "time": "2026-10-02T18:31:09.808Z",
+      "title": "APIとCLIの自動検証8件に合格"
+    },
+    {
+      "actor": "Codex",
+      "body": "初回実行は子プロセスを起動できず、spawn EPERMで停止した。製品の動作結果はこの実行から判断できない。",
+      "evidence": [
+        "evidence/TRIAL-001-automated.json"
+      ],
+      "id": "CLOUD002",
+      "kind": "issue",
+      "next": "固定実装のまま必要な権限で再実行する",
+      "outcome": "fail",
+      "phase": "verification",
+      "project": "aide",
+      "reason": "失敗した検証を残すため",
+      "run": "cloud-logbook-001",
+      "source": "codex-local",
+      "time": "2026-10-02T18:31:09.148Z",
+      "title": "Windowsの権限制約でテスト起動が停止"
+    },
+    {
+      "actor": "Codex",
+      "body": "固定計画を独立担当が確認。major・blockerともに0件。これは実装前の結果の事後記録。",
+      "evidence": [
+        "audits/AUD-PLAN-001.md"
+      ],
+      "id": "CLOUD001",
+      "kind": "check",
+      "next": "計画に沿って実装する",
+      "outcome": "pass",
+      "phase": "plan",
+      "project": "aide",
+      "reason": "実装条件と未確認範囲を固定するため",
+      "run": "cloud-logbook-001",
+      "source": "codex-local",
+      "time": "2026-10-02T18:31:08.537Z",
+      "title": "クラウド版の計画監査に合格"
+    }
+  ]
+}

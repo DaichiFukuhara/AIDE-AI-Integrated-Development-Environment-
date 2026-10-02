@@ -1,0 +1,19 @@
+{
+  "implementation": "IMPL-001",
+  "observed_at": "2026-10-02T18:29:20.142006+00:00",
+  "result": "needs-fix",
+  "runs": [
+    {
+      "command": [
+        "node",
+        "--test",
+        "tests/service.test.mjs",
+        "tests/integration.test.mjs"
+      ],
+      "exit_code": 1,
+      "stdout": "TAP version 13\n# Subtest: tests\\\\integration.test.mjs\nnot ok 1 - tests\\\\integration.test.mjs\n  ---\n  duration_ms: 12.3141\n  type: 'test'\n  location: 'C:\\\\Users\\\\daich\\\\claude-works\\\\AIDE-AI-Integrated-Development-Environment-\\\\experiments\\\\cloud-logbook\\\\tests\\\\integration.test.mjs:1:1'\n  failureType: 'testCodeFailure'\n  error: 'spawn EPERM'\n  code: 'EPERM'\n  stack: |-\n    ChildProcess.spawn (node:internal/child_process:420:11)\n    spawn (node:child_process:753:9)\n    TestContext.<anonymous> (node:internal/test_runner/runner:376:19)\n    FileTest.runInAsyncScope (node:async_hooks:214:14)\n    FileTest.run (node:internal/test_runner/test:1047:25)\n    FileTest.start (node:internal/test_runner/test:944:17)\n    runTestFile (node:internal/test_runner/runner:455:32)\n    node:internal/test_runner/runner:726:25\n    node:internal/per_context/primordials:578:37\n    new Promise (<anonymous>)\n  ...\n# Subtest: tests\\\\service.test.mjs\nnot ok 2 - tests\\\\service.test.mjs\n  ---\n  duration_ms: 6.6245\n  type: 'test'\n  location: 'C:\\\\Users\\\\daich\\\\claude-works\\\\AIDE-AI-Integrated-Development-Environment-\\\\experiments\\\\cloud-logbook\\\\tests\\\\service.test.mjs:1:1'\n  failureType: 'testCodeFailure'\n  error: 'spawn EPERM'\n  code: 'EPERM'\n  stack: |-\n    ChildProcess.spawn (node:internal/child_process:420:11)\n    spawn (node:child_process:753:9)\n    TestContext.<anonymous> (node:internal/test_runner/runner:376:19)\n    FileTest.runInAsyncScope (node:async_hooks:214:14)\n    FileTest.run (node:internal/test_runner/test:1047:25)\n    FileTest.start (node:internal/test_runner/test:944:17)\n    runTestFile (node:internal/test_runner/runner:455:32)\n    node:internal/test_runner/runner:726:25\n    node:internal/per_context/primordials:578:37\n    new Promise (<anonymous>)\n  ...\n1..2\n# tests 2\n# suites 0\n# pass 0\n# fail 2\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 33.7782\n",
+      "stderr": ""
+    }
+  ],
+  "boundary": "Local in-memory Supabase boundary stub; SQL/RLS/live PostgreSQL not executed."
+}

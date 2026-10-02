@@ -1,0 +1,168 @@
+{
+  "audit_request_id": "AR-ADOPT-001",
+  "origin_operation_id": "OP-ADOPT-001",
+  "kind": "adoption",
+  "scope": [
+    "CTX-LOG",
+    "FIT-01",
+    "SIT-01",
+    "SYS-LOG"
+  ],
+  "phase": "implementation",
+  "criteria_version": 1,
+  "subject_ref": "audits/subjects/ADOPT-001.json",
+  "subject_hash": "e98d6292c725145dd0bb3c30da77ce42e6410b1551c2e37c8fbc3126202c2a7a",
+  "baseline_refs": {
+    "CTX-LOG": "initial",
+    "FIT-01": "initial",
+    "SIT-01": "initial",
+    "SYS-LOG": "initial"
+  },
+  "cumulative_diff_ref": {
+    "from": "initial",
+    "to": {
+      "id": "IMPL-003",
+      "snapshot_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2",
+      "files": [
+        {
+          "id": "api/events.js",
+          "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/api/events.js",
+          "sha256": "97a1731cfb5d647315cc2c6a33f638486180820275aad3c8d71f8126e87567e8"
+        },
+        {
+          "id": "api/health.js",
+          "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/api/health.js",
+          "sha256": "97a1731cfb5d647315cc2c6a33f638486180820275aad3c8d71f8126e87567e8"
+        },
+        {
+          "id": "api/session.js",
+          "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/api/session.js",
+          "sha256": "97a1731cfb5d647315cc2c6a33f638486180820275aad3c8d71f8126e87567e8"
+        },
+        {
+          "id": "cli/logbook.py",
+          "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/cli/logbook.py",
+          "sha256": "7e52fba9c73240dd0100d5ffb0796b72b93fb9cdb076c7beaa3fb8190f448682"
+        },
+        {
+          "id": "dev/fixture-store.mjs",
+          "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/dev/fixture-store.mjs",
+          "sha256": "c2673d0ce9867552bfa369b593e2679b9c09267be7a0bd0fd553e0e02280f0bd"
+        },
+        {
+          "id": "lib/schema.mjs",
+          "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/lib/schema.mjs",
+          "sha256": "db18c8098ace4501d8f58d5008afd80f1f3687a228aa2c94c5f7e200bfd625f9"
+        },
+        {
+          "id": "lib/service.mjs",
+          "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/lib/service.mjs",
+          "sha256": "6e550cd5136e02750ed45d8d761ed4a4479de0cd95208c26be01781eeee95851"
+        },
+        {
+          "id": "lib/supabase.mjs",
+          "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/lib/supabase.mjs",
+          "sha256": "d82ee069f287d063702e3524c369ed500b1d1b71026515403be6085994b78dc1"
+        },
+        {
+          "id": "public/app.js",
+          "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/public/app.js",
+          "sha256": "95d09ae920d049f8c45779d44ac7253a4e71bb33c08b0d112b1d282421dab1a9"
+        },
+        {
+          "id": "public/index.html",
+          "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/public/index.html",
+          "sha256": "7f523a5bc31620ff908e328c866874c9be5d371b178630a758498890ee56eb37"
+        },
+        {
+          "id": "public/styles.css",
+          "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/public/styles.css",
+          "sha256": "71f24000802dac2d9a419548190790cb38480ee20f94ab39def7fa423481641a"
+        },
+        {
+          "id": "scripts/dev.mjs",
+          "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/scripts/dev.mjs",
+          "sha256": "f728fed42994d6f034d40d34ca0ee819fee7abd7b8d43b9058cca45e2c0d1a87"
+        },
+        {
+          "id": "scripts/writer-key.mjs",
+          "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/scripts/writer-key.mjs",
+          "sha256": "d1a4bd044652e11bbb37c2e8e136eebf212be05361e84cb37d7320d30b4d2fc8"
+        },
+        {
+          "id": "supabase/migrations/202610030001_logbook.sql",
+          "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/supabase/migrations/202610030001_logbook.sql",
+          "sha256": "55c67bbbb1c80599c1049852d04b1298312d2f3cd3e48126e3f997621bd3bfaa"
+        },
+        {
+          "id": "tests/integration.test.mjs",
+          "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/tests/integration.test.mjs",
+          "sha256": "f15a603bd096889ec61c401a0c617948dd42da321d62d7eac20493263775dc02"
+        },
+        {
+          "id": "tests/service.test.mjs",
+          "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/tests/service.test.mjs",
+          "sha256": "95dba5725cb2e14a6bab71512c321fc0d386b521c17137d8e8ec46403dc72813"
+        },
+        {
+          "id": "README.md",
+          "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/README.md",
+          "sha256": "5816d7abedc45b79bfb5f677f7453e6e6fea4cf3cbf6fb9cc171194be5fe727a"
+        },
+        {
+          "id": "agent-instructions.md",
+          "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/agent-instructions.md",
+          "sha256": "17363ce8aa4bdfeda0bbed46320042065fe05e03576945128b54abc70c53f974"
+        },
+        {
+          "id": "package.json",
+          "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/package.json",
+          "sha256": "f1ace1b766ffdd7e85674db4a48a5c3269e75bd9243f2c1bd2b4b596fcd74a5c"
+        },
+        {
+          "id": "vercel.json",
+          "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/vercel.json",
+          "sha256": "aae1c40e107f781a55e1360e1fc4b277989b5871912d009ee25fefd9edd14daf"
+        },
+        {
+          "id": ".env.example",
+          "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/.env.example",
+          "sha256": "352910f4de835d3d62697760de4b0cf7b87368c8251bd3c99e13891587f9073f"
+        },
+        {
+          "id": ".gitignore",
+          "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/.gitignore",
+          "sha256": "8eddc449ef8e80bcb420c47db10931c282b08111728c0560cfd3a297ff4bf75b"
+        },
+        {
+          "id": ".gitattributes",
+          "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/.gitattributes",
+          "sha256": "bd9663d71ffce4f030fba3bf7285472e2fab87ce8f71d180d20c14060d0c42a1"
+        }
+      ]
+    },
+    "change_ids": [
+      "CHANGE-001"
+    ]
+  },
+  "change_ids": [
+    "CHANGE-001"
+  ],
+  "execution_id": "EXEC-AUDIT-ADOPT-001",
+  "budget_account_refs": [
+    "LOCAL-01"
+  ],
+  "budget_check_ref": "design/state.md#EXEC-AUDIT-ADOPT-001",
+  "delegation_ref": {
+    "id": "DELEGATION-01",
+    "immutable_ref": "design/snapshots/SN-93aa04c2045e9a8d9427752b0e72563365d6a8911c6c54fa472c697ebd2b76c4/files/operations/delegation.md",
+    "sha256": "391c97b9a2e3c17dd871740b80991832d713002c97d8207d7c5b9fe59c772d45",
+    "semantic_revision": 1
+  },
+  "review_mode": "normal",
+  "recovery_ref": null,
+  "previous_audit_ref": null,
+  "previous_subject_ref": null,
+  "open_finding_ids": [],
+  "observed_at": "2026-10-02T18:43:31.562187+00:00"
+}

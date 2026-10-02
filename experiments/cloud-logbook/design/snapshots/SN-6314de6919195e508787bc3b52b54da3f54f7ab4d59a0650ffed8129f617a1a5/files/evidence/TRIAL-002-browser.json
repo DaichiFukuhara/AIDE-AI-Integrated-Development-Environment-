@@ -1,0 +1,25 @@
+{
+  "observedAt": "2026-10-02T18:36:30.715Z",
+  "result": "needs-fix",
+  "checks": [
+    {
+      "id": "FIT-login-real-cli",
+      "pass": true
+    },
+    {
+      "id": "FIT-filter-search",
+      "pass": true,
+      "note": "codex-local / aide / cloud-logbook-001 / 権限制約 returned exactly CLOUD002"
+    },
+    {
+      "id": "FIT-export",
+      "pass": false,
+      "note": "JSON button clicked; no console error; download completion could not be observed before browser tool timeout. Export payload unavailable on screen. No success claimed."
+    }
+  ],
+  "unexecuted": [
+    "mobile",
+    "offline",
+    "logout"
+  ]
+}
