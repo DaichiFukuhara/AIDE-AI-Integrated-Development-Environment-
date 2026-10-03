@@ -1,0 +1,59 @@
+{
+  "id": "E-002-PLAN-REVISION-002-VERIFICATION",
+  "checked_at": "2026-10-03T12:05:05.972989+00:00",
+  "result": "pass",
+  "state_revision": 49,
+  "subject_hash": "12b4d977ec81c54f4b914d1cf1a628ef22b5a2635d2427cdb480839571c5b8d7",
+  "request_path": "audits/AR-PLAN-003-request.json",
+  "changed_existing_files": [
+    "design/state.md",
+    "experiments/E-002-plan.md",
+    "experiments/E-002.md",
+    "operations/OP-PLAN-002.md"
+  ],
+  "new_record_files": [
+    "audits/AR-PLAN-003-request.json",
+    "audits/deltas/AR-PLAN-003.json",
+    "audits/deltas/AR-PLAN-003.patch",
+    "audits/subjects/PLAN-003.json",
+    "design/candidates/OP-PLAN-003/AP-FILE-r.md",
+    "design/candidates/OP-PLAN-003/AP-FILE.md",
+    "design/candidates/OP-PLAN-003/DEF-LOG-01-r.md",
+    "design/candidates/OP-PLAN-003/DEF-LOG-01.md",
+    "design/candidates/OP-PLAN-003/G-LOG-r.md",
+    "design/candidates/OP-PLAN-003/G-LOG.md",
+    "design/candidates/OP-PLAN-003/SG-TRACE-r.md",
+    "design/candidates/OP-PLAN-003/SG-TRACE.md",
+    "design/candidates/OP-PLAN-003/SYS-LOG-r.md",
+    "design/candidates/OP-PLAN-003/SYS-LOG.md",
+    "design/candidates/OP-PLAN-003/change.json",
+    "evidence/AUD-PLAN-002-record-verification.json",
+    "evidence/C-002-next-plan-candidates.md",
+    "evidence/E-002-plan-revision-002-handoff.md",
+    "evidence/precheck-plan-003.json",
+    "evidence/precheck-plan-003.md",
+    "operations/OP-PLAN-003-payload.json",
+    "operations/OP-PLAN-003.md",
+    "operations/delegation-003.md",
+    "tools/request_plan_003.py"
+  ],
+  "existing_snapshots_audits_trials_product_files": "hashes unchanged",
+  "current_baselines_implementation_deltas_C001": "unchanged",
+  "recursive_request_reference_count": 21,
+  "reused_checks": 8,
+  "utf8_and_no_repeated_question_marks": "pass",
+  "audit_executed": false,
+  "git_operations": false,
+  "local_e002_audits": {
+    "used": 1,
+    "reserved": 1,
+    "limit": 2
+  },
+  "remaining_user_confirmations": [
+    "UC-01",
+    "UC-02",
+    "UC-03 including future adoption audit budget allocation"
+  ],
+  "uc04": "answered 2026-10-03",
+  "scope_holds": "active; 3 findings open"
+}

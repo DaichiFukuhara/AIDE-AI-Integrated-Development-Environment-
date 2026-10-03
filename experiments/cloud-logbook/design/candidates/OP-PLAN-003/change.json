@@ -1,0 +1,42 @@
+{
+  "id": "PLAN-DELTA-003",
+  "revision": 1,
+  "semantic_revision": 1,
+  "operation_id": "OP-PLAN-003",
+  "phase": "plan",
+  "base_bundle": {
+    "id": "BUNDLE-001",
+    "immutable_ref": "design/snapshots/SN-fab1cd198c39ee2f406f70567117e5d71122b58da0ad97f93dc54eb969e868f3/files/design/candidates/OP-ADOPT-002/bundle.json",
+    "sha256": "90c0dd3433cddb50240a8c1df5f8db70e5e9f11d82f9837caa6a6b6c6cef3742"
+  },
+  "previous_operation_id": "OP-PLAN-002",
+  "previous_subject_ref": {
+    "id": "PLAN-002",
+    "immutable_ref": "design/snapshots/SN-115d95e4eae365644ee92c14d5aa9ca379adfbec14655c5fd47d7ccc9a767237/files/audits/subjects/PLAN-002.json",
+    "sha256": "159a16b0aed24780144a13a0d93806bbd48fb8bbdb699e0c1f0a4b0f84dd26f0"
+  },
+  "new_subject_ref": {
+    "id": "PLAN-003",
+    "immutable_ref": "design/snapshots/SN-2b689218bab304597638d8a4f2e76a929a5bae3285f5f1dd0494ca49a37578e9/files/audits/subjects/PLAN-003.json",
+    "sha256": "2bc64827291195c96b6987c813203aabaea2c81b316b8be205c173ca25532234"
+  },
+  "review_delta_ref": {
+    "id": "PLAN-REVIEW-DELTA-003",
+    "immutable_ref": "design/snapshots/SN-28806aa6ac92445128d04006f6ab02fcac255fde6f224b5aff19da0d0af973d1/files/audits/deltas/AR-PLAN-003.json",
+    "sha256": "3f2e3b74e1bff5bb9a0c7d6e6a8c5b24aff5abec8d0f9dc829a699f6b3fa0b4d",
+    "semantic_revision": 1,
+    "patch_ref": {
+      "id": "audits/deltas/AR-PLAN-003.patch",
+      "immutable_ref": "design/snapshots/SN-28806aa6ac92445128d04006f6ab02fcac255fde6f224b5aff19da0d0af973d1/files/audits/deltas/AR-PLAN-003.patch",
+      "sha256": "3165a74a1f34ffa3e8ce3f8410ea56c3938021a6b157e009c0d84e4b24242778"
+    }
+  },
+  "affected_scope": [
+    "CTX-LOG",
+    "FIT-01",
+    "SIT-01",
+    "SYS-LOG"
+  ],
+  "implementation_changed": false,
+  "reason": "AUD-PLAN-002解消条件とUC-04回答に従うplan_revision 2。currentは変更しない。"
+}

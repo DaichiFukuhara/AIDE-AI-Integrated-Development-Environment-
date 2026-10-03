@@ -1,0 +1,70 @@
+{
+  "operation_id": "OP-PLAN-003",
+  "kind": "plan",
+  "experiment_id": "E-002",
+  "plan_revision": 2,
+  "cycle_id": "C-002",
+  "scope": [
+    "CTX-LOG",
+    "FIT-01",
+    "SIT-01",
+    "SYS-LOG"
+  ],
+  "phase": "plan",
+  "criteria_version": 2,
+  "base_bundle": {
+    "id": "BUNDLE-001",
+    "immutable_ref": "design/snapshots/SN-fab1cd198c39ee2f406f70567117e5d71122b58da0ad97f93dc54eb969e868f3/files/design/candidates/OP-ADOPT-002/bundle.json",
+    "sha256": "90c0dd3433cddb50240a8c1df5f8db70e5e9f11d82f9837caa6a6b6c6cef3742"
+  },
+  "base_revision": 47,
+  "subject_ref": {
+    "id": "PLAN-003",
+    "immutable_ref": "design/snapshots/SN-2b689218bab304597638d8a4f2e76a929a5bae3285f5f1dd0494ca49a37578e9/files/audits/subjects/PLAN-003.json",
+    "sha256": "2bc64827291195c96b6987c813203aabaea2c81b316b8be205c173ca25532234"
+  },
+  "subject_hash": "12b4d977ec81c54f4b914d1cf1a628ef22b5a2635d2427cdb480839571c5b8d7",
+  "delegation_ref": {
+    "id": "DELEGATION-03",
+    "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/operations/delegation-003.md",
+    "sha256": "eaa9a64c27cd582564aa8b2b7e131414435c078c949da0629c88f5eaea84ada0",
+    "semantic_revision": 1
+  },
+  "budget_account_refs": [
+    "LOCAL-01",
+    "LOCAL-E002"
+  ],
+  "change_ids": [],
+  "change_refs": [
+    {
+      "id": "PLAN-DELTA-003",
+      "immutable_ref": "design/snapshots/SN-0e4fd0d3af95138526130bcf962ca7b44ce3c2d8613719383606478e15ecd55a/files/design/candidates/OP-PLAN-003/change.json",
+      "sha256": "d100619f0495797ba94ebcf1ce34d2c482e69c9c000c2ec16fe4cadca81980f6",
+      "semantic_revision": 1
+    }
+  ],
+  "review_mode": "normal",
+  "recovery_ref": null,
+  "previous_operation_id": "OP-PLAN-002",
+  "previous_audit_ref": {
+    "id": "AUD-PLAN-002",
+    "immutable_ref": "design/snapshots/SN-2031b501381d6763919763ef1ca444325f4cc133d59110f14bdff18cf00a58fc/files/audits/AUD-PLAN-002.md",
+    "sha256": "8020060c11c495576c2d709d98afe42520fd5592542636e8a8135e03f7ee563c"
+  },
+  "previous_subject_ref": {
+    "id": "PLAN-002",
+    "immutable_ref": "design/snapshots/SN-115d95e4eae365644ee92c14d5aa9ca379adfbec14655c5fd47d7ccc9a767237/files/audits/subjects/PLAN-002.json",
+    "sha256": "159a16b0aed24780144a13a0d93806bbd48fb8bbdb699e0c1f0a4b0f84dd26f0"
+  },
+  "review_delta_ref": {
+    "id": "PLAN-REVIEW-DELTA-003",
+    "immutable_ref": "design/snapshots/SN-28806aa6ac92445128d04006f6ab02fcac255fde6f224b5aff19da0d0af973d1/files/audits/deltas/AR-PLAN-003.json",
+    "sha256": "3f2e3b74e1bff5bb9a0c7d6e6a8c5b24aff5abec8d0f9dc829a699f6b3fa0b4d",
+    "semantic_revision": 1,
+    "patch_ref": {
+      "id": "audits/deltas/AR-PLAN-003.patch",
+      "immutable_ref": "design/snapshots/SN-28806aa6ac92445128d04006f6ab02fcac255fde6f224b5aff19da0d0af973d1/files/audits/deltas/AR-PLAN-003.patch",
+      "sha256": "3165a74a1f34ffa3e8ce3f8410ea56c3938021a6b157e009c0d84e4b24242778"
+    }
+  }
+}

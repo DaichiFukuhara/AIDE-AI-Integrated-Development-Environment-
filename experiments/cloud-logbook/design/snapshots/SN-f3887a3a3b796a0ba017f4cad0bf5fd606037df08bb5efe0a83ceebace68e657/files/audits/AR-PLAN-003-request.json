@@ -1,0 +1,740 @@
+{
+  "audit_request_id": "AR-PLAN-003",
+  "origin_operation_id": "OP-PLAN-003",
+  "kind": "plan",
+  "scope": [
+    "CTX-LOG",
+    "FIT-01",
+    "SIT-01",
+    "SYS-LOG"
+  ],
+  "phase": "plan",
+  "criteria_version": 2,
+  "subject_ref": {
+    "id": "PLAN-003",
+    "immutable_ref": "design/snapshots/SN-2b689218bab304597638d8a4f2e76a929a5bae3285f5f1dd0494ca49a37578e9/files/audits/subjects/PLAN-003.json",
+    "sha256": "2bc64827291195c96b6987c813203aabaea2c81b316b8be205c173ca25532234"
+  },
+  "subject_hash": "12b4d977ec81c54f4b914d1cf1a628ef22b5a2635d2427cdb480839571c5b8d7",
+  "precheck_ref": {
+    "id": "PRECHECK-PLAN-003",
+    "immutable_ref": "design/snapshots/SN-2b689218bab304597638d8a4f2e76a929a5bae3285f5f1dd0494ca49a37578e9/files/evidence/precheck-plan-003.json",
+    "sha256": "8cc581fa63663e10f0affda081c7a6848b19698e55ff4b07dfcc04aac4d16bdd"
+  },
+  "precheck_note_ref": {
+    "id": "PRECHECK-PLAN-003-NOTE",
+    "immutable_ref": "design/snapshots/SN-2b689218bab304597638d8a4f2e76a929a5bae3285f5f1dd0494ca49a37578e9/files/evidence/precheck-plan-003.md",
+    "sha256": "16ce5428c27a036a462104b896b360000a729669210f7eac0bb48a36d21422fb"
+  },
+  "baseline_refs": {
+    "CTX-LOG": {
+      "audit_request_id": "AR-PLAN-001",
+      "subject_ref": {
+        "id": "PLAN-001",
+        "immutable_ref": "design/snapshots/SN-156f567a982e8062ea128ebee3febff4987104f4bf178754865ab7dff0ac52f5/files/audits/subjects/PLAN-001.json",
+        "sha256": "8ed8fe5ca962656994d5cae889367a5d0989de5f961b01000a8a37cd430cdeda"
+      },
+      "subject_hash": "f87f44efbd5f5def45d4a83459cf6582ce192dc98a6fb335c4ce81de2097fdbb",
+      "result_ref": {
+        "id": "AUD-PLAN-001",
+        "immutable_ref": "design/snapshots/SN-61d392514bd38d9ca1232028190ec93e3c677db8c6779e85d38b92d2173b1cc1/files/audits/AUD-PLAN-001.md",
+        "sha256": "b5665c4e9c86f8d10b04522b6be3fcef99a61c1c7c9487d0176cceeb1023d3f5"
+      },
+      "criteria_version": 1,
+      "phase": "plan",
+      "reuse_as_pass": false
+    },
+    "FIT-01": {
+      "audit_request_id": "AR-PLAN-001",
+      "subject_ref": {
+        "id": "PLAN-001",
+        "immutable_ref": "design/snapshots/SN-156f567a982e8062ea128ebee3febff4987104f4bf178754865ab7dff0ac52f5/files/audits/subjects/PLAN-001.json",
+        "sha256": "8ed8fe5ca962656994d5cae889367a5d0989de5f961b01000a8a37cd430cdeda"
+      },
+      "subject_hash": "f87f44efbd5f5def45d4a83459cf6582ce192dc98a6fb335c4ce81de2097fdbb",
+      "result_ref": {
+        "id": "AUD-PLAN-001",
+        "immutable_ref": "design/snapshots/SN-61d392514bd38d9ca1232028190ec93e3c677db8c6779e85d38b92d2173b1cc1/files/audits/AUD-PLAN-001.md",
+        "sha256": "b5665c4e9c86f8d10b04522b6be3fcef99a61c1c7c9487d0176cceeb1023d3f5"
+      },
+      "criteria_version": 1,
+      "phase": "plan",
+      "reuse_as_pass": false
+    },
+    "SIT-01": {
+      "audit_request_id": "AR-PLAN-001",
+      "subject_ref": {
+        "id": "PLAN-001",
+        "immutable_ref": "design/snapshots/SN-156f567a982e8062ea128ebee3febff4987104f4bf178754865ab7dff0ac52f5/files/audits/subjects/PLAN-001.json",
+        "sha256": "8ed8fe5ca962656994d5cae889367a5d0989de5f961b01000a8a37cd430cdeda"
+      },
+      "subject_hash": "f87f44efbd5f5def45d4a83459cf6582ce192dc98a6fb335c4ce81de2097fdbb",
+      "result_ref": {
+        "id": "AUD-PLAN-001",
+        "immutable_ref": "design/snapshots/SN-61d392514bd38d9ca1232028190ec93e3c677db8c6779e85d38b92d2173b1cc1/files/audits/AUD-PLAN-001.md",
+        "sha256": "b5665c4e9c86f8d10b04522b6be3fcef99a61c1c7c9487d0176cceeb1023d3f5"
+      },
+      "criteria_version": 1,
+      "phase": "plan",
+      "reuse_as_pass": false
+    },
+    "SYS-LOG": {
+      "audit_request_id": "AR-PLAN-001",
+      "subject_ref": {
+        "id": "PLAN-001",
+        "immutable_ref": "design/snapshots/SN-156f567a982e8062ea128ebee3febff4987104f4bf178754865ab7dff0ac52f5/files/audits/subjects/PLAN-001.json",
+        "sha256": "8ed8fe5ca962656994d5cae889367a5d0989de5f961b01000a8a37cd430cdeda"
+      },
+      "subject_hash": "f87f44efbd5f5def45d4a83459cf6582ce192dc98a6fb335c4ce81de2097fdbb",
+      "result_ref": {
+        "id": "AUD-PLAN-001",
+        "immutable_ref": "design/snapshots/SN-61d392514bd38d9ca1232028190ec93e3c677db8c6779e85d38b92d2173b1cc1/files/audits/AUD-PLAN-001.md",
+        "sha256": "b5665c4e9c86f8d10b04522b6be3fcef99a61c1c7c9487d0176cceeb1023d3f5"
+      },
+      "criteria_version": 1,
+      "phase": "plan",
+      "reuse_as_pass": false
+    }
+  },
+  "baseline_compatibility": "v1 plan and IMPL-005 are comparison only; auto/privacy/nonblocking meaning change cannot inherit a pass",
+  "cumulative_diff_ref": {
+    "from": {
+      "id": "BUNDLE-001",
+      "immutable_ref": "design/snapshots/SN-fab1cd198c39ee2f406f70567117e5d71122b58da0ad97f93dc54eb969e868f3/files/design/candidates/OP-ADOPT-002/bundle.json",
+      "sha256": "90c0dd3433cddb50240a8c1df5f8db70e5e9f11d82f9837caa6a6b6c6cef3742"
+    },
+    "via": {
+      "id": "PLAN-DELTA-002",
+      "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/change.json",
+      "sha256": "4b0cd07c737b044b77af7f0f5caf1ba9f9813c72286c6be859bb44096220069f",
+      "semantic_revision": 1
+    },
+    "correction_delta_ref": {
+      "id": "PLAN-REVIEW-DELTA-003",
+      "immutable_ref": "design/snapshots/SN-28806aa6ac92445128d04006f6ab02fcac255fde6f224b5aff19da0d0af973d1/files/audits/deltas/AR-PLAN-003.json",
+      "sha256": "3f2e3b74e1bff5bb9a0c7d6e6a8c5b24aff5abec8d0f9dc829a699f6b3fa0b4d",
+      "semantic_revision": 1,
+      "patch_ref": {
+        "id": "audits/deltas/AR-PLAN-003.patch",
+        "immutable_ref": "design/snapshots/SN-28806aa6ac92445128d04006f6ab02fcac255fde6f224b5aff19da0d0af973d1/files/audits/deltas/AR-PLAN-003.patch",
+        "sha256": "3165a74a1f34ffa3e8ce3f8410ea56c3938021a6b157e009c0d84e4b24242778"
+      }
+    },
+    "to_subject_ref": {
+      "id": "PLAN-003",
+      "immutable_ref": "design/snapshots/SN-2b689218bab304597638d8a4f2e76a929a5bae3285f5f1dd0494ca49a37578e9/files/audits/subjects/PLAN-003.json",
+      "sha256": "2bc64827291195c96b6987c813203aabaea2c81b316b8be205c173ca25532234"
+    }
+  },
+  "review_delta_ref": {
+    "id": "PLAN-REVIEW-DELTA-003",
+    "immutable_ref": "design/snapshots/SN-28806aa6ac92445128d04006f6ab02fcac255fde6f224b5aff19da0d0af973d1/files/audits/deltas/AR-PLAN-003.json",
+    "sha256": "3f2e3b74e1bff5bb9a0c7d6e6a8c5b24aff5abec8d0f9dc829a699f6b3fa0b4d",
+    "semantic_revision": 1,
+    "patch_ref": {
+      "id": "audits/deltas/AR-PLAN-003.patch",
+      "immutable_ref": "design/snapshots/SN-28806aa6ac92445128d04006f6ab02fcac255fde6f224b5aff19da0d0af973d1/files/audits/deltas/AR-PLAN-003.patch",
+      "sha256": "3165a74a1f34ffa3e8ce3f8410ea56c3938021a6b157e009c0d84e4b24242778"
+    }
+  },
+  "change_ids": [],
+  "change_ids_reason": "Plan candidate only; no adopted implementation change or unaudited implementation delta",
+  "execution_id": "EXEC-AUDIT-PLAN-003",
+  "budget_account_refs": [
+    "LOCAL-01",
+    "LOCAL-E002"
+  ],
+  "budget_check_ref": "design/state.md#EXEC-AUDIT-PLAN-003",
+  "budget_definition_ref": {
+    "id": "BUDGET-02",
+    "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/experiments/budget-definition-002.md",
+    "sha256": "a2bd9872ce8d029979c7dffaf7ce164fcc49992c8d71853a1efa87a593ab84f7",
+    "semantic_revision": 1
+  },
+  "delegation_ref": {
+    "id": "DELEGATION-03",
+    "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/operations/delegation-003.md",
+    "sha256": "eaa9a64c27cd582564aa8b2b7e131414435c078c949da0629c88f5eaea84ada0",
+    "semantic_revision": 1
+  },
+  "review_mode": "normal",
+  "recovery_ref": null,
+  "previous_audit_ref": {
+    "id": "AUD-PLAN-002",
+    "immutable_ref": "design/snapshots/SN-2031b501381d6763919763ef1ca444325f4cc133d59110f14bdff18cf00a58fc/files/audits/AUD-PLAN-002.md",
+    "sha256": "8020060c11c495576c2d709d98afe42520fd5592542636e8a8135e03f7ee563c"
+  },
+  "previous_subject_ref": {
+    "id": "PLAN-002",
+    "immutable_ref": "design/snapshots/SN-115d95e4eae365644ee92c14d5aa9ca379adfbec14655c5fd47d7ccc9a767237/files/audits/subjects/PLAN-002.json",
+    "sha256": "159a16b0aed24780144a13a0d93806bbd48fb8bbdb699e0c1f0a4b0f84dd26f0"
+  },
+  "comparison_implementation_audit_ref": {
+    "id": "AUD-ADOPT-002",
+    "immutable_ref": "design/snapshots/SN-b8b093d9d560411450d3dfb284154696b239d7713edf544fcc8c25d58a2bfad7/files/audits/AUD-ADOPT-002.md",
+    "sha256": "f3f94c7cb416631da6b6c5df52c4f6e40dd240ccf631a378370e06511a39efa2"
+  },
+  "open_finding_ids": [
+    "F-CLOUD-PLAN-002-01",
+    "F-CLOUD-PLAN-002-02",
+    "F-CLOUD-PLAN-002-03",
+    "F-CLOUD-ADOPT-002"
+  ],
+  "finding_disposition": "PLAN-002のmajor 1/minor 2は改訂して再確認、openを保持。F-CLOUD-ADOPT-002はNEXT-01として対象外で継続。",
+  "required_user_confirmations": [
+    "UC-01",
+    "UC-02",
+    "UC-03"
+  ],
+  "reviewer": "Claude Opus 5.5 (external independent re-audit)",
+  "review_focus": [
+    "AUD-PLAN-002の3解消条件",
+    "PLAN-002 -> PLAN-003の入力差分と依拠先の波及",
+    "前回未確認と新UT/SIT/FIT/UCの対応",
+    "同一hashで影響外の確認部分の引継ぎ（全面再監査へ戻さない）",
+    "親子予算/追加委任/将来adoption監査枠不足"
+  ],
+  "requested_at": "2026-10-03T12:03:38.796727+00:00",
+  "observed_at": "2026-10-03T12:03:38.796747+00:00",
+  "delivery": "saved-pending; do not dispatch or execute in this turn",
+  "plan_revision": 2,
+  "impact_scope": [
+    "CTX-LOG",
+    "FIT-01",
+    "SIT-01",
+    "SYS-LOG"
+  ],
+  "impact_paths": [
+    "DEF-LOG-01 -> G-LOG/SG-TRACE/AP-FILE/SYS-LOG -> E-002/EVAL-002",
+    "hook -> seq/state/queue -> API -> UI missing-event display",
+    "credential file -> hook/worker; Bash env FIT; README/UI limits",
+    "hook settings timeout/root merge -> foreground/async deadline -> UC-01/FIT"
+  ],
+  "reused_checks": [
+    {
+      "criterion": "DDD-01",
+      "part": "既存14フィールド/enum/auto分類の基礎",
+      "status": "reuse-proposed",
+      "criteria_version": 2,
+      "previous_audit_ref": {
+        "id": "AUD-PLAN-002",
+        "immutable_ref": "design/snapshots/SN-2031b501381d6763919763ef1ca444325f4cc133d59110f14bdff18cf00a58fc/files/audits/AUD-PLAN-002.md",
+        "sha256": "8020060c11c495576c2d709d98afe42520fd5592542636e8a8135e03f7ee563c"
+      },
+      "previous_subject_ref": {
+        "id": "PLAN-002",
+        "immutable_ref": "design/snapshots/SN-115d95e4eae365644ee92c14d5aa9ca379adfbec14655c5fd47d7ccc9a767237/files/audits/subjects/PLAN-002.json",
+        "sha256": "159a16b0aed24780144a13a0d93806bbd48fb8bbdb699e0c1f0a4b0f84dd26f0"
+      },
+      "excluded": "SessionEnd reasonとseq/countsは再確認",
+      "reason": "前回確認済み部分の入力と依拠する該当部分のhashが同一。変更された定義・計画・委任全体の合格は引き継がない。",
+      "input_fragments": [
+        {
+          "locator": "イベントの14フィールド",
+          "previous_ref": {
+            "id": "DEF-LOG-01",
+            "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/DEF-LOG-01.md",
+            "sha256": "97799519e373e3512766b676d6fdefa72280e8759813a9db2a59e16b99783414",
+            "semantic_revision": 2,
+            "domain_id": "D-LOG",
+            "context_id": "CTX-LOG",
+            "canonical_owner": "SYS-LOG",
+            "dependencies": []
+          },
+          "current_ref": {
+            "id": "DEF-LOG-01",
+            "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/DEF-LOG-01.md",
+            "sha256": "2b7b5a69a9c203b43726a5ce6944a38b5943e65a52226e9398e3e0f08612ee21",
+            "semantic_revision": 3,
+            "domain_id": "D-LOG",
+            "context_id": "CTX-LOG",
+            "canonical_owner": "SYS-LOG",
+            "dependencies": []
+          },
+          "previous_sha256": "ffae3ff374acee95e6ea108e77814bee5a64eca588a5ff35ef88e0f69fb87672",
+          "current_sha256": "ffae3ff374acee95e6ea108e77814bee5a64eca588a5ff35ef88e0f69fb87672",
+          "normalization": "UTF-8 text; paragraph/section ending one LF; no internal changes"
+        }
+      ],
+      "dependency_fragments": [
+        {
+          "locator": "イベントの14フィールド",
+          "previous_ref": {
+            "id": "DEF-LOG-01",
+            "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/DEF-LOG-01.md",
+            "sha256": "97799519e373e3512766b676d6fdefa72280e8759813a9db2a59e16b99783414",
+            "semantic_revision": 2,
+            "domain_id": "D-LOG",
+            "context_id": "CTX-LOG",
+            "canonical_owner": "SYS-LOG",
+            "dependencies": []
+          },
+          "current_ref": {
+            "id": "DEF-LOG-01",
+            "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/DEF-LOG-01.md",
+            "sha256": "2b7b5a69a9c203b43726a5ce6944a38b5943e65a52226e9398e3e0f08612ee21",
+            "semantic_revision": 3,
+            "domain_id": "D-LOG",
+            "context_id": "CTX-LOG",
+            "canonical_owner": "SYS-LOG",
+            "dependencies": []
+          },
+          "previous_sha256": "ffae3ff374acee95e6ea108e77814bee5a64eca588a5ff35ef88e0f69fb87672",
+          "current_sha256": "ffae3ff374acee95e6ea108e77814bee5a64eca588a5ff35ef88e0f69fb87672",
+          "normalization": "UTF-8 text; paragraph/section ending one LF; no internal changes"
+        }
+      ]
+    },
+    {
+      "criterion": "DDD-02",
+      "part": "送らない情報/許可キー/パス/固定分類/マスク/サイズ規則",
+      "status": "reuse-proposed",
+      "criteria_version": 2,
+      "previous_audit_ref": {
+        "id": "AUD-PLAN-002",
+        "immutable_ref": "design/snapshots/SN-2031b501381d6763919763ef1ca444325f4cc133d59110f14bdff18cf00a58fc/files/audits/AUD-PLAN-002.md",
+        "sha256": "8020060c11c495576c2d709d98afe42520fd5592542636e8a8135e03f7ee563c"
+      },
+      "previous_subject_ref": {
+        "id": "PLAN-002",
+        "immutable_ref": "design/snapshots/SN-115d95e4eae365644ee92c14d5aa9ca379adfbec14655c5fd47d7ccc9a767237/files/audits/subjects/PLAN-002.json",
+        "sha256": "159a16b0aed24780144a13a0d93806bbd48fb8bbdb699e0c1f0a4b0f84dd26f0"
+      },
+      "excluded": "脅威モデル/資格取得経路/README・画面の限界は再確認",
+      "reason": "前回確認済み部分の入力と依拠する該当部分のhashが同一。変更された定義・計画・委任全体の合格は引き継がない。",
+      "input_fragments": [
+        {
+          "locator": "## 送らない情報と変換規則",
+          "previous_ref": {
+            "id": "E-002",
+            "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/experiments/E-002-plan.md",
+            "sha256": "411dbd47ff12c537698feffbf7a65821f92caf71f3761ab565879e19fa439e85",
+            "semantic_revision": 1
+          },
+          "current_ref": {
+            "id": "E-002",
+            "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/experiments/E-002-plan.md",
+            "sha256": "13334a988bd7518e019711a0d96090408ede1bb5aee91c171a7c8a204b7a645d",
+            "semantic_revision": 2
+          },
+          "previous_sha256": "8597ff889c310d07762552e7fbee238a3d61d5b12557a074779b08a4f1a0b53a",
+          "current_sha256": "8597ff889c310d07762552e7fbee238a3d61d5b12557a074779b08a4f1a0b53a",
+          "normalization": "UTF-8 text; paragraph/section ending one LF; no internal changes"
+        }
+      ],
+      "dependency_fragments": [
+        {
+          "locator": "## 送らない情報と変換規則",
+          "previous_ref": {
+            "id": "E-002",
+            "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/experiments/E-002-plan.md",
+            "sha256": "411dbd47ff12c537698feffbf7a65821f92caf71f3761ab565879e19fa439e85",
+            "semantic_revision": 1
+          },
+          "current_ref": {
+            "id": "E-002",
+            "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/experiments/E-002-plan.md",
+            "sha256": "13334a988bd7518e019711a0d96090408ede1bb5aee91c171a7c8a204b7a645d",
+            "semantic_revision": 2
+          },
+          "previous_sha256": "8597ff889c310d07762552e7fbee238a3d61d5b12557a074779b08a4f1a0b53a",
+          "current_sha256": "8597ff889c310d07762552e7fbee238a3d61d5b12557a074779b08a4f1a0b53a",
+          "normalization": "UTF-8 text; paragraph/section ending one LF; no internal changes"
+        }
+      ]
+    },
+    {
+      "criterion": "DDD-03",
+      "part": "ack/通信障害時の不変内容再送とbackoff",
+      "status": "reuse-proposed",
+      "criteria_version": 2,
+      "previous_audit_ref": {
+        "id": "AUD-PLAN-002",
+        "immutable_ref": "design/snapshots/SN-2031b501381d6763919763ef1ca444325f4cc133d59110f14bdff18cf00a58fc/files/audits/AUD-PLAN-002.md",
+        "sha256": "8020060c11c495576c2d709d98afe42520fd5592542636e8a8135e03f7ee563c"
+      },
+      "previous_subject_ref": {
+        "id": "PLAN-002",
+        "immutable_ref": "design/snapshots/SN-115d95e4eae365644ee92c14d5aa9ca379adfbec14655c5fd47d7ccc9a767237/files/audits/subjects/PLAN-002.json",
+        "sha256": "159a16b0aed24780144a13a0d93806bbd48fb8bbdb699e0c1f0a4b0f84dd26f0"
+      },
+      "excluded": "seq/summary照合/明示timeout/async締切は再確認",
+      "reason": "前回確認済み部分の入力と依拠する該当部分のhashが同一。変更された定義・計画・委任全体の合格は引き継がない。",
+      "input_fragments": [
+        {
+          "locator": "通信断・接続拒否",
+          "previous_ref": {
+            "id": "E-002",
+            "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/experiments/E-002-plan.md",
+            "sha256": "411dbd47ff12c537698feffbf7a65821f92caf71f3761ab565879e19fa439e85",
+            "semantic_revision": 1
+          },
+          "current_ref": {
+            "id": "E-002",
+            "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/experiments/E-002-plan.md",
+            "sha256": "13334a988bd7518e019711a0d96090408ede1bb5aee91c171a7c8a204b7a645d",
+            "semantic_revision": 2
+          },
+          "previous_sha256": "059c9f81089c3c864ea5c51f253f8e043d5a743d668e509b4d1d1156b31da33c",
+          "current_sha256": "059c9f81089c3c864ea5c51f253f8e043d5a743d668e509b4d1d1156b31da33c",
+          "normalization": "UTF-8 text; paragraph/section ending one LF; no internal changes"
+        }
+      ],
+      "dependency_fragments": [
+        {
+          "locator": "通信断・接続拒否",
+          "previous_ref": {
+            "id": "E-002",
+            "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/experiments/E-002-plan.md",
+            "sha256": "411dbd47ff12c537698feffbf7a65821f92caf71f3761ab565879e19fa439e85",
+            "semantic_revision": 1
+          },
+          "current_ref": {
+            "id": "E-002",
+            "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/experiments/E-002-plan.md",
+            "sha256": "13334a988bd7518e019711a0d96090408ede1bb5aee91c171a7c8a204b7a645d",
+            "semantic_revision": 2
+          },
+          "previous_sha256": "059c9f81089c3c864ea5c51f253f8e043d5a743d668e509b4d1d1156b31da33c",
+          "current_sha256": "059c9f81089c3c864ea5c51f253f8e043d5a743d668e509b4d1d1156b31da33c",
+          "normalization": "UTF-8 text; paragraph/section ending one LF; no internal changes"
+        }
+      ]
+    },
+    {
+      "criterion": "DDD-03",
+      "part": "保存不能と送信不能の区別",
+      "status": "reuse-proposed",
+      "criteria_version": 2,
+      "previous_audit_ref": {
+        "id": "AUD-PLAN-002",
+        "immutable_ref": "design/snapshots/SN-2031b501381d6763919763ef1ca444325f4cc133d59110f14bdff18cf00a58fc/files/audits/AUD-PLAN-002.md",
+        "sha256": "8020060c11c495576c2d709d98afe42520fd5592542636e8a8135e03f7ee563c"
+      },
+      "previous_subject_ref": {
+        "id": "PLAN-002",
+        "immutable_ref": "design/snapshots/SN-115d95e4eae365644ee92c14d5aa9ca379adfbec14655c5fd47d7ccc9a767237/files/audits/subjects/PLAN-002.json",
+        "sha256": "159a16b0aed24780144a13a0d93806bbd48fb8bbdb699e0c1f0a4b0f84dd26f0"
+      },
+      "excluded": "追加欠落表示は再確認",
+      "reason": "前回確認済み部分の入力と依拠する該当部分のhashが同一。変更された定義・計画・委任全体の合格は引き継がない。",
+      "input_fragments": [
+        {
+          "locator": "queue のローカル保存不能",
+          "previous_ref": {
+            "id": "E-002",
+            "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/experiments/E-002-plan.md",
+            "sha256": "411dbd47ff12c537698feffbf7a65821f92caf71f3761ab565879e19fa439e85",
+            "semantic_revision": 1
+          },
+          "current_ref": {
+            "id": "E-002",
+            "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/experiments/E-002-plan.md",
+            "sha256": "13334a988bd7518e019711a0d96090408ede1bb5aee91c171a7c8a204b7a645d",
+            "semantic_revision": 2
+          },
+          "previous_sha256": "f0af141e6203312058ae7d86612bb5f3208511591e45d7890f23bfe1373a42a5",
+          "current_sha256": "f0af141e6203312058ae7d86612bb5f3208511591e45d7890f23bfe1373a42a5",
+          "normalization": "UTF-8 text; paragraph/section ending one LF; no internal changes"
+        }
+      ],
+      "dependency_fragments": [
+        {
+          "locator": "queue のローカル保存不能",
+          "previous_ref": {
+            "id": "E-002",
+            "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/experiments/E-002-plan.md",
+            "sha256": "411dbd47ff12c537698feffbf7a65821f92caf71f3761ab565879e19fa439e85",
+            "semantic_revision": 1
+          },
+          "current_ref": {
+            "id": "E-002",
+            "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/experiments/E-002-plan.md",
+            "sha256": "13334a988bd7518e019711a0d96090408ede1bb5aee91c171a7c8a204b7a645d",
+            "semantic_revision": 2
+          },
+          "previous_sha256": "f0af141e6203312058ae7d86612bb5f3208511591e45d7890f23bfe1373a42a5",
+          "current_sha256": "f0af141e6203312058ae7d86612bb5f3208511591e45d7890f23bfe1373a42a5",
+          "normalization": "UTF-8 text; paragraph/section ending one LF; no internal changes"
+        }
+      ]
+    },
+    {
+      "criterion": "DDD-04",
+      "part": "単一contextとSYS-LOGの内部境界所有",
+      "status": "reuse-proposed",
+      "criteria_version": 2,
+      "previous_audit_ref": {
+        "id": "AUD-PLAN-002",
+        "immutable_ref": "design/snapshots/SN-2031b501381d6763919763ef1ca444325f4cc133d59110f14bdff18cf00a58fc/files/audits/AUD-PLAN-002.md",
+        "sha256": "8020060c11c495576c2d709d98afe42520fd5592542636e8a8135e03f7ee563c"
+      },
+      "previous_subject_ref": {
+        "id": "PLAN-002",
+        "immutable_ref": "design/snapshots/SN-115d95e4eae365644ee92c14d5aa9ca379adfbec14655c5fd47d7ccc9a767237/files/audits/subjects/PLAN-002.json",
+        "sha256": "159a16b0aed24780144a13a0d93806bbd48fb8bbdb699e0c1f0a4b0f84dd26f0"
+      },
+      "excluded": "修正した内部変換のseq/資格/時間制約は再確認",
+      "reason": "前回確認済み部分の入力と依拠する該当部分のhashが同一。変更された定義・計画・委任全体の合格は引き継がない。",
+      "input_fragments": [
+        {
+          "locator": "domain=D-LOG",
+          "previous_ref": {
+            "id": "DEF-LOG-01",
+            "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/DEF-LOG-01.md",
+            "sha256": "97799519e373e3512766b676d6fdefa72280e8759813a9db2a59e16b99783414",
+            "semantic_revision": 2,
+            "domain_id": "D-LOG",
+            "context_id": "CTX-LOG",
+            "canonical_owner": "SYS-LOG",
+            "dependencies": []
+          },
+          "current_ref": {
+            "id": "DEF-LOG-01",
+            "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/DEF-LOG-01.md",
+            "sha256": "2b7b5a69a9c203b43726a5ce6944a38b5943e65a52226e9398e3e0f08612ee21",
+            "semantic_revision": 3,
+            "domain_id": "D-LOG",
+            "context_id": "CTX-LOG",
+            "canonical_owner": "SYS-LOG",
+            "dependencies": []
+          },
+          "previous_sha256": "1a02a82e07c0d13657843570cca0524967aff0270e5ba407b345885115ba4ed8",
+          "current_sha256": "1a02a82e07c0d13657843570cca0524967aff0270e5ba407b345885115ba4ed8",
+          "normalization": "UTF-8 text; paragraph/section ending one LF; no internal changes"
+        }
+      ],
+      "dependency_fragments": [
+        {
+          "locator": "domain=D-LOG",
+          "previous_ref": {
+            "id": "DEF-LOG-01",
+            "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/DEF-LOG-01.md",
+            "sha256": "97799519e373e3512766b676d6fdefa72280e8759813a9db2a59e16b99783414",
+            "semantic_revision": 2,
+            "domain_id": "D-LOG",
+            "context_id": "CTX-LOG",
+            "canonical_owner": "SYS-LOG",
+            "dependencies": []
+          },
+          "current_ref": {
+            "id": "DEF-LOG-01",
+            "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/DEF-LOG-01.md",
+            "sha256": "2b7b5a69a9c203b43726a5ce6944a38b5943e65a52226e9398e3e0f08612ee21",
+            "semantic_revision": 3,
+            "domain_id": "D-LOG",
+            "context_id": "CTX-LOG",
+            "canonical_owner": "SYS-LOG",
+            "dependencies": []
+          },
+          "previous_sha256": "1a02a82e07c0d13657843570cca0524967aff0270e5ba407b345885115ba4ed8",
+          "current_sha256": "1a02a82e07c0d13657843570cca0524967aff0270e5ba407b345885115ba4ed8",
+          "normalization": "UTF-8 text; paragraph/section ending one LF; no internal changes"
+        }
+      ]
+    },
+    {
+      "criterion": "DDD-05",
+      "part": "実機未発火/合成入力代替不可の評価原則",
+      "status": "reuse-proposed",
+      "criteria_version": 2,
+      "previous_audit_ref": {
+        "id": "AUD-PLAN-002",
+        "immutable_ref": "design/snapshots/SN-2031b501381d6763919763ef1ca444325f4cc133d59110f14bdff18cf00a58fc/files/audits/AUD-PLAN-002.md",
+        "sha256": "8020060c11c495576c2d709d98afe42520fd5592542636e8a8135e03f7ee563c"
+      },
+      "previous_subject_ref": {
+        "id": "PLAN-002",
+        "immutable_ref": "design/snapshots/SN-115d95e4eae365644ee92c14d5aa9ca379adfbec14655c5fd47d7ccc9a767237/files/audits/subjects/PLAN-002.json",
+        "sha256": "159a16b0aed24780144a13a0d93806bbd48fb8bbdb699e0c1f0a4b0f84dd26f0"
+      },
+      "excluded": "追加UT/SIT/FIT項目と評価ref新版は再確認",
+      "reason": "前回確認済み部分の入力と依拠する該当部分のhashが同一。変更された定義・計画・委任全体の合格は引き継がない。",
+      "input_fragments": [
+        {
+          "locator": "FIT-AUTO-01/02 は synthetic",
+          "previous_ref": {
+            "id": "E-002",
+            "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/experiments/E-002-plan.md",
+            "sha256": "411dbd47ff12c537698feffbf7a65821f92caf71f3761ab565879e19fa439e85",
+            "semantic_revision": 1
+          },
+          "current_ref": {
+            "id": "E-002",
+            "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/experiments/E-002-plan.md",
+            "sha256": "13334a988bd7518e019711a0d96090408ede1bb5aee91c171a7c8a204b7a645d",
+            "semantic_revision": 2
+          },
+          "previous_sha256": "2a0dc6166626c359626304699024fecbc204725477b74ce18b1ad02524c0d729",
+          "current_sha256": "2a0dc6166626c359626304699024fecbc204725477b74ce18b1ad02524c0d729",
+          "normalization": "UTF-8 text; paragraph/section ending one LF; no internal changes"
+        }
+      ],
+      "dependency_fragments": [
+        {
+          "locator": "FIT-AUTO-01/02 は synthetic",
+          "previous_ref": {
+            "id": "E-002",
+            "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/experiments/E-002-plan.md",
+            "sha256": "411dbd47ff12c537698feffbf7a65821f92caf71f3761ab565879e19fa439e85",
+            "semantic_revision": 1
+          },
+          "current_ref": {
+            "id": "E-002",
+            "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/experiments/E-002-plan.md",
+            "sha256": "13334a988bd7518e019711a0d96090408ede1bb5aee91c171a7c8a204b7a645d",
+            "semantic_revision": 2
+          },
+          "previous_sha256": "2a0dc6166626c359626304699024fecbc204725477b74ce18b1ad02524c0d729",
+          "current_sha256": "2a0dc6166626c359626304699024fecbc204725477b74ce18b1ad02524c0d729",
+          "normalization": "UTF-8 text; paragraph/section ending one LF; no internal changes"
+        }
+      ]
+    },
+    {
+      "criterion": "DDD-05",
+      "part": "本人評価条件",
+      "status": "reuse-proposed",
+      "criteria_version": 2,
+      "previous_audit_ref": {
+        "id": "AUD-PLAN-002",
+        "immutable_ref": "design/snapshots/SN-2031b501381d6763919763ef1ca444325f4cc133d59110f14bdff18cf00a58fc/files/audits/AUD-PLAN-002.md",
+        "sha256": "8020060c11c495576c2d709d98afe42520fd5592542636e8a8135e03f7ee563c"
+      },
+      "previous_subject_ref": {
+        "id": "PLAN-002",
+        "immutable_ref": "design/snapshots/SN-115d95e4eae365644ee92c14d5aa9ca379adfbec14655c5fd47d7ccc9a767237/files/audits/subjects/PLAN-002.json",
+        "sha256": "159a16b0aed24780144a13a0d93806bbd48fb8bbdb699e0c1f0a4b0f84dd26f0"
+      },
+      "excluded": "README/欠落表示の利用者理解は追加条件として再確認",
+      "reason": "前回確認済み部分の入力と依拠する該当部分のhashが同一。変更された定義・計画・委任全体の合格は引き継がない。",
+      "input_fragments": [
+        {
+          "locator": "| HUMAN-AUTO-02",
+          "previous_ref": {
+            "id": "E-002",
+            "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/experiments/E-002-plan.md",
+            "sha256": "411dbd47ff12c537698feffbf7a65821f92caf71f3761ab565879e19fa439e85",
+            "semantic_revision": 1
+          },
+          "current_ref": {
+            "id": "E-002",
+            "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/experiments/E-002-plan.md",
+            "sha256": "13334a988bd7518e019711a0d96090408ede1bb5aee91c171a7c8a204b7a645d",
+            "semantic_revision": 2
+          },
+          "previous_sha256": "c51f5747883409f37cd002b30f52ea31be2f6a68849edaaaa4eb89fd655a8b55",
+          "current_sha256": "c51f5747883409f37cd002b30f52ea31be2f6a68849edaaaa4eb89fd655a8b55",
+          "normalization": "UTF-8 text; paragraph/section ending one LF; no internal changes"
+        }
+      ],
+      "dependency_fragments": [
+        {
+          "locator": "| HUMAN-AUTO-02",
+          "previous_ref": {
+            "id": "E-002",
+            "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/experiments/E-002-plan.md",
+            "sha256": "411dbd47ff12c537698feffbf7a65821f92caf71f3761ab565879e19fa439e85",
+            "semantic_revision": 1
+          },
+          "current_ref": {
+            "id": "E-002",
+            "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/experiments/E-002-plan.md",
+            "sha256": "13334a988bd7518e019711a0d96090408ede1bb5aee91c171a7c8a204b7a645d",
+            "semantic_revision": 2
+          },
+          "previous_sha256": "c51f5747883409f37cd002b30f52ea31be2f6a68849edaaaa4eb89fd655a8b55",
+          "current_sha256": "c51f5747883409f37cd002b30f52ea31be2f6a68849edaaaa4eb89fd655a8b55",
+          "normalization": "UTF-8 text; paragraph/section ending one LF; no internal changes"
+        }
+      ]
+    },
+    {
+      "criterion": "AIDE-03",
+      "part": "既存current/履歴の固定",
+      "status": "reuse-proposed",
+      "criteria_version": 2,
+      "previous_audit_ref": {
+        "id": "AUD-PLAN-002",
+        "immutable_ref": "design/snapshots/SN-2031b501381d6763919763ef1ca444325f4cc133d59110f14bdff18cf00a58fc/files/audits/AUD-PLAN-002.md",
+        "sha256": "8020060c11c495576c2d709d98afe42520fd5592542636e8a8135e03f7ee563c"
+      },
+      "previous_subject_ref": {
+        "id": "PLAN-002",
+        "immutable_ref": "design/snapshots/SN-115d95e4eae365644ee92c14d5aa9ca379adfbec14655c5fd47d7ccc9a767237/files/audits/subjects/PLAN-002.json",
+        "sha256": "159a16b0aed24780144a13a0d93806bbd48fb8bbdb699e0c1f0a4b0f84dd26f0"
+      },
+      "excluded": "新subject/precheck/台帳/予約/保留は再確認",
+      "reason": "前回確認済み部分の入力と依拠する該当部分のhashが同一。変更された定義・計画・委任全体の合格は引き継がない。",
+      "input_refs": [
+        {
+          "id": "BUNDLE-001",
+          "immutable_ref": "design/snapshots/SN-fab1cd198c39ee2f406f70567117e5d71122b58da0ad97f93dc54eb969e868f3/files/design/candidates/OP-ADOPT-002/bundle.json",
+          "sha256": "90c0dd3433cddb50240a8c1df5f8db70e5e9f11d82f9837caa6a6b6c6cef3742"
+        },
+        {
+          "id": "PLAN-002",
+          "immutable_ref": "design/snapshots/SN-115d95e4eae365644ee92c14d5aa9ca379adfbec14655c5fd47d7ccc9a767237/files/audits/subjects/PLAN-002.json",
+          "sha256": "159a16b0aed24780144a13a0d93806bbd48fb8bbdb699e0c1f0a4b0f84dd26f0"
+        },
+        {
+          "id": "AUD-PLAN-002",
+          "immutable_ref": "design/snapshots/SN-2031b501381d6763919763ef1ca444325f4cc133d59110f14bdff18cf00a58fc/files/audits/AUD-PLAN-002.md",
+          "sha256": "8020060c11c495576c2d709d98afe42520fd5592542636e8a8135e03f7ee563c"
+        }
+      ],
+      "current_input_refs": [
+        {
+          "id": "BUNDLE-001",
+          "immutable_ref": "design/snapshots/SN-fab1cd198c39ee2f406f70567117e5d71122b58da0ad97f93dc54eb969e868f3/files/design/candidates/OP-ADOPT-002/bundle.json",
+          "sha256": "90c0dd3433cddb50240a8c1df5f8db70e5e9f11d82f9837caa6a6b6c6cef3742"
+        },
+        {
+          "id": "PLAN-002",
+          "immutable_ref": "design/snapshots/SN-115d95e4eae365644ee92c14d5aa9ca379adfbec14655c5fd47d7ccc9a767237/files/audits/subjects/PLAN-002.json",
+          "sha256": "159a16b0aed24780144a13a0d93806bbd48fb8bbdb699e0c1f0a4b0f84dd26f0"
+        },
+        {
+          "id": "AUD-PLAN-002",
+          "immutable_ref": "design/snapshots/SN-2031b501381d6763919763ef1ca444325f4cc133d59110f14bdff18cf00a58fc/files/audits/AUD-PLAN-002.md",
+          "sha256": "8020060c11c495576c2d709d98afe42520fd5592542636e8a8135e03f7ee563c"
+        }
+      ]
+    }
+  ],
+  "independence": "independent-required",
+  "user_confirmations": [
+    {
+      "id": "UC-04",
+      "state": "answered",
+      "answered_on": "2026-10-03",
+      "source": "利用者の本依頼に記載されたUC-04回答",
+      "decision": "改ざん・停止耐性は今回は不要。協調的観測の限界と欠落検出のみ。改ざん耐性はNEXT-06へ分離。"
+    }
+  ],
+  "review_coverage": {
+    "DDD-01": "14-field fragment reuse; reason/seq/counts review",
+    "DDD-02": "privacy fragment reuse; threat/credential/env review",
+    "DDD-03": "ack/failure fragment reuse; seq/deadlines review",
+    "DDD-04": "context ownership fragment reuse; changed internal boundary review",
+    "DDD-05": "device/HUMAN principles reuse; new UT/SIT/FIT mapping review",
+    "AIDE-01": "scope/UC-01/03/04/delegation/budget review",
+    "AIDE-02": "cooperative guarantee/README/UI/missing-event meaning review",
+    "AIDE-03": "historical immutable inputs reuse; new identity/state/precheck/holds review"
+  },
+  "unverified": [
+    "E-002 product/hook/settings not implemented; all UT/SIT/FIT not executed; plan phase only",
+    "Actual Claude Code hooks payload/async/timeout/identity and actual session availability unverified",
+    "F-CLOUD-ADOPT-002 remains open minor; NEXT-01/02/04/05 deferred",
+    "DEPLOY-01: 実Supabase DB/Auth/RLS/RPC、Vercel HTTPS、Secure cookieは未確認。Authエラー分類は偽transportと自動テストでのみ確認。",
+    "SOURCES-01: 4実環境からの送信は未確認。",
+    "HUMAN-01: 本人評価は未確認。",
+    "native download完了、他ブラウザ、長期運用、クラウドキュー持続性は未確認。",
+    "PLAN-002 require-review accepted; three findings remain open pending independent PLAN-003 review; no implementation authority.",
+    "UC-01/02/03 unresolved; UC-04 answered 2026-10-03 (cooperative visibility only; no tamper/stop resistance).",
+    "Credential env non-output, real SessionEnd reasons, root settings merge, explicit timeout and async deadline, missing-event UI and README limits: future FIT, not executed.",
+    "LOCAL-E002 audits: one consumed, one reserved for re-plan. Future adoption audit needs authorized allocation/budget definition synchronization."
+  ],
+  "execution_started": false,
+  "instruction": "Codexは再監査未実行。Claude Opus 5.5が固定入力に対して独立再監査し、結果を新規AUD-PLAN-003として返す。"
+}

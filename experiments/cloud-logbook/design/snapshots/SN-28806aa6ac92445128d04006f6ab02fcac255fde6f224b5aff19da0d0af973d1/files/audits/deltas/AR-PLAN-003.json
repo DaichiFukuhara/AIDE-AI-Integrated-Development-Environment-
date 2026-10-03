@@ -1,0 +1,442 @@
+{
+  "id": "PLAN-REVIEW-DELTA-003",
+  "revision": 1,
+  "semantic_revision": 1,
+  "phase": "plan",
+  "previous_audit_ref": {
+    "id": "AUD-PLAN-002",
+    "immutable_ref": "design/snapshots/SN-2031b501381d6763919763ef1ca444325f4cc133d59110f14bdff18cf00a58fc/files/audits/AUD-PLAN-002.md",
+    "sha256": "8020060c11c495576c2d709d98afe42520fd5592542636e8a8135e03f7ee563c"
+  },
+  "previous_subject_ref": {
+    "id": "PLAN-002",
+    "immutable_ref": "design/snapshots/SN-115d95e4eae365644ee92c14d5aa9ca379adfbec14655c5fd47d7ccc9a767237/files/audits/subjects/PLAN-002.json",
+    "sha256": "159a16b0aed24780144a13a0d93806bbd48fb8bbdb699e0c1f0a4b0f84dd26f0"
+  },
+  "current_subject_ref": {
+    "id": "PLAN-003",
+    "immutable_ref": "design/snapshots/SN-2b689218bab304597638d8a4f2e76a929a5bae3285f5f1dd0494ca49a37578e9/files/audits/subjects/PLAN-003.json",
+    "sha256": "2bc64827291195c96b6987c813203aabaea2c81b316b8be205c173ca25532234"
+  },
+  "previous_subject_hash": "d9835c76e2a240afe310b0c80e2e7387c312477d082b192d23b043ab09fd2308",
+  "current_subject_hash": "12b4d977ec81c54f4b914d1cf1a628ef22b5a2635d2427cdb480839571c5b8d7",
+  "changed_inputs": [
+    {
+      "id": "E-002",
+      "previous_ref": {
+        "id": "E-002",
+        "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/experiments/E-002-plan.md",
+        "sha256": "411dbd47ff12c537698feffbf7a65821f92caf71f3761ab565879e19fa439e85",
+        "semantic_revision": 1
+      },
+      "current_ref": {
+        "id": "E-002",
+        "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/experiments/E-002-plan.md",
+        "sha256": "13334a988bd7518e019711a0d96090408ede1bb5aee91c171a7c8a204b7a645d",
+        "semantic_revision": 2
+      }
+    },
+    {
+      "id": "DELEGATION-02",
+      "previous_ref": {
+        "id": "DELEGATION-02",
+        "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/operations/delegation-002.md",
+        "sha256": "ef9f016a14248e206e3942b588861c900f5ead281d54ae46923019242170a146",
+        "semantic_revision": 1
+      },
+      "current_ref": {
+        "id": "DELEGATION-03",
+        "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/operations/delegation-003.md",
+        "sha256": "eaa9a64c27cd582564aa8b2b7e131414435c078c949da0629c88f5eaea84ada0",
+        "semantic_revision": 1
+      }
+    },
+    {
+      "id": "G-LOG",
+      "previous_ref": {
+        "id": "G-LOG",
+        "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/G-LOG.md",
+        "sha256": "fb72d67f3528690622c87ed9a0f634a88764cd99f6110293f25fd22a9104b6b8",
+        "semantic_revision": 2
+      },
+      "current_ref": {
+        "id": "G-LOG",
+        "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/G-LOG.md",
+        "sha256": "4171a2d2af7ce1b422a66bfa92b8587c58ecb2ba454b596b4286bce1dfff1dae",
+        "semantic_revision": 3
+      }
+    },
+    {
+      "id": "SG-TRACE",
+      "previous_ref": {
+        "id": "SG-TRACE",
+        "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/SG-TRACE.md",
+        "sha256": "04d2b772b82d39c40eac3acb6242cf03288caa59930675ae5d5b0e197597a8c1",
+        "semantic_revision": 2
+      },
+      "current_ref": {
+        "id": "SG-TRACE",
+        "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/SG-TRACE.md",
+        "sha256": "b5a96f501f0bfc60ec2a94f4bf337759d99904809b70d928831820d170eac24a",
+        "semantic_revision": 3
+      }
+    },
+    {
+      "id": "AP-FILE",
+      "previous_ref": {
+        "id": "AP-FILE",
+        "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/AP-FILE.md",
+        "sha256": "9c26c2eb5b62b82db79bc1a4bcaede507af21ce78419fc401c40b7588fb16e0b",
+        "semantic_revision": 2
+      },
+      "current_ref": {
+        "id": "AP-FILE",
+        "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/AP-FILE.md",
+        "sha256": "9535f34f2d42219d7a97feb5b99be8299bef72e060259b6b859445abcb625f75",
+        "semantic_revision": 3
+      }
+    },
+    {
+      "id": "SYS-LOG",
+      "previous_ref": {
+        "id": "SYS-LOG",
+        "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/SYS-LOG.md",
+        "sha256": "3a1ba4d8ef828ae039e7e9a72ea709ef2833323120428f345089828e56579357",
+        "semantic_revision": 2
+      },
+      "current_ref": {
+        "id": "SYS-LOG",
+        "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/SYS-LOG.md",
+        "sha256": "362f244e227fdbe00892ca01fe2d9f1980466f931a8b8395752112800e8c32e5",
+        "semantic_revision": 3
+      }
+    },
+    {
+      "id": "G-LOG-rationale",
+      "previous_ref": {
+        "id": "G-LOG-rationale",
+        "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/G-LOG-r.md",
+        "sha256": "feeecdedaaf1e1cb32671e250b9952899afe504b3c3298f90cddcf2711451add",
+        "semantic_revision": 2
+      },
+      "current_ref": {
+        "id": "G-LOG-rationale",
+        "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/G-LOG-r.md",
+        "sha256": "ba2f3396ade1ce65b005c31e3aa0fcb1440991cd0ff4ea4adb1f58676121fc87",
+        "semantic_revision": 3
+      }
+    },
+    {
+      "id": "SG-TRACE-rationale",
+      "previous_ref": {
+        "id": "SG-TRACE-rationale",
+        "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/SG-TRACE-r.md",
+        "sha256": "a2b965fb63f7a9c93b4c925cc83e1c5c85735ceb94479d8bb169a79d5730daf0",
+        "semantic_revision": 2
+      },
+      "current_ref": {
+        "id": "SG-TRACE-rationale",
+        "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/SG-TRACE-r.md",
+        "sha256": "99308ac3db73a3b6d35954174727aebdb7359067d49d6778df1984a51be34ba6",
+        "semantic_revision": 3
+      }
+    },
+    {
+      "id": "AP-FILE-rationale",
+      "previous_ref": {
+        "id": "AP-FILE-rationale",
+        "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/AP-FILE-r.md",
+        "sha256": "9e7c9ba64778500801be093d119701b2d6033a5690e5d1b792310d2350600539",
+        "semantic_revision": 2
+      },
+      "current_ref": {
+        "id": "AP-FILE-rationale",
+        "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/AP-FILE-r.md",
+        "sha256": "fc9434ef9b0ebac1ea080fb897eb44e1ba48944275440aa022a443c024823fbf",
+        "semantic_revision": 3
+      }
+    },
+    {
+      "id": "SYS-LOG-rationale",
+      "previous_ref": {
+        "id": "SYS-LOG-rationale",
+        "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/SYS-LOG-r.md",
+        "sha256": "7c07682bf8d5346963986aea3549821d3175dc9203d5c6b2c673f03a4f91944c",
+        "semantic_revision": 2
+      },
+      "current_ref": {
+        "id": "SYS-LOG-rationale",
+        "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/SYS-LOG-r.md",
+        "sha256": "a5308864ab2c87ea1cffd08274c58fd258ac1eb755a92d8c18dfb2415b6c2be8",
+        "semantic_revision": 3
+      }
+    },
+    {
+      "id": "DEF-LOG-01",
+      "previous_ref": {
+        "id": "DEF-LOG-01",
+        "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/DEF-LOG-01.md",
+        "sha256": "97799519e373e3512766b676d6fdefa72280e8759813a9db2a59e16b99783414",
+        "semantic_revision": 2,
+        "domain_id": "D-LOG",
+        "context_id": "CTX-LOG",
+        "canonical_owner": "SYS-LOG",
+        "dependencies": []
+      },
+      "current_ref": {
+        "id": "DEF-LOG-01",
+        "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/DEF-LOG-01.md",
+        "sha256": "2b7b5a69a9c203b43726a5ce6944a38b5943e65a52226e9398e3e0f08612ee21",
+        "semantic_revision": 3,
+        "domain_id": "D-LOG",
+        "context_id": "CTX-LOG",
+        "canonical_owner": "SYS-LOG",
+        "dependencies": []
+      }
+    },
+    {
+      "id": "DEF-LOG-01-rationale",
+      "previous_ref": {
+        "id": "DEF-LOG-01-rationale",
+        "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/DEF-LOG-01-r.md",
+        "sha256": "3f2e3cbcbfe2d3a81b0a1c6deb9f9c16a0a868d2d9239752a53a25ad07bf7dd5",
+        "semantic_revision": 2,
+        "domain_id": "D-LOG",
+        "context_id": "CTX-LOG",
+        "canonical_owner": "SYS-LOG",
+        "dependencies": []
+      },
+      "current_ref": {
+        "id": "DEF-LOG-01-rationale",
+        "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/DEF-LOG-01-r.md",
+        "sha256": "b27c437cfade5deddbcfdf4ae073967e698fbbac34729f70bae730318c2699e8",
+        "semantic_revision": 3,
+        "domain_id": "D-LOG",
+        "context_id": "CTX-LOG",
+        "canonical_owner": "SYS-LOG",
+        "dependencies": []
+      }
+    }
+  ],
+  "subject_changed_fields": [
+    "spec_refs",
+    "model_definition_refs",
+    "plan_ref",
+    "plan_revision",
+    "evaluation_ref",
+    "evidence_refs",
+    "delegation_ref",
+    "unverified"
+  ],
+  "subject_unchanged_fields": [
+    "scope",
+    "phase",
+    "criteria_version",
+    "contract_refs",
+    "contracts_not_applicable_reason",
+    "model_definitions_not_applicable_reason",
+    "implementation_ref",
+    "trial_refs",
+    "intake_ref",
+    "budget_definition_ref",
+    "parent_budget_definition_ref",
+    "parent_delegation_ref",
+    "baseline_bundle",
+    "baseline_implementation_ref",
+    "baseline_plan_ref",
+    "baseline_evaluation_ref",
+    "baseline_audit_ref",
+    "previous_cycle_candidates_ref",
+    "review_delta_ref",
+    "recovery_ref",
+    "required_user_confirmations"
+  ],
+  "impact_scope": [
+    "CTX-LOG",
+    "FIT-01",
+    "SIT-01",
+    "SYS-LOG"
+  ],
+  "impact_paths": [
+    "DEF-LOG-01 -> G-LOG/SG-TRACE/AP-FILE/SYS-LOG -> E-002/EVAL-002",
+    "hook -> seq/state/queue -> API -> UI missing-event display",
+    "credential file -> hook/worker; Bash env FIT; README/UI limits",
+    "hook settings timeout/root merge -> foreground/async deadline -> UC-01/FIT"
+  ],
+  "open_finding_ids": [
+    "F-CLOUD-PLAN-002-01",
+    "F-CLOUD-PLAN-002-02",
+    "F-CLOUD-PLAN-002-03",
+    "F-CLOUD-ADOPT-002"
+  ],
+  "unchanged_fragments": [
+    {
+      "locator": "イベントの14フィールド",
+      "previous_ref": {
+        "id": "DEF-LOG-01",
+        "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/DEF-LOG-01.md",
+        "sha256": "97799519e373e3512766b676d6fdefa72280e8759813a9db2a59e16b99783414",
+        "semantic_revision": 2,
+        "domain_id": "D-LOG",
+        "context_id": "CTX-LOG",
+        "canonical_owner": "SYS-LOG",
+        "dependencies": []
+      },
+      "current_ref": {
+        "id": "DEF-LOG-01",
+        "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/DEF-LOG-01.md",
+        "sha256": "2b7b5a69a9c203b43726a5ce6944a38b5943e65a52226e9398e3e0f08612ee21",
+        "semantic_revision": 3,
+        "domain_id": "D-LOG",
+        "context_id": "CTX-LOG",
+        "canonical_owner": "SYS-LOG",
+        "dependencies": []
+      },
+      "previous_sha256": "ffae3ff374acee95e6ea108e77814bee5a64eca588a5ff35ef88e0f69fb87672",
+      "current_sha256": "ffae3ff374acee95e6ea108e77814bee5a64eca588a5ff35ef88e0f69fb87672",
+      "normalization": "UTF-8 text; paragraph/section ending one LF; no internal changes"
+    },
+    {
+      "locator": "## 送らない情報と変換規則",
+      "previous_ref": {
+        "id": "E-002",
+        "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/experiments/E-002-plan.md",
+        "sha256": "411dbd47ff12c537698feffbf7a65821f92caf71f3761ab565879e19fa439e85",
+        "semantic_revision": 1
+      },
+      "current_ref": {
+        "id": "E-002",
+        "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/experiments/E-002-plan.md",
+        "sha256": "13334a988bd7518e019711a0d96090408ede1bb5aee91c171a7c8a204b7a645d",
+        "semantic_revision": 2
+      },
+      "previous_sha256": "8597ff889c310d07762552e7fbee238a3d61d5b12557a074779b08a4f1a0b53a",
+      "current_sha256": "8597ff889c310d07762552e7fbee238a3d61d5b12557a074779b08a4f1a0b53a",
+      "normalization": "UTF-8 text; paragraph/section ending one LF; no internal changes"
+    },
+    {
+      "locator": "通信断・接続拒否",
+      "previous_ref": {
+        "id": "E-002",
+        "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/experiments/E-002-plan.md",
+        "sha256": "411dbd47ff12c537698feffbf7a65821f92caf71f3761ab565879e19fa439e85",
+        "semantic_revision": 1
+      },
+      "current_ref": {
+        "id": "E-002",
+        "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/experiments/E-002-plan.md",
+        "sha256": "13334a988bd7518e019711a0d96090408ede1bb5aee91c171a7c8a204b7a645d",
+        "semantic_revision": 2
+      },
+      "previous_sha256": "059c9f81089c3c864ea5c51f253f8e043d5a743d668e509b4d1d1156b31da33c",
+      "current_sha256": "059c9f81089c3c864ea5c51f253f8e043d5a743d668e509b4d1d1156b31da33c",
+      "normalization": "UTF-8 text; paragraph/section ending one LF; no internal changes"
+    },
+    {
+      "locator": "queue のローカル保存不能",
+      "previous_ref": {
+        "id": "E-002",
+        "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/experiments/E-002-plan.md",
+        "sha256": "411dbd47ff12c537698feffbf7a65821f92caf71f3761ab565879e19fa439e85",
+        "semantic_revision": 1
+      },
+      "current_ref": {
+        "id": "E-002",
+        "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/experiments/E-002-plan.md",
+        "sha256": "13334a988bd7518e019711a0d96090408ede1bb5aee91c171a7c8a204b7a645d",
+        "semantic_revision": 2
+      },
+      "previous_sha256": "f0af141e6203312058ae7d86612bb5f3208511591e45d7890f23bfe1373a42a5",
+      "current_sha256": "f0af141e6203312058ae7d86612bb5f3208511591e45d7890f23bfe1373a42a5",
+      "normalization": "UTF-8 text; paragraph/section ending one LF; no internal changes"
+    },
+    {
+      "locator": "domain=D-LOG",
+      "previous_ref": {
+        "id": "DEF-LOG-01",
+        "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/DEF-LOG-01.md",
+        "sha256": "97799519e373e3512766b676d6fdefa72280e8759813a9db2a59e16b99783414",
+        "semantic_revision": 2,
+        "domain_id": "D-LOG",
+        "context_id": "CTX-LOG",
+        "canonical_owner": "SYS-LOG",
+        "dependencies": []
+      },
+      "current_ref": {
+        "id": "DEF-LOG-01",
+        "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/DEF-LOG-01.md",
+        "sha256": "2b7b5a69a9c203b43726a5ce6944a38b5943e65a52226e9398e3e0f08612ee21",
+        "semantic_revision": 3,
+        "domain_id": "D-LOG",
+        "context_id": "CTX-LOG",
+        "canonical_owner": "SYS-LOG",
+        "dependencies": []
+      },
+      "previous_sha256": "1a02a82e07c0d13657843570cca0524967aff0270e5ba407b345885115ba4ed8",
+      "current_sha256": "1a02a82e07c0d13657843570cca0524967aff0270e5ba407b345885115ba4ed8",
+      "normalization": "UTF-8 text; paragraph/section ending one LF; no internal changes"
+    },
+    {
+      "locator": "FIT-AUTO-01/02 は synthetic",
+      "previous_ref": {
+        "id": "E-002",
+        "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/experiments/E-002-plan.md",
+        "sha256": "411dbd47ff12c537698feffbf7a65821f92caf71f3761ab565879e19fa439e85",
+        "semantic_revision": 1
+      },
+      "current_ref": {
+        "id": "E-002",
+        "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/experiments/E-002-plan.md",
+        "sha256": "13334a988bd7518e019711a0d96090408ede1bb5aee91c171a7c8a204b7a645d",
+        "semantic_revision": 2
+      },
+      "previous_sha256": "2a0dc6166626c359626304699024fecbc204725477b74ce18b1ad02524c0d729",
+      "current_sha256": "2a0dc6166626c359626304699024fecbc204725477b74ce18b1ad02524c0d729",
+      "normalization": "UTF-8 text; paragraph/section ending one LF; no internal changes"
+    },
+    {
+      "locator": "| HUMAN-AUTO-02",
+      "previous_ref": {
+        "id": "E-002",
+        "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/experiments/E-002-plan.md",
+        "sha256": "411dbd47ff12c537698feffbf7a65821f92caf71f3761ab565879e19fa439e85",
+        "semantic_revision": 1
+      },
+      "current_ref": {
+        "id": "E-002",
+        "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/experiments/E-002-plan.md",
+        "sha256": "13334a988bd7518e019711a0d96090408ede1bb5aee91c171a7c8a204b7a645d",
+        "semantic_revision": 2
+      },
+      "previous_sha256": "c51f5747883409f37cd002b30f52ea31be2f6a68849edaaaa4eb89fd655a8b55",
+      "current_sha256": "c51f5747883409f37cd002b30f52ea31be2f6a68849edaaaa4eb89fd655a8b55",
+      "normalization": "UTF-8 text; paragraph/section ending one LF; no internal changes"
+    }
+  ],
+  "unmodified_inputs": {
+    "implementation_ref": null,
+    "budget_definition_ref": {
+      "id": "BUDGET-02",
+      "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/experiments/budget-definition-002.md",
+      "sha256": "a2bd9872ce8d029979c7dffaf7ce164fcc49992c8d71853a1efa87a593ab84f7",
+      "semantic_revision": 1
+    },
+    "budget_parent_definition_refs": []
+  },
+  "comparison_only_cumulative_diff_ref": {
+    "id": "PLAN-DELTA-002",
+    "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/change.json",
+    "sha256": "4b0cd07c737b044b77af7f0f5caf1ba9f9813c72286c6be859bb44096220069f",
+    "semantic_revision": 1
+  },
+  "no_product_change": true,
+  "user_confirmation": {
+    "id": "UC-04",
+    "state": "answered",
+    "answered_on": "2026-10-03",
+    "source": "利用者の本依頼に記載されたUC-04回答",
+    "decision": "改ざん・停止耐性は今回は不要。協調的観測の限界と欠落検出のみ。改ざん耐性はNEXT-06へ分離。"
+  },
+  "finding_disposition": "PLAN-002の3指摘は改訂済み・再監査待ちでopen/active。F-CLOUD-ADOPT-002は対象外のopen minor。",
+  "reuse_limit": "Fragment reuse only; changed entire plan/definition/delegation refs cannot inherit a blanket pass."
+}

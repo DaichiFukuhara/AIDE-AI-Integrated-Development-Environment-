@@ -48,14 +48,21 @@
   ],
   "review_mode": "normal",
   "recovery_ref": null,
-  "revision": 1,
-  "state": "requested",
+  "revision": 2,
+  "state": "rejected",
   "payload_hash": "e0d167958e173f37f3995199a759fb258b9da66b7852e4b22b87bfa8c76512ef",
   "audit_request_id": "AR-PLAN-002",
-  "result_ref": null
+  "result_ref": {
+    "id": "AUD-PLAN-002",
+    "immutable_ref": "design/snapshots/SN-2031b501381d6763919763ef1ca444325f4cc133d59110f14bdff18cf00a58fc/files/audits/AUD-PLAN-002.md",
+    "sha256": "8020060c11c495576c2d709d98afe42520fd5592542636e8a8135e03f7ee563c"
+  },
+  "result": "require-review"
 }
 ---
 
 # E-002の独立計画監査要求
 
 構造確認後に監査要求を保存・予約し、未送信で停止する。currentはBUNDLE-001/IMPL-005。auto規約とhook内部境界の意味変更なので旧planのdaily-passを流用しない。UC-01〜03は未確認であり、plan合格後も実装の明示依頼前に開始しない。
+
+AUD-PLAN-002のidentity完全一致を確認して受理。監査予約を親子両口座で1回精算し、major 1・minor 2をopen、plan scopeを保留とした。旧subject/要求/監査は固定参照のまま保持。

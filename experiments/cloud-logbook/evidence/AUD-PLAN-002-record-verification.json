@@ -1,0 +1,66 @@
+{
+  "id": "AUD-PLAN-002-RECORD-VERIFICATION",
+  "checked_at": "2026-10-03T11:54:12.457941+00:00",
+  "identity": "match",
+  "compared_fields": [
+    "audit_request_id",
+    "origin_operation_id",
+    "kind",
+    "scope",
+    "phase",
+    "subject_hash",
+    "criteria_version",
+    "review_mode",
+    "recovery_ref",
+    "baseline_refs",
+    "cumulative_diff_ref",
+    "change_ids",
+    "previous_audit_ref",
+    "previous_subject_ref",
+    "open_finding_ids",
+    "review_delta_ref",
+    "impact_scope",
+    "reused_checks",
+    "execution_id",
+    "budget_account_refs",
+    "budget_check_ref",
+    "subject_ref"
+  ],
+  "result_ref": {
+    "id": "AUD-PLAN-002",
+    "immutable_ref": "design/snapshots/SN-2031b501381d6763919763ef1ca444325f4cc133d59110f14bdff18cf00a58fc/files/audits/AUD-PLAN-002.md",
+    "sha256": "8020060c11c495576c2d709d98afe42520fd5592542636e8a8135e03f7ee563c"
+  },
+  "previous_subject_ref": {
+    "id": "PLAN-002",
+    "immutable_ref": "design/snapshots/SN-115d95e4eae365644ee92c14d5aa9ca379adfbec14655c5fd47d7ccc9a767237/files/audits/subjects/PLAN-002.json",
+    "sha256": "159a16b0aed24780144a13a0d93806bbd48fb8bbdb699e0c1f0a4b0f84dd26f0"
+  },
+  "subject_precheck": {
+    "result": "structural-pass",
+    "subject_hash": "d9835c76e2a240afe310b0c80e2e7387c312477d082b192d23b043ab09fd2308",
+    "scope": [
+      "CTX-LOG",
+      "FIT-01",
+      "SIT-01",
+      "SYS-LOG"
+    ],
+    "phase": "plan",
+    "checked_at": "2026-10-03T11:54:11.773030+00:00",
+    "verified_reference_count": 47,
+    "verified_snapshot_count": 6,
+    "pair_and_chain_check": "pass",
+    "limit": "Identity and structure only. Acceptance sufficiency remains independent reviewer responsibility."
+  },
+  "decision": "require-review",
+  "counts": {
+    "major": 1,
+    "minor": 2,
+    "blocker": 0
+  },
+  "audit_execution_to_settle": "EXEC-AUDIT-PLAN-002",
+  "account_refs": [
+    "LOCAL-01",
+    "LOCAL-E002"
+  ]
+}

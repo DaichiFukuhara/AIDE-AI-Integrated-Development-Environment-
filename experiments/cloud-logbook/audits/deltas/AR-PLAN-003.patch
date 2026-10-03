@@ -1,0 +1,489 @@
+--- design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/experiments/E-002-plan.md
++++ design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/experiments/E-002-plan.md
+@@ -1,6 +1,6 @@
+ ---
+ {
+-  "experiment_id":"E-002","revision":1,"semantic_revision":1,"plan_revision":1,"cycle_id":"C-002",
++  "experiment_id":"E-002","revision":2,"semantic_revision":2,"plan_revision":2,"cycle_id":"C-002",
+   "previous_cycle_ref":"experiments/E-001.md","state":"planned",
+   "goal_refs":["G-LOG","SG-TRACE"],"system_refs":["SYS-LOG"],
+   "domain_context_refs":["D-LOG","CTX-LOG"],"model_definition_refs":["DEF-LOG-01"],
+@@ -15,7 +15,13 @@
+ 
+ 仮説は、手動の節目記録を残し、Claude Code hook の必要最小限のメタデータだけをローカル耐久キューに保存し、非同期送信すれば、作業を止めずに動きを追えること。source=claude-local のローカル技術的試験を対象とする。hook は観測器で、製品ログの pass/fail は正式監査・採用状態を変更しない。
+ 
+-今回作るのは計画だけ。AR-PLAN-002 の固定と予約で停止し、監査は実行しない。plan の独立合格、UC-01〜03 の確認、実装依頼後にだけ次段階へ進める。以下は監査対象の具体案で、動作確認済みの仕様ではない。
++今回作るのは計画だけ。AUD-PLAN-002 の require-review を受理して改訂し、AR-PLAN-003 の固定と予約で停止する。再監査は実行しない。plan の独立合格、UC-01〜03 の確認、実装依頼後にだけ次段階へ進める。以下は監査対象の具体案で、動作確認済みの仕様ではない。
++
++## 脅威モデルと利用者の決定
++
++UC-04 は2026-10-03に回答済み。今回は協調的な見える化と欠落検出を対象とし、改ざん・停止への耐性は不要と決定した。監視対象の AI は送信資格ファイルを読めるほか、hook・設定を停止/変更し、キュー・state を削除し、auto 規約を模倣したイベントを送れる。今回はこれらを防がない。連番・件数も同じ権限で改変でき、全記録の削除、hook の完全停止、偽装を確実に検出する保証はない。
++
++README の自動記録手順と画面の自動記録表示に「協調的な見える化であり、AI による停止・削除・偽装は防げない。資格ファイルも AI が読める。欠落の表示は可能性であり、完全性や真正性の証明ではない」と明記する。実装時の FIT-UI-02 で両方の表示を確認する。監視対象から書けない保存先・別アカウントでの送信・署名等の本格的な改ざん耐性は NEXT-06 として別計画候補へ追加する。
+ 
+ ## 対象イベントと粒度
+ 
+@@ -30,7 +36,7 @@
+ | PostToolUseFailure（条件付き候補） | 実機で提供と安全な error code/識別子を確認できた場合だけ登録案へ追加 | 失敗完了1件。error message/stack は送らない。未提供なら失敗は unverified の未完了集計。成否の網羅性を保証しない |
+ | Stop | assistant 本文・last_assistant_message を取り込まない | 終了観測 callback 数と未完了数を集計。会話ターンや全作業の成功とは扱わない |
+ | SubagentStop | 終了の観測だけ。subagent の prompt/出力/未観測の個別ツールを収集しない | callback 数を集計。一意IDが実機で安全に得られる場合だけ重複排除 |
+-| SessionEnd | 理由は固定 allowlist（normal/clear/logout/unknown）へ分類 | end 1件と不変な summary 1件を保存。異常終了等で発火しなければ未終了と扱う |
++| SessionEnd | 理由は固定 allowlist（clear/resume/logout/prompt_input_exit/other、未知は other）へ分類 | end 1件と不変な summary 1件を保存。異常終了等で発火しなければ未終了と扱う |
+ 
+ PostToolUse の一意識別子が取れない場合は、同内容の別呼出しを混同しないため個別完了イベントを送らず、ツール別の callback 集計へ縮退する。この縮退を FIT で記録し、利用者に受入可否を確認する。完全な呼出し単位記録が必要なら新 plan_revision に戻す。停止・再開を跨ぐ全 callback の厳密な exactly-once は保証せず、保存済みイベントの再送冪等性と区別する。
+ 
+@@ -50,28 +56,28 @@
+ 
+ ## 既存スキーマと互換性
+ 
+-新フィールド・SQL migration は追加せず、現在の14フィールドを保つ案を採る。自動記録は actor=`claude-code-hook/v1`、title=`[auto:v1] ...`、body のオブジェクトに `capture=claude-hook-v1` と `event` を持つ。許可キーは event/tool/path/command/result/duration_ms/counts/truncated と固定識別・数値のみ。手動記録は従来の actor/title/body をそのまま使い、auto の予約 actor を手動記録で使わない。旧データは「従来の節目記録」として無変更で読める。source だけでは自動・手動を判別しない。
++新フィールド・SQL migration は追加せず、現在の14フィールドを保つ案を採る。自動記録は actor=`claude-code-hook/v1`、title=`[auto:v1] ...`、body のオブジェクトに `capture=claude-hook-v1` と `event` を持つ。許可キーは event/tool/path/command/result/duration_ms/counts/truncated/seq と固定識別・数値のみ。手動記録は従来の actor/title/body をそのまま使い、auto の予約 actor を手動記録で使わない。旧データは「従来の節目記録」として無変更で読める。source だけでは自動・手動を判別しない。
+ 
+-この規約は観測上の分類で、署名・信頼度の証明ではない。同じ送信資格を持つ人は auto 規約を模倣できる。偽装防止が必要なら別の認証/スキーマ計画が必要。
++この規約は観測上の分類で、署名・信頼度の証明ではない。同じ送信資格を読める監視対象の AI も auto 規約を模倣できる。UC-04 の決定に従い今回は偽装を防がず、改ざん耐性は NEXT-06 の別計画候補とする。
+ 
+ | 層 | 次段階での影響 |
+ | --- | --- |
+ | SQL/RPC/RLS | 既存 event jsonb・owner/event_id 一意制約・同内容duplicate/異内容409・検索列を維持。migration と本番SQL適用はなし |
+ | validateEvent/API | 既存14フィールドの汎用検証を維持。自動変換器で厳しい allowlist と小さい上限を課す。既存の size/資格/source/project/run 制限を回帰確認。auto の専用フィールドを追加しない |
+ | CLI | validate/enqueue/flush を再利用し、将来 enqueue-only、保存済みJSONの再送、非同期workerの短い送信timeout/件数上限を追加する案。手動 record/flush/status と旧キューの互換性を維持 |
+-| UI | 予約 actor/title で自動記録と手動記録を表示上区別する小変更。既存の詳細・絞込・書出しで読み取れる。NEXT-02の検索変更、NEXT-04の自動取得は含めない |
++| UI | 予約 actor/title で自動記録と手動記録を表示上区別し、脅威モデルの限界と「欠落の可能性」を表示する。既存の詳細・絞込・書出しで読み取れる。NEXT-02の検索変更、NEXT-04の自動取得は含めない |
+ 
+ 正常例は Read の完了を、相対 path・成功/不明・実測時間だけで保存し、手動判断ログと並べること。例外は .env 読取や資格を含むコマンドで、内容・引数を一切記録せず [sensitive-path] または固定分類だけにすること。
+ 
+ ## 失敗時と非同期送信
+ 
+-hook の前景処理は bounded な入力変換とローカル保存だけで、HTTP・flush・モデル呼出しを行わない。async の正式サポートと設定方法を実機で確認して利用する。非対応なら、project 内の launcher が変換済みイベントを保存して隠しbackground workerを起動する方式を実機検証する。raw入力やトークンをコマンド引数で渡さない。いずれも確認できなければ設定を有効化せず保留する。
++hook の前景処理は bounded な入力変換とローカル保存だけで、HTTP・flush・モデル呼出しを行わない。全 command hook の設定に明示の timeout=1秒（5秒以下）を指定し、既定 timeout に依存しない。async の正式サポートと設定方法を実機で確認して利用する。async 時は host の timeout が効くことを前提とせず、worker 自身の総処理上限5秒を必須とする。非対応なら、project 内の launcher が変換済みイベントを保存して隠しbackground workerを起動する方式を実機検証する。raw入力やトークンをコマンド引数で渡さない。いずれも確認できなければ設定を有効化せず保留する。
+ 
+ 前景の目標は p95 ≤200 ms、全観測で ≤1,000 ms（実測20回以上、fixtureとしての基準）。通常・parse失敗・送信失敗・queue障害・worker起動失敗・例外で hook の終了コード0、stdout は空、stderr は内容/資格なし。host 側のtimeoutや強制終了は wrapper の終了コード0を保証できないため、1秒上限で Claude が次の無害な作業へ進めることを FIT の必須条件にする。実機で hook が作業を阻害するなら不採用/保留。
+ 
+ 既存 CLI の通常 flush は1リクエスト15秒で全キューを同期処理し、record も送信まで実行するため、そのまま前景hookから呼ばない。将来の enqueue-only は同じ1イベント/JSONの .logbook-queue 形式に先に保存し、time/id/content を確定する。ファイル単位の短い排他と原子的置換を共有CLI/producerで揃え、既存の送信 .lock が全producerを長く止めないようにする。排他待ちは最大50 ms、timeout・ローカル書込み不能では保存成功とせず、本文なしの欠落件数/理由だけを診断に残す。disk-full では診断の永続化も保証しない。
+ 
+-worker は送信だけを単独実行し、1回最大20件・総処理5秒・1HTTP timeout 1秒、redirect/proxy 経由の資格流出を防ぐ。loopback fixture では proxy を無効にする。起動は20件たまる/最初の未送信から5秒/Stop/SessionEndを目安に1 workerへまとめ、常駐サービスを新設しない。起動機会がなければ手動flushまでキューに残る。まとめ送信は既存APIに1件ずつ最大20件を送ることを意味し、新しいbatch APIは作らない。
++worker は送信だけを単独実行し、1回最大20件・総処理5秒を必須上限とする（起動・資格読取・排他・HTTP・ack処理を含む単調時計の締切、async 時も自前で打ち切る）。1HTTP timeout は1秒か残締切の短い方、redirect/proxy 経由の資格流出を防ぐ。loopback fixture では proxy を無効にする。起動は20件たまる/最初の未送信から5秒/Stop/SessionEndを目安に1 workerへまとめ、常駐サービスを新設しない。起動機会がなければ手動flushまでキューに残る。まとめ送信は既存APIに1件ずつ最大20件を送ることを意味し、新しいbatch APIは作らない。
+ 
+ 通信断・接続拒否・timeout・429/5xx・不正ack・401/403/409・worker停止はキューを削除しない。200/201 の inserted/duplicate の正当ackだけで削除する。資格エラーは自動再起動の嵐を抑え、backoff を1/2/4/8/16/30秒（上限30秒・最大6回、以後手動flush）とし、ログ・キューに資格を残さない。送信済みか不明なクラッシュは同じイベントを再送する。結果や time を再生成しない。
+ 
+@@ -79,7 +85,7 @@
+ 
+ ## 量、run、id、保持
+ 
+-run=`claude-`＋SHA-256(project識別子＋区切り＋session_id)の先頭32桁、source=claude-local、project は確認した固定識別子。session_id 欠落時は日時やcwdで推測せずイベントを捨て、理由だけを診断する。再開は同じ run、新session_idは別run。既存送信資格に run 固定制限がある場合は複数セッションと両立する資格を環境変数で用意するまで送信保留。
++run=`claude-`＋SHA-256(project識別子＋区切り＋session_id)の先頭32桁、source=claude-local、project は確認した固定識別子。session_id 欠落時は日時やcwdで推測せずイベントを捨て、理由だけを診断する。再開は同じ run、新session_idは別run。既存送信資格に run 固定制限がある場合は複数セッションと両立する資格を実験内の資格ファイルで用意するまで送信保留。
+ 
+ ツールイベントIDは `auto-`＋SHA-256(project/source/run/hook名/実機確認した一意tool_use_id)の64桁。start/end はrunごとに固定ID、summary/overflow はrun＋固定ラベルからIDを作る。最初の採用時に time と sanitized 内容を保存し、callback重複でも既存の内容を再利用する。Pre→Postの時刻・id/成否照合はローカルstateに保持する。PostとFailureの二重終端は異常として診断し、既存イベントを改変しない。
+ 
+@@ -89,13 +95,21 @@
+ 
+ セッション識別・確定内容の再利用用stateは .local/claude-hook-state に秘密なしで保持し、自動削除しない。少なくとも未送信イベント/再開中セッションがある間は保持する。state消去後のcallback再配送の厳密重複排除は未保証とし、保管/削除方針は UC-02 で確認する。
+ 
++## 欠落の検出と表示
++
++自動送信候補ごとに body.seq を run 内で1から単調増加する整数として割り当て、counter と id/time/content をローカル state の同じ短い排他で確定する。再配送・再送では同じ seq を再利用する。個別送信しない callback は seq を消費せず counts へ集計する。200件枠を超えて意図的に省略する tool は seq を消費せず omitted 件数へ含める。保存失敗で消費した seq は再利用せず、state が保持できた範囲で次の成功イベントに欠けが残る。state 自体の喪失時の連続性は保証しない。
++
++summary.counts には callback別件数のほか scheduled_event_count（start/end/tool/overflow/summary自身を含むseq割当数）、scheduled_tool_count、omitted_tool_count、storage_failed_count を固定数値として入れる。意図的省略は scheduled_event_count に含めない。sealed summary の seq は最終割当値とし scheduled_event_count と一致させる。画面は取得済みの同runの distinct event id/seq 数と scheduled_event_count、tool数と scheduled_tool_count を照合する。callback数は一意tool数とは区別し、summaryと観測イベント数の比較で網羅性を推測しない。
++
++画面の自動記録表示に (1) seq の欠け、(2) start があるのに end がない、(3) summary の予定件数と取得済み件数の不一致をそれぞれ「欠落の可能性」として理由付きで出す。startのみは進行中/終了未観測の可能性、summary未到達は比較未確認、ページ途中・絞込・未送信・手動更新前の一覧は取得範囲内の暫定判定と表示する。順不同・duplicateを整列/重複排除し、対象runの全ページを手動取得したかも表示する。欠けなしを完全記録・改ざんなしと表示しない。既存データのseqなしは検出対象外/未確認とし、手動イベントを数えない。NEXT-04の自動取得は加えない。
++
+ ## 設定場所と将来の変更候補
+ 
+-推奨は experiments/cloud-logbook/.claude/settings.json の実験専用project設定。Claude Code をこの実験のcwdで利用者が起動し、実機がこのプロジェクト根を尊重するか確認する。repo root の .claude/settings.json へ影響を広げず、既存のproject hooksも事前に確認して破壊的に上書きしない。設定ファイルは今回作らない。
++推奨は experiments/cloud-logbook/.claude/settings.json の実験専用project設定。Claude Code をこの実験のcwdで利用者が起動し、実機がこのプロジェクト根を尊重するか確認する。repo root の .claude/settings.json / settings.local.json と実験側設定のマージ結果を UC-01 と FIT-AUTO-01 で確認する。root 側を変更せず、重複発火・干渉・適用cwdの範囲を照合し、既存のproject hooksを破壊的に上書きしない。設定ファイルは今回作らない。
+ 
+-将来の製品変更候補は cli/logbook.py、hooks/claude_logbook.py（変換・enqueue用候補）、public/app.js（表示分類）、tests の関連検証、実験内 .claude/settings.json、README/agent-instructions の使用手順、fixtureのみ。名前は計画上の候補で存在を要求しない。SQL、汎用API認証、他sourceの自動記録、global設定、常駐配備は対象外。
++将来の製品変更候補は cli/logbook.py、hooks/claude_logbook.py（変換・enqueue用候補）、public/app.js（表示分類・限界・欠落の可能性）、tests の関連検証、実験内 .claude/settings.json、README/agent-instructions の使用手順、fixtureのみ。名前は計画上の候補で存在を要求しない。SQL、汎用API認証、他sourceの自動記録、global設定、常駐配備は対象外。
+ 
+-LOGBOOK_URL/LOGBOOK_TOKEN/LOGBOOK_QUEUE と固定 project を環境変数で渡す。URLは今回の検証ではloopbackのみ、トークンは使い捨てfixture専用値で、本番資格を使用しない。キューは experiments/cloud-logbook/.logbook-queue、state/tmpは実験内 .local 配下に固定し、resolved path とlinksを検査して許可根外を読まない/書かない。新hook設定の async/matcher/timeout 書式・scopeの継承はFITで実機確認するまで確定しない。
++LOGBOOK_URL/LOGBOOK_QUEUE と固定 project は非秘密の環境変数で渡す。送信資格はモデル/Claude Code の環境に置かず、hook/worker が gitignore 済みの experiments/cloud-logbook/.local/claude-hook-token から直接読む。既存 .gitignore の .local/ 除外を実装前に再照合し、資格を子プロセス環境・引数・設定・キュー・state・ログへ複写しない。モデルの Bash で env を実行しても fixture トークンの値が出ないことを FIT-AUTO-01 で確認し、証拠には非出力の判定のみを保存する。モデルはこのファイル自体を読めるため、隔離や秘密保持を保証する方式ではない。URLは今回の検証ではloopbackのみ、トークンは使い捨てfixture専用値で、本番資格を使用しない。キューは experiments/cloud-logbook/.logbook-queue、state/tmpは実験内 .local 配下に固定し、resolved path とlinksを検査して許可根外を読まない/書かない。新hook設定の async/matcher/明示timeout=1秒の書式・root/実験設定マージ・scopeの継承はFITで実機確認するまで確定しない。
+ 
+ ## 固定検証 EVAL-002
+ 
+@@ -103,13 +117,13 @@
+ 
+ | ID / 階層 | 将来の必須確認と証拠 |
+ | --- | --- |
+-| UT-AUTO-01 / SYS-LOG | synthetic入力JSON→許可フィールドだけのイベント変換。全候補hook、欠落/未知キー/巨大入力/invalid JSON/Unicode/制御文字/外部path/.env/秘密っぽいpath/JWT/キー/複合コマンド/未完了/不明結果。canary がqueue・送信・stdout/stderrにないこと。pathやtranscriptを実読取しないこと。mask→切詰めの順と上限 |
+-| UT-AUTO-02 / SYS-LOG | 同じid/time/contentの再配送・flush、別tool_use_idの同内容別操作、restart/replay、200件枠・overflow固定・summary seal、1,000件/10 MiB、排他競合・disk/権限失敗・例外で0終了。未送信内容の不変性と旧CLI形式の互換 |
+-| SIT-AUTO-01 / SG-TRACE | 実producer/共有CLI→実loopback API→fixture adapter→認証読取。自動と手動共存、run/source資格、同内容duplicate増加なし・異内容409保持。故障/遅いサーバー/不正ack/redirect/proxy/401/403/429/5xxでqueue保持、復旧flush、1worker/20件/5秒上限。実Supabase/RLS保証とは区別 |
++| UT-AUTO-01 / SYS-LOG | synthetic入力JSON→許可フィールドだけのイベント変換。全候補hook、欠落/未知キー/巨大入力/invalid JSON/Unicode/制御文字/外部path/.env/秘密っぽいpath/JWT/キー/複合コマンド/未完了/不明結果。canary がqueue・送信・stdout/stderrにないこと。pathやtranscriptを実読取しないこと。mask→切詰めの順と上限。SessionEndのclear/resume/logout/prompt_input_exit/otherと未知otherの変換。 |
++| UT-AUTO-02 / SYS-LOG | 同じid/time/contentの再配送・flush、別tool_use_idの同内容別操作、restart/replay、200件枠・overflow固定・summary seal、1,000件/10 MiB、排他競合・disk/権限失敗・例外で0終了。未送信内容の不変性と旧CLI形式の互換。run内seq単調増加/再送同seq、seq欠け・startのみ・summary件数不一致の3条件、順不同/duplicate/意図的省略/seqなし旧データ/手動除外/途中取得の暫定判定。 |
++| SIT-AUTO-01 / SG-TRACE | 実producer/共有CLI→実loopback API→fixture adapter→認証読取。自動と手動共存、run/source資格、同内容duplicate増加なし・異内容409保持。故障/遅いサーバー/不正ack/redirect/proxy/401/403/429/5xxでqueue保持、復旧flush、1worker/20件/5秒上限。実Supabase/RLS保証とは区別。seqの欠け・startのみ・summary件数不一致をproducer/queue/API/表示まで照合し、全件取得後も理由が残ることと復旧flush後の再判定を確認。 |
+ | SIT-REG-01 / SG-TRACE | IMPL-005 の既存回帰（送信・認証回復・旧表示・既存手動CLI・ページ継続・export）。SQLは無変更のhash確認と現行境界の再確認で、本番DB適用なし |
+-| FIT-AUTO-01 / G-LOG | 利用者が許可した実 Claude Code セッションで各候補hookを実発火。safe fixtureの開始/無害prompt/Read・Edit・無害コマンド/意図したツール失敗/Stop/SubagentStop/終了を観測。hook stdinのキー・型・識別子有無だけを安全に記録し、生値・prompt・transcript・出力を保存しない。実変換→fixture到達まで相関を示す。未発火・非対応は未確認であり合格にしない |
+-| FIT-AUTO-02 / G-LOG | 同実セッションでHTTP停止/timeout/queue lock/保存障害/worker起動失敗を誘発し、Claudeが次の無害な作業へ進むことを実確認。前景20回以上の時間・終了コード・欠落数を記録しp95≤200ms/各≤1秒。async/host timeout後の続行と再開後flushを確認 |
+-| FIT-UI-02 / G-LOG | 実ブラウザdesktop/390pxでログイン→手動更新→同じrunのauto/手動分類・詳細・成否不明/省略件数・相対path/安全な要約・JSON/Markdown出力を確認。通信断の旧表示と未更新表示、認証切れ消去を回帰確認。DOM stubだけで実ブラウザ合格としない |
++| FIT-AUTO-01 / G-LOG | 利用者が許可した実 Claude Code セッションで各候補hookを実発火。safe fixtureの開始/無害prompt/Read・Edit・無害コマンド/意図したツール失敗/Stop/SubagentStop/終了を観測。hook stdinのキー・型・識別子有無だけを安全に記録し、生値・prompt・transcript・出力を保存しない。実変換→fixture到達まで相関を示す。未発火・非対応は未確認であり合格にしない。SessionEnd reasonの実値と許可分類、repo root .claude/settings.json / settings.local.jsonと実験側設定のマージ結果（重複発火・干渉・cwd範囲）、モデルBashのenvに資格値が出ないことを実確認。資格ファイルがモデルから読める限界は残す。 |
++| FIT-AUTO-02 / G-LOG | 同実セッションでHTTP停止/timeout/queue lock/保存障害/worker起動失敗を誘発し、Claudeが次の無害な作業へ進むことを実確認。前景20回以上の時間・終了コード・欠落数を記録しp95≤200ms/各≤1秒。全 command hook の明示timeout=1秒（5秒以下）とhost timeout後の続行、async worker自前の総処理≤5秒（遅いHTTP/資格読取/排他も含む）、再開後flushを確認 |
++| FIT-UI-02 / G-LOG | 実ブラウザdesktop/390pxでログイン→手動更新→同じrunのauto/手動分類・詳細・成否不明/省略件数・相対path/安全な要約・JSON/Markdown出力を確認。通信断の旧表示と未更新表示、認証切れ消去を回帰確認。DOM stubだけで実ブラウザ合格としない。READMEと自動記録表示の協調的観測/停止・削除・偽装/資格ファイル読取の限界を確認。実ブラウザでseqの欠け・startのみ・summary件数不一致の3例と、途中取得/進行中/未送信の暫定表示を「欠落の可能性」として確認。 |
+ | HUMAN-AUTO-02 / G-LOG | 利用者が量・読みやすさ・安全な省略・手動更新での確認を評価。本人評価未確認なら明示してローカル技術的試験の限定採用のみを提案 |
+ 
+ FIT-AUTO-01/02 は synthetic hook JSON や Codex の代理送信で代替しない。利用者の無害なセッションが確保できなければ paused。PostToolUseFailure が実機にないときだけ未発火を理由付き非該当とし、失敗結果網羅性の未保証を残す。SubagentStop等の他の必須観測ができない場合、無断で成功条件から外さず新計画へ戻す。
+@@ -118,18 +132,19 @@
+ 
+ ## 採否・予算・終了条件
+ 
+-今回の終了は precheck structural-pass と AR-PLAN-002 の予約済み・未送信保存。実装、試行、監査合格、採用、サイクル完了を表示しない。C-001の完了とは別に C-002 を計画監査待ちで保持する。currentは BUNDLE-001/IMPL-005。
++今回の終了は plan_revision 2 の precheck structural-pass と AR-PLAN-003 の予約済み・未送信保存。AUD-PLAN-002 の3指摘は独立再監査で受理できる結果が返るまで open/保留とする。実装、試行、監査合格、採用、サイクル完了を表示しない。C-001の完了とは別に C-002 を計画監査待ちで保持する。currentは BUNDLE-001/IMPL-005。
+ 
+ 将来の限定採用は同一実装版のUT/SIT/FIT必須確認と独立adoption監査のmajor/blocker 0が必要。実機hookの仕様や粒度が候補と異なる、前景遅延が基準を超える、秘密を出す、内容不変再送が成立しない場合は合格にしない。1試行枠を使った後の修正試行は予算待ちpausedとし、成功基準を弱めない。採用のbundle切替はrecordのみ。終端とcycle_closed通知、ack/周期判定は将来の採否後に保存する。
+ 
+-予算は LOCAL-01 の残枠内に LOCAL-E002（試行1・監査2・記録6・追加購入0円）を配分する。今回は記録1とplan監査1だけ。モデル利用費はunknown。新規課金を始めず、監査者が開始前に既存利用枠を確認する。S-CONTEXTと全口座上限は各実行前に再照合する。
++予算は LOCAL-01 の残枠内に LOCAL-E002（試行1・監査2・記録6・追加購入0円）を配分する。初回計画保存の記録1・plan監査1を保持し、今回の受理・改訂・precheck・予約保存は追加記録1バッチ、再plan監査1を予約する。子口座の監査2枠は初回1消費＋再監査1予約で全枠となり、将来のadoption監査は既存配分では予約不能。UC-03で利用者による追加配分/予算変更と新しい定義の固定・台帳同期を確認するまで held-budget とし、親の余裕だけで実行しない。モデル利用費はunknown。新規課金を始めず、監査者が開始前に既存利用枠を確認する。S-CONTEXTと全口座上限は各実行前に再照合する。
+ 
+ ## 要利用者確認
+ 
+ | ID | 具体案と確認する事項 | 確認までの扱い |
+ | --- | --- | --- |
+-| UC-01 | 実験専用 experiments/cloud-logbook/.claude/settings.json を使い、このcwdだけで有効化する案。project識別子と相対pathの基準もここに限定してよいか | 設定を作らず有効化しない。既存repo全体/globalへ拡張しない |
++| UC-01 | 実験専用 experiments/cloud-logbook/.claude/settings.json を使い、このcwdだけで有効化する案。repo root の .claude/settings.json / settings.local.json とのマージ結果（重複・干渉・cwd範囲）を確認したうえで、project識別子と相対pathの基準もここに限定してよいか | 設定を作らず有効化しない。既存repo全体/globalへ拡張しない |
+ | UC-02 | 完了tool最大196/セッション200件、prompt/Stop/subagentはsummary、引数なしの固定コマンド分類、相対path、stateは自動削除なしという粒度・量・保持を許容するか。識別子がないtoolは集計へ縮退してよいか | 計画案として監査する。確認前に収集しない |
+-| UC-03 | 計画監査合格後の実装依頼と、無害な実 Claude Code セッション/FIT実行・既存利用枠の確保。現行総予算の残試行1ラウンドで進め、不足時は再計画としてよいか | 今回は実機を起動しない。外部通信・課金・本番資格を使わない。費用/実機が確保できなければ保留 |
++| UC-03 | 計画監査合格後の実装依頼と、無害な実 Claude Code セッション/FIT実行・既存利用枠の確保。現行総予算の残試行1ラウンドで進め、不足時は再計画としてよいか。再plan監査でLOCAL-E002の監査2枠を使い切るため、将来のadoption監査の追加配分/予算変更は未確認 | 今回は実機を起動しない。外部通信・課金・本番資格を使わない。費用/実機が確保できなければ保留 |
++| UC-04（回答済み） | 2026-10-03: 改ざん・停止への耐性は今回は不要。協調的な見える化の限界を明記して欠落検出だけを追加。本格的改ざん耐性は NEXT-06 の別計画候補 | 再確認不要。停止・削除・偽装防止を今回の保証に含めない |
+ 
+ NEXT-01/02/04/05 は次計画の候補として元の記録に残す。NEXT-04 は今回の自動収集・手動更新確認に不可欠ではなく、追加を提案しない。ライブ一覧が必要という評価になった場合は、監査/利用者確認を伴う次の計画へ分ける。
+--- design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/operations/delegation-002.md
++++ design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/operations/delegation-003.md
+@@ -1,15 +1,33 @@
+ ---
+-{"id":"DELEGATION-02","revision":1,"semantic_revision":1,"experiment_id":"E-002","cycle_id":"C-002","source":"利用者の2026-10-03の依頼・決定","previous_delegation_ref":"operations/delegation.md","current_authority":"plan-only; reserve external audit; stop before dispatch"}
++{
++  "id": "DELEGATION-03",
++  "revision": 1,
++  "semantic_revision": 1,
++  "experiment_id": "E-002",
++  "cycle_id": "C-002",
++  "previous_delegation_ref": {
++    "id": "DELEGATION-02",
++    "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/operations/delegation-002.md",
++    "sha256": "ef9f016a14248e206e3942b588861c900f5ead281d54ae46923019242170a146",
++    "semantic_revision": 1
++  },
++  "source": "利用者の2026-10-03 AUD-PLAN-002受理・改訂・再監査予約依頼とUC-04回答",
++  "current_authority": "accept require-review; revise plan; reserve re-audit; stop before dispatch",
++  "budget_definition_ref": {
++    "id": "BUDGET-02",
++    "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/experiments/budget-definition-002.md",
++    "sha256": "a2bd9872ce8d029979c7dffaf7ce164fcc49992c8d71853a1efa87a593ab84f7",
++    "semantic_revision": 1
++  }
++}
+ ---
+ 
+-# E-002 の許可と担当
++# 計画改訂の追加委任
+ 
+-Codex が一人で intake → design → experiment/plan → precheck → record の役割を切り替える。今回の許可は計画、設計の候補、固定入力、構造検査、AR-PLAN-002 と予算予約の保存まで。state を書く反映担当は Codex 一人。独立監査は利用者指定の Claude Opus 5.5 が外部で担当し、今回 Codex から実行・メッセージ送信しない。
++DELEGATION-02を引き継ぎ、Codex一人がrecord/design/experiment/precheckの役割を切り替える。AUD-PLAN-002のidentity照合・snapshot固定・親子監査予約の精算・計画保留、新plan_revision 2とAR-PLAN-003の固定・予約までを許可する。再監査はClaude Opus 5.5が外部で担当する。Codexは監査実行・送信・実装・hook・設定作成を行わない。
+ 
+-監査者へは保存済みの request、subject、snapshot、precheck を渡す。監査者が state/current を直接更新したり、追加監査を独自に起動したりしない。結果は要求 ID/hash/scope/phase/criteria_version と対応付けて返し、反映担当が受理と予算精算を行う。
++UC-04は回答済み: 今回は協調的な見える化の限界を明記し欠落検出だけを追加、改ざん・停止耐性は不要。本格的改ざん耐性はNEXT-06へ分離する。自動hook/workerの資格方式はDELEGATION-02の環境変数限定案を置き換え、gitignore済み実験内.localファイルから読む将来案とする。モデルがそのファイルを読める限界も明記する。今回は資格ファイルを作らず読まない。
+ 
+-plan 合格だけで実装着手を自動許可しない。UC-01〜03 の利用者確認、現在の S-CONTEXT・保留・予算照合、実装の明示依頼後に、E-002-plan.md の候補ファイル範囲と固定検証に限って進める。内部の標準ライブラリ選択・実装分割はその範囲内で担当が決められる。評価・設定範囲・予算を変える場合は新 plan_revision/subject/request が必要。
++予算定義・全上限は変更しない。受理・改訂・precheck・要求保存をEXEC-RECORD-007の1バッチにまとめ、親子双方へ1回計上する。再監査はEXEC-AUDIT-PLAN-003を親子双方に予約するだけ。子の監査2枠が埋まるため将来のadoption監査は追加配分/予算変更の定義固定と同期までheld-budget。UC-01〜03は未確認。
+ 
+-リポジトリのプロジェクト設定だけを候補とし、~/.claude、~/.codex、ホーム、%TEMP%、%APPDATA% を読まず変更しない。トークンは環境変数だけで渡し、設定、引数、Git、キュー、ログ、証拠に書かない。外部ネットワーク、本番接続、課金、git 操作、グローバル npm/pip、レジストリ、ACL 変更は今回の委任外。既存 snapshot・監査・試行を編集しない。
+-
+-実 Claude Code セッションの検証は別段階。利用者が用意した実セッションと、リポジトリ内の無害な fixture、loopback サーバーだけを使う案である。新しい有料セッション・外部通信の開始は現在の許可に含まれない。既存モデルセッションの費用は unknown で、0円と扱わない。
++読み書きはC:/Users/daich/claude-works配下だけ。TMP/TEMP/TMPDIRはexperiments/cloud-logbook/.local/tmp、pythonはPYTHONUTF8=1、UTF-8で保存する。ホーム、%TEMP%、%APPDATA%、~/.claude、~/.codex、外部ネットワーク、本番資格、課金、git操作、global npm/pip、レジストリ、ACL変更は禁止。旧snapshot・監査・試行は編集しない。製品/hook/設定は次段階の依頼まで作らない。
+--- design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/G-LOG.md
++++ design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/G-LOG.md
+@@ -2,8 +2,8 @@
+ {
+   "id": "G-LOG",
+   "kind": "root_goal",
+-  "revision": 2,
+-  "semantic_revision": 2,
++  "revision": 3,
++  "semantic_revision": 3,
+   "status": "ready",
+   "primary_parent": null,
+   "parent_semantic_revision": null,
+@@ -36,10 +36,10 @@
+   "final_integration_id": "FIT-01",
+   "plan_ref": "E-002",
+   "model_definition_versions": {
+-    "DEF-LOG-01": 2
++    "DEF-LOG-01": 3
+   },
+   "criteria_version": 2,
+-  "candidate_operation_id": "OP-PLAN-002",
++  "candidate_operation_id": "OP-PLAN-003",
+   "adopted": false
+ }
+ ---
+@@ -50,4 +50,6 @@
+ 
+ SG-TRACEへ安全な取得・キュー・認証閲覧の条件を割り当て、rootは実セッションのhook観測から画面での確認までのFIT-AUTO-01/02・FIT-UI-02を共同条件として持つ。本人評価が未確認なら限定採用であり製品全体完成ではない。
+ 
+-定義はDEF-LOG-01意味版2の候補に依拠する。既存14フィールド、認証・owner境界、HTTPS/loopback、同ID同内容duplicate・異内容409、認証切れ消去と一時障害時旧表示保持を維持する。既存条件UT-01/SIT-01/FIT-01を弱めず、EVAL-002が追加の確認を対応付ける。この候補はcurrentを変更しない。
++定義はDEF-LOG-01意味版3の候補に依拠する。既存14フィールド、認証・owner境界、HTTPS/loopback、同ID同内容duplicate・異内容409、認証切れ消去と一時障害時旧表示保持を維持する。既存条件UT-01/SIT-01/FIT-01を弱めず、EVAL-002が追加の確認を対応付ける。この候補はcurrentを変更しない。
++
++UC-04回答により協調的な見える化とする。停止・削除・偽装や資格ファイル読取を防がない限界をREADME/画面で示し、seq欠け・未終了・summary件数不一致の3条件をFIT-UI-02で確認する。
+--- design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/SG-TRACE.md
++++ design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/SG-TRACE.md
+@@ -2,11 +2,11 @@
+ {
+   "id": "SG-TRACE",
+   "kind": "subgoal",
+-  "revision": 2,
+-  "semantic_revision": 2,
++  "revision": 3,
++  "semantic_revision": 3,
+   "status": "ready",
+   "primary_parent": "G-LOG",
+-  "parent_semantic_revision": 2,
++  "parent_semantic_revision": 3,
+   "domain_id": "D-LOG",
+   "context_id": "CTX-LOG",
+   "source_refs": [
+@@ -36,10 +36,10 @@
+   "final_integration_id": null,
+   "plan_ref": "E-002",
+   "model_definition_versions": {
+-    "DEF-LOG-01": 2
++    "DEF-LOG-01": 3
+   },
+   "criteria_version": 2,
+-  "candidate_operation_id": "OP-PLAN-002",
++  "candidate_operation_id": "OP-PLAN-003",
+   "adopted": false
+ }
+ ---
+@@ -48,4 +48,6 @@
+ 
+ 手動記録に加え、Claude Codeで実際に観測したcallbackだけを同じrunへまとめる。SIT-01はproducer→耐久キュー→認証API→fixture保存→読取の対応、資格制限・故障保持・冪等性・旧CLI互換を共同で確認する。AP-FILEへローカル耐久化と非同期送信を割り当てる。成功未確認をpassへ変換しない。
+ 
+-定義はDEF-LOG-01意味版2の候補に依拠する。既存14フィールド、認証・owner境界、HTTPS/loopback、同ID同内容duplicate・異内容409、認証切れ消去と一時障害時旧表示保持を維持する。既存条件UT-01/SIT-01/FIT-01を弱めず、EVAL-002が追加の確認を対応付ける。この候補はcurrentを変更しない。
++定義はDEF-LOG-01意味版3の候補に依拠する。既存14フィールド、認証・owner境界、HTTPS/loopback、同ID同内容duplicate・異内容409、認証切れ消去と一時障害時旧表示保持を維持する。既存条件UT-01/SIT-01/FIT-01を弱めず、EVAL-002が追加の確認を対応付ける。この候補はcurrentを変更しない。
++
++seqとsummary件数の照合、start後endなしをSIT-AUTO-01で画面まで検証する。意図的省略・手動記録・未取得範囲を区別し、欠落の可能性の表示は完全性証明ではない。
+--- design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/AP-FILE.md
++++ design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/AP-FILE.md
+@@ -2,11 +2,11 @@
+ {
+   "id": "AP-FILE",
+   "kind": "approach",
+-  "revision": 2,
+-  "semantic_revision": 2,
++  "revision": 3,
++  "semantic_revision": 3,
+   "status": "ready",
+   "primary_parent": "SG-TRACE",
+-  "parent_semantic_revision": 2,
++  "parent_semantic_revision": 3,
+   "domain_id": "D-LOG",
+   "context_id": "CTX-LOG",
+   "source_refs": [
+@@ -36,10 +36,10 @@
+   "final_integration_id": null,
+   "plan_ref": "E-002",
+   "model_definition_versions": {
+-    "DEF-LOG-01": 2
++    "DEF-LOG-01": 3
+   },
+   "criteria_version": 2,
+-  "candidate_operation_id": "OP-PLAN-002",
++  "candidate_operation_id": "OP-PLAN-003",
+   "adopted": false
+ }
+ ---
+@@ -48,4 +48,6 @@
+ 
+ 既存の1イベント1JSON・保存先行・同内容再送を使い、hookの前景からHTTPを除く。SYS-LOGが入力変換・短い排他・固定イベント・worker・旧CLIとUIの整合を一体で所有する。Vercel/Supabaseの方針を保ち、今回はloopback fixtureのみ。asyncとtimeoutが未確認なら設定を有効化しない。
+ 
+-定義はDEF-LOG-01意味版2の候補に依拠する。既存14フィールド、認証・owner境界、HTTPS/loopback、同ID同内容duplicate・異内容409、認証切れ消去と一時障害時旧表示保持を維持する。既存条件UT-01/SIT-01/FIT-01を弱めず、EVAL-002が追加の確認を対応付ける。この候補はcurrentを変更しない。
++定義はDEF-LOG-01意味版3の候補に依拠する。既存14フィールド、認証・owner境界、HTTPS/loopback、同ID同内容duplicate・異内容409、認証切れ消去と一時障害時旧表示保持を維持する。既存条件UT-01/SIT-01/FIT-01を弱めず、EVAL-002が追加の確認を対応付ける。この候補はcurrentを変更しない。
++
++hook設定は明示timeout=1秒（5秒以下）、async workerは資格読取からackまで総処理5秒必須。資格はモデル環境へ渡さず実験内.localファイルから読む。root設定マージをUC-01/FITで確認する。
+--- design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/SYS-LOG.md
++++ design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/SYS-LOG.md
+@@ -2,11 +2,11 @@
+ {
+   "id": "SYS-LOG",
+   "kind": "system",
+-  "revision": 2,
+-  "semantic_revision": 2,
++  "revision": 3,
++  "semantic_revision": 3,
+   "status": "ready",
+   "primary_parent": "AP-FILE",
+-  "parent_semantic_revision": 2,
++  "parent_semantic_revision": 3,
+   "domain_id": "D-LOG",
+   "context_id": "CTX-LOG",
+   "source_refs": [
+@@ -25,10 +25,10 @@
+   "final_integration_id": null,
+   "plan_ref": "E-002",
+   "model_definition_versions": {
+-    "DEF-LOG-01": 2
++    "DEF-LOG-01": 3
+   },
+   "criteria_version": 2,
+-  "candidate_operation_id": "OP-PLAN-002",
++  "candidate_operation_id": "OP-PLAN-003",
+   "adopted": false
+ }
+ ---
+@@ -43,4 +43,6 @@
+ 
+ UT-AUTO-01/02が単体条件、SIT-01/FIT-01が結合条件。秘密を送らないことと非阻害は必須。実装・設定・試行はまだ存在せず、監査予約で停止する。
+ 
+-定義はDEF-LOG-01意味版2の候補に依拠する。既存14フィールド、認証・owner境界、HTTPS/loopback、同ID同内容duplicate・異内容409、認証切れ消去と一時障害時旧表示保持を維持する。既存条件UT-01/SIT-01/FIT-01を弱めず、EVAL-002が追加の確認を対応付ける。この候補はcurrentを変更しない。
++定義はDEF-LOG-01意味版3の候補に依拠する。既存14フィールド、認証・owner境界、HTTPS/loopback、同ID同内容duplicate・異内容409、認証切れ消去と一時障害時旧表示保持を維持する。既存条件UT-01/SIT-01/FIT-01を弱めず、EVAL-002が追加の確認を対応付ける。この候補はcurrentを変更しない。
++
++改訂境界: body.seqとsummary.countsで欠落の可能性3条件を表示する。SessionEnd reasonはclear/resume/logout/prompt_input_exit/other（未知other）。hook timeout=1秒、async worker総処理5秒必須、資格ファイル方式/env非出力、root設定マージをUT/SIT/FITへ対応付ける。AIの停止・削除・偽装・資格ファイル読取を防がない。詳細はplan_revision 2を正本とする。
+--- design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/G-LOG-r.md
++++ design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/G-LOG-r.md
+@@ -1,11 +1,11 @@
+ ---
+ {
+   "id": "G-LOG",
+-  "revision": 2,
+-  "semantic_revision": 2,
++  "revision": 3,
++  "semantic_revision": 3,
+   "primary_parent": null,
+   "parent_semantic_revision": null,
+-  "candidate_operation_id": "OP-PLAN-002",
++  "candidate_operation_id": "OP-PLAN-003",
+   "adopted": false
+ }
+ ---
+@@ -15,3 +15,5 @@
+ 利用者は2026-10-03にNEXT-03を選びClaude Codeを最初の対象と決めた。手動の自己申告だけでは作業の動きを観測できないためhookの最小メタデータを追加する。全文転送・transcript解析・同期HTTP・新スキーマを採らず、キュー耐久性と旧データの互換性を保つ。監査保証や全ツール監視と混同しない。
+ 
+ NEXT-04は自動収集と手動更新による検証には不可欠ではなく今回除外。実機の入力・asyncが異なるときはFITの証拠から新計画へ戻す。予算は旧総枠の残りを配分し、不足はpausedとして利用者へ返す。
++
++AUD-PLAN-002の解消条件とUC-04の2026-10-03回答を取り込む。今回の脅威モデルは協調的観測で、改ざん耐性はNEXT-06の別計画候補。plan_revision 2の追加検証と限界に依拠する。
+--- design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/SG-TRACE-r.md
++++ design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/SG-TRACE-r.md
+@@ -1,11 +1,11 @@
+ ---
+ {
+   "id": "SG-TRACE",
+-  "revision": 2,
+-  "semantic_revision": 2,
++  "revision": 3,
++  "semantic_revision": 3,
+   "primary_parent": "G-LOG",
+-  "parent_semantic_revision": 2,
+-  "candidate_operation_id": "OP-PLAN-002",
++  "parent_semantic_revision": 3,
++  "candidate_operation_id": "OP-PLAN-003",
+   "adopted": false
+ }
+ ---
+@@ -15,3 +15,5 @@
+ 利用者は2026-10-03にNEXT-03を選びClaude Codeを最初の対象と決めた。手動の自己申告だけでは作業の動きを観測できないためhookの最小メタデータを追加する。全文転送・transcript解析・同期HTTP・新スキーマを採らず、キュー耐久性と旧データの互換性を保つ。監査保証や全ツール監視と混同しない。
+ 
+ NEXT-04は自動収集と手動更新による検証には不可欠ではなく今回除外。実機の入力・asyncが異なるときはFITの証拠から新計画へ戻す。予算は旧総枠の残りを配分し、不足はpausedとして利用者へ返す。
++
++AUD-PLAN-002の解消条件とUC-04の2026-10-03回答を取り込む。今回の脅威モデルは協調的観測で、改ざん耐性はNEXT-06の別計画候補。plan_revision 2の追加検証と限界に依拠する。
+--- design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/AP-FILE-r.md
++++ design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/AP-FILE-r.md
+@@ -1,11 +1,11 @@
+ ---
+ {
+   "id": "AP-FILE",
+-  "revision": 2,
+-  "semantic_revision": 2,
++  "revision": 3,
++  "semantic_revision": 3,
+   "primary_parent": "SG-TRACE",
+-  "parent_semantic_revision": 2,
+-  "candidate_operation_id": "OP-PLAN-002",
++  "parent_semantic_revision": 3,
++  "candidate_operation_id": "OP-PLAN-003",
+   "adopted": false
+ }
+ ---
+@@ -15,3 +15,5 @@
+ 利用者は2026-10-03にNEXT-03を選びClaude Codeを最初の対象と決めた。手動の自己申告だけでは作業の動きを観測できないためhookの最小メタデータを追加する。全文転送・transcript解析・同期HTTP・新スキーマを採らず、キュー耐久性と旧データの互換性を保つ。監査保証や全ツール監視と混同しない。
+ 
+ NEXT-04は自動収集と手動更新による検証には不可欠ではなく今回除外。実機の入力・asyncが異なるときはFITの証拠から新計画へ戻す。予算は旧総枠の残りを配分し、不足はpausedとして利用者へ返す。
++
++AUD-PLAN-002の解消条件とUC-04の2026-10-03回答を取り込む。今回の脅威モデルは協調的観測で、改ざん耐性はNEXT-06の別計画候補。plan_revision 2の追加検証と限界に依拠する。
+--- design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/SYS-LOG-r.md
++++ design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/SYS-LOG-r.md
+@@ -1,11 +1,11 @@
+ ---
+ {
+   "id": "SYS-LOG",
+-  "revision": 2,
+-  "semantic_revision": 2,
++  "revision": 3,
++  "semantic_revision": 3,
+   "primary_parent": "AP-FILE",
+-  "parent_semantic_revision": 2,
+-  "candidate_operation_id": "OP-PLAN-002",
++  "parent_semantic_revision": 3,
++  "candidate_operation_id": "OP-PLAN-003",
+   "adopted": false
+ }
+ ---
+@@ -15,3 +15,5 @@
+ 利用者は2026-10-03にNEXT-03を選びClaude Codeを最初の対象と決めた。手動の自己申告だけでは作業の動きを観測できないためhookの最小メタデータを追加する。全文転送・transcript解析・同期HTTP・新スキーマを採らず、キュー耐久性と旧データの互換性を保つ。監査保証や全ツール監視と混同しない。
+ 
+ NEXT-04は自動収集と手動更新による検証には不可欠ではなく今回除外。実機の入力・asyncが異なるときはFITの証拠から新計画へ戻す。予算は旧総枠の残りを配分し、不足はpausedとして利用者へ返す。
++
++AUD-PLAN-002の解消条件とUC-04の2026-10-03回答を取り込む。今回の脅威モデルは協調的観測で、改ざん耐性はNEXT-06の別計画候補。plan_revision 2の追加検証と限界に依拠する。
+--- design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/DEF-LOG-01.md
++++ design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/DEF-LOG-01.md
+@@ -1,8 +1,8 @@
+ ---
+ {
+   "id": "DEF-LOG-01",
+-  "revision": 2,
+-  "semantic_revision": 2,
++  "revision": 3,
++  "semantic_revision": 3,
+   "primary_parent": null,
+   "parent_semantic_revision": null,
+   "domain_id": "D-LOG",
+@@ -16,7 +16,7 @@
+     "SYS-LOG",
+     "E-002"
+   ],
+-  "candidate_operation_id": "OP-PLAN-002",
++  "candidate_operation_id": "OP-PLAN-003",
+   "adopted": false
+ }
+ ---
+@@ -31,6 +31,8 @@
+ 
+ 1runはprojectとsession_idのhash。保存済みイベントはid/time/contentを固定し同内容再送、owner/idが同一で異内容なら409。回復時も再生成しない。CLIは先に同じ.logbook-queue形式へ保存し、HTTPはbackgroundのみ。送信不能は保持、ローカル保存不能は欠落であり成功としない。初出時刻・native identity由来のsafe hash・確定内容の再利用stateはexperiment内.localに保持する。
+ 
+-認証・owner分離・資格のproject/source/run制限・redirect拒否・本番HTTPS/loopback制約を維持する。トークンは環境変数だけ。hook前景0終了/時間上限、worker上限、量と保持、実機確認条件は固定計画の規則。正式監査・採用状態を書かない。
++認証・owner分離・資格のproject/source/run制限・redirect拒否・本番HTTPS/loopback制約を維持する。自動hook/workerのトークンはモデルの環境から外し、gitignore済み実験内.local資格ファイルから直接読む。モデルがファイルを読める限界を明記する。hook前景0終了/時間上限、worker上限、量と保持、実機確認条件は固定計画の規則。正式監査・採用状態を書かない。
+ 
+-画面の自動/手動分類だけを追加候補とする。一覧は手動更新。NEXT-01/02/04/05、Codex自動記録、本番、他source、4実環境は今回の対象外。既存minor/未確認を解消済みにしない。
++画面の自動/手動分類、協調的観測の限界、seqの欠け・start後endなし・summary件数不一致の「欠落の可能性」を追加候補とする。一覧は手動更新。NEXT-01/02/04/05、Codex自動記録、本番、他source、4実環境は今回の対象外。既存minor/未確認を解消済みにしない。
++
++body.seqはrun内送信候補の単調増加連番、再送では不変。summaryの予定件数/省略件数/保存失敗数とcallback観測数を区別する。欠落3条件の表示は取得範囲の暫定観測であり真正性/完全性の証明ではない。AI自身の停止・削除・偽装を防がない協調的観測とする。
+--- design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/DEF-LOG-01-r.md
++++ design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/DEF-LOG-01-r.md
+@@ -1,8 +1,8 @@
+ ---
+ {
+   "id": "DEF-LOG-01",
+-  "revision": 2,
+-  "semantic_revision": 2,
++  "revision": 3,
++  "semantic_revision": 3,
+   "primary_parent": null,
+   "parent_semantic_revision": null
+ }
+@@ -10,6 +10,8 @@
+ 
+ # 定義変更の理由
+ 
+-同じsourceに自己申告の節目とhook観測が共存するため、既存フィールドに予約規約を加え意味版を2にする。SQLと旧データへの影響を小さくするため新フィールドを採らない。認証の証明と観測の分類を区別する。
++同じsourceに自己申告の節目とhook観測が共存するため、既存フィールドに予約規約を加え意味版を3にする。SQLと旧データへの影響を小さくするため新フィールドを採らない。認証の証明と観測の分類を区別する。
+ 
+ 直接・間接consumerはG-LOG/SG-TRACE/AP-FILE/SYS-LOGとE-002。4階層を同じ候補定義へ揃え、UI/CLI/API/DBはSYS-LOGの依拠先として評価する。E-001/旧bundle/旧監査は版1の歴史として維持し、過去の意味を変更したり旧合格を自動記録へ拡張したりしない。
++
++AUD-PLAN-002の解消条件とUC-04の2026-10-03回答を取り込む。今回の脅威モデルは協調的観測で、改ざん耐性はNEXT-06の別計画候補。plan_revision 2の追加検証と限界に依拠する。

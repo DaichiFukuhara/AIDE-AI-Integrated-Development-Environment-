@@ -1,0 +1,325 @@
+{
+  "scope": [
+    "CTX-LOG",
+    "FIT-01",
+    "SIT-01",
+    "SYS-LOG"
+  ],
+  "phase": "plan",
+  "criteria_version": 2,
+  "spec_refs": [
+    {
+      "id": "G-LOG",
+      "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/G-LOG.md",
+      "sha256": "4171a2d2af7ce1b422a66bfa92b8587c58ecb2ba454b596b4286bce1dfff1dae",
+      "semantic_revision": 3
+    },
+    {
+      "id": "SG-TRACE",
+      "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/SG-TRACE.md",
+      "sha256": "b5a96f501f0bfc60ec2a94f4bf337759d99904809b70d928831820d170eac24a",
+      "semantic_revision": 3
+    },
+    {
+      "id": "AP-FILE",
+      "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/AP-FILE.md",
+      "sha256": "9535f34f2d42219d7a97feb5b99be8299bef72e060259b6b859445abcb625f75",
+      "semantic_revision": 3
+    },
+    {
+      "id": "SYS-LOG",
+      "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/SYS-LOG.md",
+      "sha256": "362f244e227fdbe00892ca01fe2d9f1980466f931a8b8395752112800e8c32e5",
+      "semantic_revision": 3
+    },
+    {
+      "id": "G-LOG-rationale",
+      "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/G-LOG-r.md",
+      "sha256": "ba2f3396ade1ce65b005c31e3aa0fcb1440991cd0ff4ea4adb1f58676121fc87",
+      "semantic_revision": 3
+    },
+    {
+      "id": "SG-TRACE-rationale",
+      "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/SG-TRACE-r.md",
+      "sha256": "99308ac3db73a3b6d35954174727aebdb7359067d49d6778df1984a51be34ba6",
+      "semantic_revision": 3
+    },
+    {
+      "id": "AP-FILE-rationale",
+      "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/AP-FILE-r.md",
+      "sha256": "fc9434ef9b0ebac1ea080fb897eb44e1ba48944275440aa022a443c024823fbf",
+      "semantic_revision": 3
+    },
+    {
+      "id": "SYS-LOG-rationale",
+      "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/SYS-LOG-r.md",
+      "sha256": "a5308864ab2c87ea1cffd08274c58fd258ac1eb755a92d8c18dfb2415b6c2be8",
+      "semantic_revision": 3
+    }
+  ],
+  "contract_refs": [],
+  "contracts_not_applicable_reason": "One product context CTX-LOG. External Claude callbacks and internal hook/queue/API/UI transformations are wholly owned by SYS-LOG; full input/result/failure/retry/deactivation contract is fixed in the system candidate and plan, no cross-context product seam.",
+  "model_definition_refs": [
+    {
+      "id": "DEF-LOG-01",
+      "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/DEF-LOG-01.md",
+      "sha256": "2b7b5a69a9c203b43726a5ce6944a38b5943e65a52226e9398e3e0f08612ee21",
+      "semantic_revision": 3,
+      "domain_id": "D-LOG",
+      "context_id": "CTX-LOG",
+      "canonical_owner": "SYS-LOG",
+      "dependencies": []
+    },
+    {
+      "id": "DEF-LOG-01-rationale",
+      "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/design/candidates/OP-PLAN-003/DEF-LOG-01-r.md",
+      "sha256": "b27c437cfade5deddbcfdf4ae073967e698fbbac34729f70bae730318c2699e8",
+      "semantic_revision": 3,
+      "domain_id": "D-LOG",
+      "context_id": "CTX-LOG",
+      "canonical_owner": "SYS-LOG",
+      "dependencies": []
+    }
+  ],
+  "model_definitions_not_applicable_reason": null,
+  "plan_ref": {
+    "id": "E-002",
+    "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/experiments/E-002-plan.md",
+    "sha256": "13334a988bd7518e019711a0d96090408ede1bb5aee91c171a7c8a204b7a645d",
+    "semantic_revision": 2
+  },
+  "plan_revision": 2,
+  "evaluation_ref": {
+    "id": "EVAL-002",
+    "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/experiments/E-002-plan.md",
+    "sha256": "13334a988bd7518e019711a0d96090408ede1bb5aee91c171a7c8a204b7a645d",
+    "semantic_revision": 2
+  },
+  "implementation_ref": null,
+  "trial_refs": [],
+  "evidence_refs": [
+    {
+      "id": "evidence/C-002-next-plan-candidates.md",
+      "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/evidence/C-002-next-plan-candidates.md",
+      "sha256": "11651aedd29deeccefcb4f5f738223f5536939dde8fbe085fe5564b95e68eaa9"
+    },
+    {
+      "id": "evidence/E-002-plan-revision-002-handoff.md",
+      "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/evidence/E-002-plan-revision-002-handoff.md",
+      "sha256": "7d78b7c7c547f405a37320545d3c3d156b9f2fe6991b2f866549beb0a94151aa"
+    },
+    {
+      "id": "evidence/AUD-PLAN-002-record-verification.json",
+      "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/evidence/AUD-PLAN-002-record-verification.json",
+      "sha256": "3bbbdbad9f42a3ae92d6fcb8a0762962d9217115b14706a61d9320e7b066a02f"
+    }
+  ],
+  "intake_ref": {
+    "id": "INTAKE-002",
+    "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/operations/intake-002.md",
+    "sha256": "f0f9feea3b97eb46bf4426d8e0a9714f1c690e7d49b8b65f70a83d54fd127561",
+    "semantic_revision": 1
+  },
+  "delegation_ref": {
+    "id": "DELEGATION-03",
+    "immutable_ref": "design/snapshots/SN-4b76c007db95d130072fd8a26b478ea43d3242bd2c1b32db5009249374cc1541/files/operations/delegation-003.md",
+    "sha256": "eaa9a64c27cd582564aa8b2b7e131414435c078c949da0629c88f5eaea84ada0",
+    "semantic_revision": 1
+  },
+  "budget_definition_ref": {
+    "id": "BUDGET-02",
+    "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/experiments/budget-definition-002.md",
+    "sha256": "a2bd9872ce8d029979c7dffaf7ce164fcc49992c8d71853a1efa87a593ab84f7",
+    "semantic_revision": 1
+  },
+  "parent_budget_definition_ref": {
+    "id": "BUDGET-01",
+    "immutable_ref": "design/snapshots/SN-93aa04c2045e9a8d9427752b0e72563365d6a8911c6c54fa472c697ebd2b76c4/files/experiments/budget-definition.md",
+    "sha256": "6eae3ab9ea2c13170219f30fd66b5a5795e102a737e6670da62e7e601f644406",
+    "semantic_revision": 1
+  },
+  "parent_delegation_ref": {
+    "id": "DELEGATION-01",
+    "immutable_ref": "design/snapshots/SN-93aa04c2045e9a8d9427752b0e72563365d6a8911c6c54fa472c697ebd2b76c4/files/operations/delegation.md",
+    "sha256": "391c97b9a2e3c17dd871740b80991832d713002c97d8207d7c5b9fe59c772d45",
+    "semantic_revision": 1
+  },
+  "baseline_bundle": {
+    "id": "BUNDLE-001",
+    "immutable_ref": "design/snapshots/SN-fab1cd198c39ee2f406f70567117e5d71122b58da0ad97f93dc54eb969e868f3/files/design/candidates/OP-ADOPT-002/bundle.json",
+    "sha256": "90c0dd3433cddb50240a8c1df5f8db70e5e9f11d82f9837caa6a6b6c6cef3742"
+  },
+  "baseline_implementation_ref": {
+    "id": "IMPL-005",
+    "snapshot_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b",
+    "files": [
+      {
+        "id": "api/events.js",
+        "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/api/events.js",
+        "sha256": "97a1731cfb5d647315cc2c6a33f638486180820275aad3c8d71f8126e87567e8"
+      },
+      {
+        "id": "api/health.js",
+        "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/api/health.js",
+        "sha256": "97a1731cfb5d647315cc2c6a33f638486180820275aad3c8d71f8126e87567e8"
+      },
+      {
+        "id": "api/session.js",
+        "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/api/session.js",
+        "sha256": "97a1731cfb5d647315cc2c6a33f638486180820275aad3c8d71f8126e87567e8"
+      },
+      {
+        "id": "cli/logbook.py",
+        "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/cli/logbook.py",
+        "sha256": "7e52fba9c73240dd0100d5ffb0796b72b93fb9cdb076c7beaa3fb8190f448682"
+      },
+      {
+        "id": "dev/fixture-store.mjs",
+        "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/dev/fixture-store.mjs",
+        "sha256": "c2673d0ce9867552bfa369b593e2679b9c09267be7a0bd0fd553e0e02280f0bd"
+      },
+      {
+        "id": "lib/schema.mjs",
+        "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/lib/schema.mjs",
+        "sha256": "db18c8098ace4501d8f58d5008afd80f1f3687a228aa2c94c5f7e200bfd625f9"
+      },
+      {
+        "id": "lib/service.mjs",
+        "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/lib/service.mjs",
+        "sha256": "7c9606f48cf2944babde983dee4ed339c6c935cfb4328f841168ee4c5c796f6c"
+      },
+      {
+        "id": "lib/supabase.mjs",
+        "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/lib/supabase.mjs",
+        "sha256": "43dac404d5ade374f2bbe21081f471be5ef6a658558de18e4e0c98c941597d45"
+      },
+      {
+        "id": "public/app.js",
+        "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/public/app.js",
+        "sha256": "812c016e15c340754ee585dbc78b2a5c499ade6461699eb15618160491329b50"
+      },
+      {
+        "id": "public/index.html",
+        "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/public/index.html",
+        "sha256": "7f523a5bc31620ff908e328c866874c9be5d371b178630a758498890ee56eb37"
+      },
+      {
+        "id": "public/styles.css",
+        "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/public/styles.css",
+        "sha256": "71f24000802dac2d9a419548190790cb38480ee20f94ab39def7fa423481641a"
+      },
+      {
+        "id": "scripts/dev.mjs",
+        "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/scripts/dev.mjs",
+        "sha256": "f728fed42994d6f034d40d34ca0ee819fee7abd7b8d43b9058cca45e2c0d1a87"
+      },
+      {
+        "id": "scripts/writer-key.mjs",
+        "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/scripts/writer-key.mjs",
+        "sha256": "d1a4bd044652e11bbb37c2e8e136eebf212be05361e84cb37d7320d30b4d2fc8"
+      },
+      {
+        "id": "supabase/migrations/202610030001_logbook.sql",
+        "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/supabase/migrations/202610030001_logbook.sql",
+        "sha256": "55c67bbbb1c80599c1049852d04b1298312d2f3cd3e48126e3f997621bd3bfaa"
+      },
+      {
+        "id": "tests/auth-recovery.test.mjs",
+        "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/tests/auth-recovery.test.mjs",
+        "sha256": "7d91c411eea8ed95802615d55a3753c5a11a762af4bbd117e143f03ee25c04fe"
+      },
+      {
+        "id": "tests/integration.test.mjs",
+        "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/tests/integration.test.mjs",
+        "sha256": "f15a603bd096889ec61c401a0c617948dd42da321d62d7eac20493263775dc02"
+      },
+      {
+        "id": "tests/service.test.mjs",
+        "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/tests/service.test.mjs",
+        "sha256": "95dba5725cb2e14a6bab71512c321fc0d386b521c17137d8e8ec46403dc72813"
+      },
+      {
+        "id": "README.md",
+        "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/README.md",
+        "sha256": "5816d7abedc45b79bfb5f677f7453e6e6fea4cf3cbf6fb9cc171194be5fe727a"
+      },
+      {
+        "id": "agent-instructions.md",
+        "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/agent-instructions.md",
+        "sha256": "17363ce8aa4bdfeda0bbed46320042065fe05e03576945128b54abc70c53f974"
+      },
+      {
+        "id": "package.json",
+        "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/package.json",
+        "sha256": "f1ace1b766ffdd7e85674db4a48a5c3269e75bd9243f2c1bd2b4b596fcd74a5c"
+      },
+      {
+        "id": "vercel.json",
+        "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/vercel.json",
+        "sha256": "aae1c40e107f781a55e1360e1fc4b277989b5871912d009ee25fefd9edd14daf"
+      },
+      {
+        "id": ".env.example",
+        "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/.env.example",
+        "sha256": "352910f4de835d3d62697760de4b0cf7b87368c8251bd3c99e13891587f9073f"
+      },
+      {
+        "id": ".gitignore",
+        "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/.gitignore",
+        "sha256": "8eddc449ef8e80bcb420c47db10931c282b08111728c0560cfd3a297ff4bf75b"
+      },
+      {
+        "id": ".gitattributes",
+        "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/.gitattributes",
+        "sha256": "bd9663d71ffce4f030fba3bf7285472e2fab87ce8f71d180d20c14060d0c42a1"
+      }
+    ]
+  },
+  "baseline_plan_ref": {
+    "id": "E-001",
+    "immutable_ref": "design/snapshots/SN-93aa04c2045e9a8d9427752b0e72563365d6a8911c6c54fa472c697ebd2b76c4/files/experiments/E-001-plan.md",
+    "sha256": "90a233f68c2135c29f23c4624865bc5513c45fad14b8d98ec8ac3401d05fa1de",
+    "semantic_revision": 1
+  },
+  "baseline_evaluation_ref": {
+    "id": "EVAL-001",
+    "immutable_ref": "design/snapshots/SN-93aa04c2045e9a8d9427752b0e72563365d6a8911c6c54fa472c697ebd2b76c4/files/experiments/E-001-plan.md",
+    "sha256": "90a233f68c2135c29f23c4624865bc5513c45fad14b8d98ec8ac3401d05fa1de",
+    "semantic_revision": 1
+  },
+  "baseline_audit_ref": {
+    "id": "AUD-ADOPT-002",
+    "immutable_ref": "design/snapshots/SN-b8b093d9d560411450d3dfb284154696b239d7713edf544fcc8c25d58a2bfad7/files/audits/AUD-ADOPT-002.md",
+    "sha256": "f3f94c7cb416631da6b6c5df52c4f6e40dd240ccf631a378370e06511a39efa2"
+  },
+  "previous_cycle_candidates_ref": {
+    "id": "C-001-NEXT-PLAN-CANDIDATES",
+    "immutable_ref": "design/snapshots/SN-b1284207bc4df31dc1febd284de6292a9c444bc4b6182e29f6685a3c7696aaad/files/evidence/C-001-next-plan-candidates.md",
+    "sha256": "b0f3afb8a5b8424e1b29a1e1662bc90f2dbe62db36587db26658a498d820c6cf"
+  },
+  "review_delta_ref": {
+    "id": "PLAN-DELTA-002",
+    "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/change.json",
+    "sha256": "4b0cd07c737b044b77af7f0f5caf1ba9f9813c72286c6be859bb44096220069f",
+    "semantic_revision": 1
+  },
+  "recovery_ref": null,
+  "required_user_confirmations": [
+    "UC-01",
+    "UC-02",
+    "UC-03"
+  ],
+  "unverified": [
+    "E-002 product/hook/settings not implemented; all UT/SIT/FIT not executed; plan phase only",
+    "Actual Claude Code hooks payload/async/timeout/identity and actual session availability unverified",
+    "F-CLOUD-ADOPT-002 remains open minor; NEXT-01/02/04/05 deferred",
+    "DEPLOY-01: 実Supabase DB/Auth/RLS/RPC、Vercel HTTPS、Secure cookieは未確認。Authエラー分類は偽transportと自動テストでのみ確認。",
+    "SOURCES-01: 4実環境からの送信は未確認。",
+    "HUMAN-01: 本人評価は未確認。",
+    "native download完了、他ブラウザ、長期運用、クラウドキュー持続性は未確認。",
+    "PLAN-002 require-review accepted; three findings remain open pending independent PLAN-003 review; no implementation authority.",
+    "UC-01/02/03 unresolved; UC-04 answered 2026-10-03 (cooperative visibility only; no tamper/stop resistance).",
+    "Credential env non-output, real SessionEnd reasons, root settings merge, explicit timeout and async deadline, missing-event UI and README limits: future FIT, not executed.",
+    "LOCAL-E002 audits: one consumed, one reserved for re-plan. Future adoption audit needs authorized allocation/budget definition synchronization."
+  ]
+}
