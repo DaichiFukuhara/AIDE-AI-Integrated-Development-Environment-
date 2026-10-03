@@ -1,0 +1,165 @@
+{
+  "id": "AUD-ADOPT-002-RECORD-VERIFICATION",
+  "verified_at": "2026-10-03T11:15:33.415257+00:00",
+  "result": "pass",
+  "base_revision": 39,
+  "final_revision": 42,
+  "identity_fields": [
+    "audit_request_id",
+    "origin_operation_id",
+    "scope",
+    "phase",
+    "subject_hash",
+    "criteria_version",
+    "change_ids"
+  ],
+  "precheck": {
+    "result": "structural-pass",
+    "subject_hash": "4879824e8ef7935568ade85401bcfd7f311d126a53c00ee83660ec71d3d8263b",
+    "scope": [
+      "CTX-LOG",
+      "FIT-01",
+      "SIT-01",
+      "SYS-LOG"
+    ],
+    "phase": "implementation",
+    "checked_at": "2026-10-03T11:15:28.614613+00:00",
+    "verified_reference_count": 64,
+    "verified_snapshot_count": 7,
+    "pair_and_chain_check": "pass",
+    "limit": "Identity and structure only. Acceptance sufficiency remains independent reviewer responsibility."
+  },
+  "current_bundle": {
+    "id": "BUNDLE-001",
+    "immutable_ref": "design/snapshots/SN-fab1cd198c39ee2f406f70567117e5d71122b58da0ad97f93dc54eb969e868f3/files/design/candidates/OP-ADOPT-002/bundle.json",
+    "sha256": "90c0dd3433cddb50240a8c1df5f8db70e5e9f11d82f9837caa6a6b6c6cef3742"
+  },
+  "active_blocked_scopes": [],
+  "released_findings": [
+    "F-CLOUD-ADOPT-001"
+  ],
+  "open_minor_ids": [
+    "F-CLOUD-ADOPT-002"
+  ],
+  "cycle": {
+    "cycle_id": "C-001",
+    "state": "complete",
+    "closed_at": "2026-10-03T11:15:31.515218+00:00",
+    "closure_id": "OP-CLOSE-001",
+    "periodic": "reasoned-skip",
+    "adoption_scope": "local-technical-trial-only",
+    "human_evaluation": "unverified",
+    "production_deployment": "unverified",
+    "source_environments": "unverified",
+    "native_download": "unverified",
+    "open_minor_ids": [
+      "F-CLOUD-ADOPT-002"
+    ],
+    "project_complete": false,
+    "unverified": [
+      "DEPLOY-01: 実Supabase DB/Auth/RLS/RPC、Vercel HTTPS、Secure cookieは未確認。Authエラー分類は偽transportと自動テストでのみ確認。",
+      "SOURCES-01: 4実環境からの送信は未確認。",
+      "HUMAN-01: 本人評価は未確認。",
+      "native download完了、他ブラウザ、長期運用、クラウドキュー持続性は未確認。"
+    ]
+  },
+  "periodic": {
+    "payload_hash": "eeafb1603b99ef0a14fd185325cb23a3d578a5052a1b85c4e291b04ac87fab7c",
+    "cycle_id": "C-001",
+    "periodic_request_id": null,
+    "periodic_status": "skipped",
+    "skip_reason": "no-unaudited-implementation-changes: CHANGE-001/002の全scope・共同条件とinitial→IMPL-003→IMPL-005を同一subjectの独立adoption監査で保証し採用時に解消。採用後の製品変更なし。未確認配備等とopen minorを保証済みにしない。",
+    "ack": "acknowledged",
+    "acknowledged_at": "2026-10-03T11:15:31.637633+00:00",
+    "policy": {
+      "revision": 1,
+      "cycle_closed_enabled": true,
+      "after_days": 7,
+      "timezone": "Asia/Tokyo",
+      "source_ref": "harness-v3/protocols/messages.md"
+    },
+    "next_due": null,
+    "waiting_state": null,
+    "related_operations": [
+      {
+        "operation_id": "OP-PLAN-001",
+        "state": "checked",
+        "result": "audit-pass",
+        "result_ref": {
+          "id": "AUD-PLAN-001",
+          "immutable_ref": "design/snapshots/SN-61d392514bd38d9ca1232028190ec93e3c677db8c6779e85d38b92d2173b1cc1/files/audits/AUD-PLAN-001.md",
+          "sha256": "b5665c4e9c86f8d10b04522b6be3fcef99a61c1c7c9487d0176cceeb1023d3f5"
+        }
+      },
+      {
+        "operation_id": "OP-ADOPT-001",
+        "state": "rejected",
+        "result": "require-review",
+        "result_ref": {
+          "id": "AUD-ADOPT-001",
+          "immutable_ref": "design/snapshots/SN-036c3904c01c70798592c484abfc41670d730336c8971b53b059d72e55992c7a/files/audits/AUD-ADOPT-001.md",
+          "sha256": "a49b3bbd46fe9a2a4e2cc33dbb6a77bcff62584487015b3494425674c90f42f3"
+        }
+      },
+      {
+        "operation_id": "OP-ADOPT-002",
+        "state": "committed",
+        "result": "applied",
+        "result_ref": {
+          "id": "AUD-ADOPT-002",
+          "immutable_ref": "design/snapshots/SN-b8b093d9d560411450d3dfb284154696b239d7713edf544fcc8c25d58a2bfad7/files/audits/AUD-ADOPT-002.md",
+          "sha256": "f3f94c7cb416631da6b6c5df52c4f6e40dd240ccf631a378370e06511a39efa2"
+        }
+      }
+    ],
+    "result_ref": {
+      "id": "AUD-ADOPT-002",
+      "immutable_ref": "design/snapshots/SN-b8b093d9d560411450d3dfb284154696b239d7713edf544fcc8c25d58a2bfad7/files/audits/AUD-ADOPT-002.md",
+      "sha256": "f3f94c7cb416631da6b6c5df52c4f6e40dd240ccf631a378370e06511a39efa2"
+    }
+  },
+  "audit_execution": "settled",
+  "record_execution": "settled",
+  "modified_existing_files": [
+    "design/state.md",
+    "operations/OP-ADOPT-002.md"
+  ],
+  "new_files": [
+    "design/candidates/OP-ADOPT-002/bundle.json",
+    "design/snapshots/SN-73bc16eb013796497a3ff3d3974cee92e02ee91d01fb5e2b16675300bc1f1b66/files/operations/OP-CLOSE-001-payload.json",
+    "design/snapshots/SN-73bc16eb013796497a3ff3d3974cee92e02ee91d01fb5e2b16675300bc1f1b66/manifest.json",
+    "design/snapshots/SN-b1284207bc4df31dc1febd284de6292a9c444bc4b6182e29f6685a3c7696aaad/files/evidence/AUD-ADOPT-002-record-accepted.md",
+    "design/snapshots/SN-b1284207bc4df31dc1febd284de6292a9c444bc4b6182e29f6685a3c7696aaad/files/evidence/C-001-next-plan-candidates.md",
+    "design/snapshots/SN-b1284207bc4df31dc1febd284de6292a9c444bc4b6182e29f6685a3c7696aaad/files/evidence/CORRECTION-004-handoff.md",
+    "design/snapshots/SN-b1284207bc4df31dc1febd284de6292a9c444bc4b6182e29f6685a3c7696aaad/manifest.json",
+    "design/snapshots/SN-b8b093d9d560411450d3dfb284154696b239d7713edf544fcc8c25d58a2bfad7/files/audits/AUD-ADOPT-002.md",
+    "design/snapshots/SN-b8b093d9d560411450d3dfb284154696b239d7713edf544fcc8c25d58a2bfad7/files/evidence/AUD-ADOPT-002-fit-browser.json",
+    "design/snapshots/SN-b8b093d9d560411450d3dfb284154696b239d7713edf544fcc8c25d58a2bfad7/files/evidence/AUD-ADOPT-002-fit-server.mjs",
+    "design/snapshots/SN-b8b093d9d560411450d3dfb284154696b239d7713edf544fcc8c25d58a2bfad7/manifest.json",
+    "design/snapshots/SN-fab1cd198c39ee2f406f70567117e5d71122b58da0ad97f93dc54eb969e868f3/files/design/candidates/OP-ADOPT-002/bundle.json",
+    "design/snapshots/SN-fab1cd198c39ee2f406f70567117e5d71122b58da0ad97f93dc54eb969e868f3/manifest.json",
+    "evidence/AUD-ADOPT-002-record-accepted.md",
+    "evidence/C-001-next-plan-candidates.md",
+    "experiments/E-001.md",
+    "operations/OP-CLOSE-001-payload.json",
+    "operations/OP-CLOSE-001.md",
+    "evidence/AUD-ADOPT-002-record-verification.json"
+  ],
+  "preservation": "All inventoried pre-existing files except state and OP-ADOPT-002 unchanged; all snapshot manifests verified.",
+  "utf8_and_question_mark_check": "pass",
+  "unverified": [
+    "DEPLOY-01: 実Supabase DB/Auth/RLS/RPC、Vercel HTTPS、Secure cookieは未確認。Authエラー分類は偽transportと自動テストでのみ確認。",
+    "SOURCES-01: 4実環境からの送信は未確認。",
+    "HUMAN-01: 本人評価は未確認。",
+    "native download完了、他ブラウザ、長期運用、クラウドキュー持続性は未確認。"
+  ],
+  "next_plan_candidates_ref": {
+    "id": "C-001-NEXT-PLAN-CANDIDATES",
+    "immutable_ref": "design/snapshots/SN-b1284207bc4df31dc1febd284de6292a9c444bc4b6182e29f6685a3c7696aaad/files/evidence/C-001-next-plan-candidates.md",
+    "sha256": "b0f3afb8a5b8424e1b29a1e1662bc90f2dbe62db36587db26658a498d820c6cf"
+  },
+  "git_operations": false,
+  "network_operations": false,
+  "product_code_changed": false,
+  "audit_or_product_tests_rerun": false
+}

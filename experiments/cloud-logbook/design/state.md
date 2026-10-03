@@ -1,7 +1,7 @@
 ---
 {
   "project_id": "CLOUD-LOGBOOK",
-  "revision": 39,
+  "revision": 42,
   "timezone": "Asia/Tokyo",
   "scope": [
     "CTX-LOG",
@@ -17,7 +17,11 @@
     "source_ref": "harness-v3/protocols/messages.md"
   },
   "writer": "/root",
-  "current_bundle": null,
+  "current_bundle": {
+    "id": "BUNDLE-001",
+    "immutable_ref": "design/snapshots/SN-fab1cd198c39ee2f406f70567117e5d71122b58da0ad97f93dc54eb969e868f3/files/design/candidates/OP-ADOPT-002/bundle.json",
+    "sha256": "90c0dd3433cddb50240a8c1df5f8db70e5e9f11d82f9837caa6a6b6c6cef3742"
+  },
   "audit_baselines": [
     {
       "scope_id": "CTX-LOG",
@@ -98,6 +102,150 @@
         "sha256": "b5665c4e9c86f8d10b04522b6be3fcef99a61c1c7c9487d0176cceeb1023d3f5"
       },
       "accepted_at": "2026-10-02T18:15:35.151794+00:00"
+    },
+    {
+      "scope_id": "CTX-LOG",
+      "phase": "implementation",
+      "criteria_version": 1,
+      "scope": [
+        "CTX-LOG",
+        "FIT-01",
+        "SIT-01",
+        "SYS-LOG"
+      ],
+      "subject_hash": "4879824e8ef7935568ade85401bcfd7f311d126a53c00ee83660ec71d3d8263b",
+      "subject_ref": {
+        "id": "ADOPT-002",
+        "immutable_ref": "design/snapshots/SN-c9f08e3889e13bd79044800d4c3758f7e89de4fe1c80a9b4cc10caac006b0ebb/files/audits/subjects/ADOPT-002.json",
+        "sha256": "87771dbcf17f7410cec77e947fd85e5defa6076a4ec52f76138618627110851c"
+      },
+      "audit_request_id": "AR-ADOPT-002",
+      "result_ref": {
+        "id": "AUD-ADOPT-002",
+        "immutable_ref": "design/snapshots/SN-b8b093d9d560411450d3dfb284154696b239d7713edf544fcc8c25d58a2bfad7/files/audits/AUD-ADOPT-002.md",
+        "sha256": "f3f94c7cb416631da6b6c5df52c4f6e40dd240ccf631a378370e06511a39efa2"
+      },
+      "evidence_refs": [
+        {
+          "id": "evidence/AUD-ADOPT-002-fit-browser.json",
+          "immutable_ref": "design/snapshots/SN-b8b093d9d560411450d3dfb284154696b239d7713edf544fcc8c25d58a2bfad7/files/evidence/AUD-ADOPT-002-fit-browser.json",
+          "sha256": "a98ba241290f87d4b0fd51527fe4be3a52cef1047ca31b1948f244275841412d"
+        },
+        {
+          "id": "evidence/AUD-ADOPT-002-fit-server.mjs",
+          "immutable_ref": "design/snapshots/SN-b8b093d9d560411450d3dfb284154696b239d7713edf544fcc8c25d58a2bfad7/files/evidence/AUD-ADOPT-002-fit-server.mjs",
+          "sha256": "62002d1c841ff2bbc6a7b51546bcbaf564624b40166e198e5fde37201c771b42"
+        }
+      ],
+      "accepted_at": "2026-10-03T11:15:31.443633+00:00"
+    },
+    {
+      "scope_id": "FIT-01",
+      "phase": "implementation",
+      "criteria_version": 1,
+      "scope": [
+        "CTX-LOG",
+        "FIT-01",
+        "SIT-01",
+        "SYS-LOG"
+      ],
+      "subject_hash": "4879824e8ef7935568ade85401bcfd7f311d126a53c00ee83660ec71d3d8263b",
+      "subject_ref": {
+        "id": "ADOPT-002",
+        "immutable_ref": "design/snapshots/SN-c9f08e3889e13bd79044800d4c3758f7e89de4fe1c80a9b4cc10caac006b0ebb/files/audits/subjects/ADOPT-002.json",
+        "sha256": "87771dbcf17f7410cec77e947fd85e5defa6076a4ec52f76138618627110851c"
+      },
+      "audit_request_id": "AR-ADOPT-002",
+      "result_ref": {
+        "id": "AUD-ADOPT-002",
+        "immutable_ref": "design/snapshots/SN-b8b093d9d560411450d3dfb284154696b239d7713edf544fcc8c25d58a2bfad7/files/audits/AUD-ADOPT-002.md",
+        "sha256": "f3f94c7cb416631da6b6c5df52c4f6e40dd240ccf631a378370e06511a39efa2"
+      },
+      "evidence_refs": [
+        {
+          "id": "evidence/AUD-ADOPT-002-fit-browser.json",
+          "immutable_ref": "design/snapshots/SN-b8b093d9d560411450d3dfb284154696b239d7713edf544fcc8c25d58a2bfad7/files/evidence/AUD-ADOPT-002-fit-browser.json",
+          "sha256": "a98ba241290f87d4b0fd51527fe4be3a52cef1047ca31b1948f244275841412d"
+        },
+        {
+          "id": "evidence/AUD-ADOPT-002-fit-server.mjs",
+          "immutable_ref": "design/snapshots/SN-b8b093d9d560411450d3dfb284154696b239d7713edf544fcc8c25d58a2bfad7/files/evidence/AUD-ADOPT-002-fit-server.mjs",
+          "sha256": "62002d1c841ff2bbc6a7b51546bcbaf564624b40166e198e5fde37201c771b42"
+        }
+      ],
+      "accepted_at": "2026-10-03T11:15:31.443648+00:00"
+    },
+    {
+      "scope_id": "SIT-01",
+      "phase": "implementation",
+      "criteria_version": 1,
+      "scope": [
+        "CTX-LOG",
+        "FIT-01",
+        "SIT-01",
+        "SYS-LOG"
+      ],
+      "subject_hash": "4879824e8ef7935568ade85401bcfd7f311d126a53c00ee83660ec71d3d8263b",
+      "subject_ref": {
+        "id": "ADOPT-002",
+        "immutable_ref": "design/snapshots/SN-c9f08e3889e13bd79044800d4c3758f7e89de4fe1c80a9b4cc10caac006b0ebb/files/audits/subjects/ADOPT-002.json",
+        "sha256": "87771dbcf17f7410cec77e947fd85e5defa6076a4ec52f76138618627110851c"
+      },
+      "audit_request_id": "AR-ADOPT-002",
+      "result_ref": {
+        "id": "AUD-ADOPT-002",
+        "immutable_ref": "design/snapshots/SN-b8b093d9d560411450d3dfb284154696b239d7713edf544fcc8c25d58a2bfad7/files/audits/AUD-ADOPT-002.md",
+        "sha256": "f3f94c7cb416631da6b6c5df52c4f6e40dd240ccf631a378370e06511a39efa2"
+      },
+      "evidence_refs": [
+        {
+          "id": "evidence/AUD-ADOPT-002-fit-browser.json",
+          "immutable_ref": "design/snapshots/SN-b8b093d9d560411450d3dfb284154696b239d7713edf544fcc8c25d58a2bfad7/files/evidence/AUD-ADOPT-002-fit-browser.json",
+          "sha256": "a98ba241290f87d4b0fd51527fe4be3a52cef1047ca31b1948f244275841412d"
+        },
+        {
+          "id": "evidence/AUD-ADOPT-002-fit-server.mjs",
+          "immutable_ref": "design/snapshots/SN-b8b093d9d560411450d3dfb284154696b239d7713edf544fcc8c25d58a2bfad7/files/evidence/AUD-ADOPT-002-fit-server.mjs",
+          "sha256": "62002d1c841ff2bbc6a7b51546bcbaf564624b40166e198e5fde37201c771b42"
+        }
+      ],
+      "accepted_at": "2026-10-03T11:15:31.443657+00:00"
+    },
+    {
+      "scope_id": "SYS-LOG",
+      "phase": "implementation",
+      "criteria_version": 1,
+      "scope": [
+        "CTX-LOG",
+        "FIT-01",
+        "SIT-01",
+        "SYS-LOG"
+      ],
+      "subject_hash": "4879824e8ef7935568ade85401bcfd7f311d126a53c00ee83660ec71d3d8263b",
+      "subject_ref": {
+        "id": "ADOPT-002",
+        "immutable_ref": "design/snapshots/SN-c9f08e3889e13bd79044800d4c3758f7e89de4fe1c80a9b4cc10caac006b0ebb/files/audits/subjects/ADOPT-002.json",
+        "sha256": "87771dbcf17f7410cec77e947fd85e5defa6076a4ec52f76138618627110851c"
+      },
+      "audit_request_id": "AR-ADOPT-002",
+      "result_ref": {
+        "id": "AUD-ADOPT-002",
+        "immutable_ref": "design/snapshots/SN-b8b093d9d560411450d3dfb284154696b239d7713edf544fcc8c25d58a2bfad7/files/audits/AUD-ADOPT-002.md",
+        "sha256": "f3f94c7cb416631da6b6c5df52c4f6e40dd240ccf631a378370e06511a39efa2"
+      },
+      "evidence_refs": [
+        {
+          "id": "evidence/AUD-ADOPT-002-fit-browser.json",
+          "immutable_ref": "design/snapshots/SN-b8b093d9d560411450d3dfb284154696b239d7713edf544fcc8c25d58a2bfad7/files/evidence/AUD-ADOPT-002-fit-browser.json",
+          "sha256": "a98ba241290f87d4b0fd51527fe4be3a52cef1047ca31b1948f244275841412d"
+        },
+        {
+          "id": "evidence/AUD-ADOPT-002-fit-server.mjs",
+          "immutable_ref": "design/snapshots/SN-b8b093d9d560411450d3dfb284154696b239d7713edf544fcc8c25d58a2bfad7/files/evidence/AUD-ADOPT-002-fit-server.mjs",
+          "sha256": "62002d1c841ff2bbc6a7b51546bcbaf564624b40166e198e5fde37201c771b42"
+        }
+      ],
+      "accepted_at": "2026-10-03T11:15:31.443665+00:00"
     }
   ],
   "unaudited_changes": [],
@@ -152,10 +300,47 @@
         "SIT-01",
         "SYS-LOG"
       ],
-      "state": "requested",
-      "result": null,
-      "bundle": null,
-      "audit_request_id": "AR-ADOPT-002"
+      "state": "committed",
+      "result": "applied",
+      "bundle": {
+        "id": "BUNDLE-001",
+        "immutable_ref": "design/snapshots/SN-fab1cd198c39ee2f406f70567117e5d71122b58da0ad97f93dc54eb969e868f3/files/design/candidates/OP-ADOPT-002/bundle.json",
+        "sha256": "90c0dd3433cddb50240a8c1df5f8db70e5e9f11d82f9837caa6a6b6c6cef3742"
+      },
+      "audit_request_id": "AR-ADOPT-002",
+      "result_ref": {
+        "id": "AUD-ADOPT-002",
+        "immutable_ref": "design/snapshots/SN-b8b093d9d560411450d3dfb284154696b239d7713edf544fcc8c25d58a2bfad7/files/audits/AUD-ADOPT-002.md",
+        "sha256": "f3f94c7cb416631da6b6c5df52c4f6e40dd240ccf631a378370e06511a39efa2"
+      },
+      "record_ref": {
+        "id": "AUD-ADOPT-002-RECORD-ACCEPTED",
+        "immutable_ref": "design/snapshots/SN-b1284207bc4df31dc1febd284de6292a9c444bc4b6182e29f6685a3c7696aaad/files/evidence/AUD-ADOPT-002-record-accepted.md",
+        "sha256": "f89649460e6e4ee033fde0e4cecb1d408404fc5146119da8249358e0098603eb"
+      },
+      "committed_at": "2026-10-03T11:15:31.443587+00:00"
+    },
+    "OP-CLOSE-001": {
+      "kind": "cycle_closed",
+      "payload_hash": "eeafb1603b99ef0a14fd185325cb23a3d578a5052a1b85c4e291b04ac87fab7c",
+      "state": "committed",
+      "result": "acknowledged",
+      "scope": [
+        "CTX-LOG",
+        "FIT-01",
+        "SIT-01",
+        "SYS-LOG"
+      ],
+      "bundle": {
+        "id": "BUNDLE-001",
+        "immutable_ref": "design/snapshots/SN-fab1cd198c39ee2f406f70567117e5d71122b58da0ad97f93dc54eb969e868f3/files/design/candidates/OP-ADOPT-002/bundle.json",
+        "sha256": "90c0dd3433cddb50240a8c1df5f8db70e5e9f11d82f9837caa6a6b6c6cef3742"
+      },
+      "payload_ref": {
+        "id": "OP-CLOSE-001",
+        "immutable_ref": "design/snapshots/SN-73bc16eb013796497a3ff3d3974cee92e02ee91d01fb5e2b16675300bc1f1b66/files/operations/OP-CLOSE-001-payload.json",
+        "sha256": "a47695a9fa811ea917d7089ff10e1f4cf0cadddf20796818d78228aab3860073"
+      }
     }
   },
   "tombstones": {},
@@ -196,425 +381,88 @@
         "sha256": "7151ebbac3c9d887d729b020ff6fda47e4307ae7fe0f6c8f7b908fef5dac079b"
       },
       "target": "Claude Opus 5.5 (external independent audit)",
-      "state": "pending",
+      "state": "acknowledged",
       "execution_id": "EXEC-AUDIT-ADOPT-002",
       "account_refs": [
         "LOCAL-01"
-      ]
-    }
-  ],
-  "received_notifications": {},
-  "pending_changes": [
-    {
-      "change_id": "CHANGE-001",
-      "affected_scope": [
-        "CTX-LOG",
-        "FIT-01",
-        "SIT-01",
-        "SYS-LOG"
       ],
-      "phase": "implementation",
-      "baseline_refs": {
-        "CTX-LOG": "initial",
-        "FIT-01": "initial",
-        "SIT-01": "initial",
-        "SYS-LOG": "initial"
+      "result_ref": {
+        "id": "AUD-ADOPT-002",
+        "immutable_ref": "design/snapshots/SN-b8b093d9d560411450d3dfb284154696b239d7713edf544fcc8c25d58a2bfad7/files/audits/AUD-ADOPT-002.md",
+        "sha256": "f3f94c7cb416631da6b6c5df52c4f6e40dd240ccf631a378370e06511a39efa2"
       },
-      "first_changed_at": "2026-10-02T18:43:31.407735+00:00",
-      "operation_id": "OP-ADOPT-001",
-      "old_version": null,
-      "new_version": {
-        "id": "IMPL-003",
-        "snapshot_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2",
-        "files": [
-          {
-            "id": "api/events.js",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/api/events.js",
-            "sha256": "97a1731cfb5d647315cc2c6a33f638486180820275aad3c8d71f8126e87567e8"
-          },
-          {
-            "id": "api/health.js",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/api/health.js",
-            "sha256": "97a1731cfb5d647315cc2c6a33f638486180820275aad3c8d71f8126e87567e8"
-          },
-          {
-            "id": "api/session.js",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/api/session.js",
-            "sha256": "97a1731cfb5d647315cc2c6a33f638486180820275aad3c8d71f8126e87567e8"
-          },
-          {
-            "id": "cli/logbook.py",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/cli/logbook.py",
-            "sha256": "7e52fba9c73240dd0100d5ffb0796b72b93fb9cdb076c7beaa3fb8190f448682"
-          },
-          {
-            "id": "dev/fixture-store.mjs",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/dev/fixture-store.mjs",
-            "sha256": "c2673d0ce9867552bfa369b593e2679b9c09267be7a0bd0fd553e0e02280f0bd"
-          },
-          {
-            "id": "lib/schema.mjs",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/lib/schema.mjs",
-            "sha256": "db18c8098ace4501d8f58d5008afd80f1f3687a228aa2c94c5f7e200bfd625f9"
-          },
-          {
-            "id": "lib/service.mjs",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/lib/service.mjs",
-            "sha256": "6e550cd5136e02750ed45d8d761ed4a4479de0cd95208c26be01781eeee95851"
-          },
-          {
-            "id": "lib/supabase.mjs",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/lib/supabase.mjs",
-            "sha256": "d82ee069f287d063702e3524c369ed500b1d1b71026515403be6085994b78dc1"
-          },
-          {
-            "id": "public/app.js",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/public/app.js",
-            "sha256": "95d09ae920d049f8c45779d44ac7253a4e71bb33c08b0d112b1d282421dab1a9"
-          },
-          {
-            "id": "public/index.html",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/public/index.html",
-            "sha256": "7f523a5bc31620ff908e328c866874c9be5d371b178630a758498890ee56eb37"
-          },
-          {
-            "id": "public/styles.css",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/public/styles.css",
-            "sha256": "71f24000802dac2d9a419548190790cb38480ee20f94ab39def7fa423481641a"
-          },
-          {
-            "id": "scripts/dev.mjs",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/scripts/dev.mjs",
-            "sha256": "f728fed42994d6f034d40d34ca0ee819fee7abd7b8d43b9058cca45e2c0d1a87"
-          },
-          {
-            "id": "scripts/writer-key.mjs",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/scripts/writer-key.mjs",
-            "sha256": "d1a4bd044652e11bbb37c2e8e136eebf212be05361e84cb37d7320d30b4d2fc8"
-          },
-          {
-            "id": "supabase/migrations/202610030001_logbook.sql",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/supabase/migrations/202610030001_logbook.sql",
-            "sha256": "55c67bbbb1c80599c1049852d04b1298312d2f3cd3e48126e3f997621bd3bfaa"
-          },
-          {
-            "id": "tests/integration.test.mjs",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/tests/integration.test.mjs",
-            "sha256": "f15a603bd096889ec61c401a0c617948dd42da321d62d7eac20493263775dc02"
-          },
-          {
-            "id": "tests/service.test.mjs",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/tests/service.test.mjs",
-            "sha256": "95dba5725cb2e14a6bab71512c321fc0d386b521c17137d8e8ec46403dc72813"
-          },
-          {
-            "id": "README.md",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/README.md",
-            "sha256": "5816d7abedc45b79bfb5f677f7453e6e6fea4cf3cbf6fb9cc171194be5fe727a"
-          },
-          {
-            "id": "agent-instructions.md",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/agent-instructions.md",
-            "sha256": "17363ce8aa4bdfeda0bbed46320042065fe05e03576945128b54abc70c53f974"
-          },
-          {
-            "id": "package.json",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/package.json",
-            "sha256": "f1ace1b766ffdd7e85674db4a48a5c3269e75bd9243f2c1bd2b4b596fcd74a5c"
-          },
-          {
-            "id": "vercel.json",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/vercel.json",
-            "sha256": "aae1c40e107f781a55e1360e1fc4b277989b5871912d009ee25fefd9edd14daf"
-          },
-          {
-            "id": ".env.example",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/.env.example",
-            "sha256": "352910f4de835d3d62697760de4b0cf7b87368c8251bd3c99e13891587f9073f"
-          },
-          {
-            "id": ".gitignore",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/.gitignore",
-            "sha256": "8eddc449ef8e80bcb420c47db10931c282b08111728c0560cfd3a297ff4bf75b"
-          },
-          {
-            "id": ".gitattributes",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/.gitattributes",
-            "sha256": "bd9663d71ffce4f030fba3bf7285472e2fab87ce8f71d180d20c14060d0c42a1"
-          }
-        ]
-      },
-      "joint_condition": "CLI→API→保存adapter→所有者認証読取→画面を同じsubjectで確認。SQLの安全性は独立レビュー、実DBは未確認。",
-      "reason": "固定計画のローカル技術的試験採用。配備採用ではない。"
+      "acknowledged_at": "2026-10-03T11:15:31.443724+00:00"
     },
     {
-      "change_id": "CHANGE-002",
-      "affected_scope": [
-        "CTX-LOG",
-        "FIT-01",
-        "SIT-01",
-        "SYS-LOG"
-      ],
-      "phase": "implementation",
-      "baseline_refs": {
-        "CTX-LOG": "initial",
-        "FIT-01": "initial",
-        "SIT-01": "initial",
-        "SYS-LOG": "initial"
+      "message_id": "OP-CLOSE-001",
+      "kind": "S-PROPOSAL",
+      "payload_ref": {
+        "id": "OP-CLOSE-001",
+        "immutable_ref": "design/snapshots/SN-73bc16eb013796497a3ff3d3974cee92e02ee91d01fb5e2b16675300bc1f1b66/files/operations/OP-CLOSE-001-payload.json",
+        "sha256": "a47695a9fa811ea917d7089ff10e1f4cf0cadddf20796818d78228aab3860073"
       },
-      "first_changed_at": "2026-10-03T10:59:22.165704+00:00",
-      "operation_id": "OP-ADOPT-002",
-      "old_version": {
-        "id": "IMPL-003",
-        "snapshot_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2",
-        "files": [
-          {
-            "id": "api/events.js",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/api/events.js",
-            "sha256": "97a1731cfb5d647315cc2c6a33f638486180820275aad3c8d71f8126e87567e8"
-          },
-          {
-            "id": "api/health.js",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/api/health.js",
-            "sha256": "97a1731cfb5d647315cc2c6a33f638486180820275aad3c8d71f8126e87567e8"
-          },
-          {
-            "id": "api/session.js",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/api/session.js",
-            "sha256": "97a1731cfb5d647315cc2c6a33f638486180820275aad3c8d71f8126e87567e8"
-          },
-          {
-            "id": "cli/logbook.py",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/cli/logbook.py",
-            "sha256": "7e52fba9c73240dd0100d5ffb0796b72b93fb9cdb076c7beaa3fb8190f448682"
-          },
-          {
-            "id": "dev/fixture-store.mjs",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/dev/fixture-store.mjs",
-            "sha256": "c2673d0ce9867552bfa369b593e2679b9c09267be7a0bd0fd553e0e02280f0bd"
-          },
-          {
-            "id": "lib/schema.mjs",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/lib/schema.mjs",
-            "sha256": "db18c8098ace4501d8f58d5008afd80f1f3687a228aa2c94c5f7e200bfd625f9"
-          },
-          {
-            "id": "lib/service.mjs",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/lib/service.mjs",
-            "sha256": "6e550cd5136e02750ed45d8d761ed4a4479de0cd95208c26be01781eeee95851"
-          },
-          {
-            "id": "lib/supabase.mjs",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/lib/supabase.mjs",
-            "sha256": "d82ee069f287d063702e3524c369ed500b1d1b71026515403be6085994b78dc1"
-          },
-          {
-            "id": "public/app.js",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/public/app.js",
-            "sha256": "95d09ae920d049f8c45779d44ac7253a4e71bb33c08b0d112b1d282421dab1a9"
-          },
-          {
-            "id": "public/index.html",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/public/index.html",
-            "sha256": "7f523a5bc31620ff908e328c866874c9be5d371b178630a758498890ee56eb37"
-          },
-          {
-            "id": "public/styles.css",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/public/styles.css",
-            "sha256": "71f24000802dac2d9a419548190790cb38480ee20f94ab39def7fa423481641a"
-          },
-          {
-            "id": "scripts/dev.mjs",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/scripts/dev.mjs",
-            "sha256": "f728fed42994d6f034d40d34ca0ee819fee7abd7b8d43b9058cca45e2c0d1a87"
-          },
-          {
-            "id": "scripts/writer-key.mjs",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/scripts/writer-key.mjs",
-            "sha256": "d1a4bd044652e11bbb37c2e8e136eebf212be05361e84cb37d7320d30b4d2fc8"
-          },
-          {
-            "id": "supabase/migrations/202610030001_logbook.sql",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/supabase/migrations/202610030001_logbook.sql",
-            "sha256": "55c67bbbb1c80599c1049852d04b1298312d2f3cd3e48126e3f997621bd3bfaa"
-          },
-          {
-            "id": "tests/integration.test.mjs",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/tests/integration.test.mjs",
-            "sha256": "f15a603bd096889ec61c401a0c617948dd42da321d62d7eac20493263775dc02"
-          },
-          {
-            "id": "tests/service.test.mjs",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/tests/service.test.mjs",
-            "sha256": "95dba5725cb2e14a6bab71512c321fc0d386b521c17137d8e8ec46403dc72813"
-          },
-          {
-            "id": "README.md",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/README.md",
-            "sha256": "5816d7abedc45b79bfb5f677f7453e6e6fea4cf3cbf6fb9cc171194be5fe727a"
-          },
-          {
-            "id": "agent-instructions.md",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/agent-instructions.md",
-            "sha256": "17363ce8aa4bdfeda0bbed46320042065fe05e03576945128b54abc70c53f974"
-          },
-          {
-            "id": "package.json",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/package.json",
-            "sha256": "f1ace1b766ffdd7e85674db4a48a5c3269e75bd9243f2c1bd2b4b596fcd74a5c"
-          },
-          {
-            "id": "vercel.json",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/vercel.json",
-            "sha256": "aae1c40e107f781a55e1360e1fc4b277989b5871912d009ee25fefd9edd14daf"
-          },
-          {
-            "id": ".env.example",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/.env.example",
-            "sha256": "352910f4de835d3d62697760de4b0cf7b87368c8251bd3c99e13891587f9073f"
-          },
-          {
-            "id": ".gitignore",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/.gitignore",
-            "sha256": "8eddc449ef8e80bcb420c47db10931c282b08111728c0560cfd3a297ff4bf75b"
-          },
-          {
-            "id": ".gitattributes",
-            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/.gitattributes",
-            "sha256": "bd9663d71ffce4f030fba3bf7285472e2fab87ce8f71d180d20c14060d0c42a1"
-          }
-        ]
-      },
-      "new_version": {
-        "id": "IMPL-005",
-        "snapshot_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b",
-        "files": [
-          {
-            "id": "api/events.js",
-            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/api/events.js",
-            "sha256": "97a1731cfb5d647315cc2c6a33f638486180820275aad3c8d71f8126e87567e8"
-          },
-          {
-            "id": "api/health.js",
-            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/api/health.js",
-            "sha256": "97a1731cfb5d647315cc2c6a33f638486180820275aad3c8d71f8126e87567e8"
-          },
-          {
-            "id": "api/session.js",
-            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/api/session.js",
-            "sha256": "97a1731cfb5d647315cc2c6a33f638486180820275aad3c8d71f8126e87567e8"
-          },
-          {
-            "id": "cli/logbook.py",
-            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/cli/logbook.py",
-            "sha256": "7e52fba9c73240dd0100d5ffb0796b72b93fb9cdb076c7beaa3fb8190f448682"
-          },
-          {
-            "id": "dev/fixture-store.mjs",
-            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/dev/fixture-store.mjs",
-            "sha256": "c2673d0ce9867552bfa369b593e2679b9c09267be7a0bd0fd553e0e02280f0bd"
-          },
-          {
-            "id": "lib/schema.mjs",
-            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/lib/schema.mjs",
-            "sha256": "db18c8098ace4501d8f58d5008afd80f1f3687a228aa2c94c5f7e200bfd625f9"
-          },
-          {
-            "id": "lib/service.mjs",
-            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/lib/service.mjs",
-            "sha256": "7c9606f48cf2944babde983dee4ed339c6c935cfb4328f841168ee4c5c796f6c"
-          },
-          {
-            "id": "lib/supabase.mjs",
-            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/lib/supabase.mjs",
-            "sha256": "43dac404d5ade374f2bbe21081f471be5ef6a658558de18e4e0c98c941597d45"
-          },
-          {
-            "id": "public/app.js",
-            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/public/app.js",
-            "sha256": "812c016e15c340754ee585dbc78b2a5c499ade6461699eb15618160491329b50"
-          },
-          {
-            "id": "public/index.html",
-            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/public/index.html",
-            "sha256": "7f523a5bc31620ff908e328c866874c9be5d371b178630a758498890ee56eb37"
-          },
-          {
-            "id": "public/styles.css",
-            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/public/styles.css",
-            "sha256": "71f24000802dac2d9a419548190790cb38480ee20f94ab39def7fa423481641a"
-          },
-          {
-            "id": "scripts/dev.mjs",
-            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/scripts/dev.mjs",
-            "sha256": "f728fed42994d6f034d40d34ca0ee819fee7abd7b8d43b9058cca45e2c0d1a87"
-          },
-          {
-            "id": "scripts/writer-key.mjs",
-            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/scripts/writer-key.mjs",
-            "sha256": "d1a4bd044652e11bbb37c2e8e136eebf212be05361e84cb37d7320d30b4d2fc8"
-          },
-          {
-            "id": "supabase/migrations/202610030001_logbook.sql",
-            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/supabase/migrations/202610030001_logbook.sql",
-            "sha256": "55c67bbbb1c80599c1049852d04b1298312d2f3cd3e48126e3f997621bd3bfaa"
-          },
-          {
-            "id": "tests/auth-recovery.test.mjs",
-            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/tests/auth-recovery.test.mjs",
-            "sha256": "7d91c411eea8ed95802615d55a3753c5a11a762af4bbd117e143f03ee25c04fe"
-          },
-          {
-            "id": "tests/integration.test.mjs",
-            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/tests/integration.test.mjs",
-            "sha256": "f15a603bd096889ec61c401a0c617948dd42da321d62d7eac20493263775dc02"
-          },
-          {
-            "id": "tests/service.test.mjs",
-            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/tests/service.test.mjs",
-            "sha256": "95dba5725cb2e14a6bab71512c321fc0d386b521c17137d8e8ec46403dc72813"
-          },
-          {
-            "id": "README.md",
-            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/README.md",
-            "sha256": "5816d7abedc45b79bfb5f677f7453e6e6fea4cf3cbf6fb9cc171194be5fe727a"
-          },
-          {
-            "id": "agent-instructions.md",
-            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/agent-instructions.md",
-            "sha256": "17363ce8aa4bdfeda0bbed46320042065fe05e03576945128b54abc70c53f974"
-          },
-          {
-            "id": "package.json",
-            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/package.json",
-            "sha256": "f1ace1b766ffdd7e85674db4a48a5c3269e75bd9243f2c1bd2b4b596fcd74a5c"
-          },
-          {
-            "id": "vercel.json",
-            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/vercel.json",
-            "sha256": "aae1c40e107f781a55e1360e1fc4b277989b5871912d009ee25fefd9edd14daf"
-          },
-          {
-            "id": ".env.example",
-            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/.env.example",
-            "sha256": "352910f4de835d3d62697760de4b0cf7b87368c8251bd3c99e13891587f9073f"
-          },
-          {
-            "id": ".gitignore",
-            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/.gitignore",
-            "sha256": "8eddc449ef8e80bcb420c47db10931c282b08111728c0560cfd3a297ff4bf75b"
-          },
-          {
-            "id": ".gitattributes",
-            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/.gitattributes",
-            "sha256": "bd9663d71ffce4f030fba3bf7285472e2fab87ce8f71d180d20c14060d0c42a1"
-          }
-        ]
-      },
-      "joint_condition": "Auth adapter/session/cookie/UIを一体で再確認。FIT未確認を維持。",
-      "reason": "F-CLOUD-ADOPT-001の修正。CHANGE-001とinitialからの累積差分を保持。"
+      "target": "record",
+      "state": "acknowledged"
     }
   ],
+  "received_notifications": {
+    "OP-CLOSE-001": {
+      "payload_hash": "eeafb1603b99ef0a14fd185325cb23a3d578a5052a1b85c4e291b04ac87fab7c",
+      "cycle_id": "C-001",
+      "periodic_request_id": null,
+      "periodic_status": "skipped",
+      "skip_reason": "no-unaudited-implementation-changes: CHANGE-001/002の全scope・共同条件とinitial→IMPL-003→IMPL-005を同一subjectの独立adoption監査で保証し採用時に解消。採用後の製品変更なし。未確認配備等とopen minorを保証済みにしない。",
+      "ack": "acknowledged",
+      "acknowledged_at": "2026-10-03T11:15:31.637633+00:00",
+      "policy": {
+        "revision": 1,
+        "cycle_closed_enabled": true,
+        "after_days": 7,
+        "timezone": "Asia/Tokyo",
+        "source_ref": "harness-v3/protocols/messages.md"
+      },
+      "next_due": null,
+      "waiting_state": null,
+      "related_operations": [
+        {
+          "operation_id": "OP-PLAN-001",
+          "state": "checked",
+          "result": "audit-pass",
+          "result_ref": {
+            "id": "AUD-PLAN-001",
+            "immutable_ref": "design/snapshots/SN-61d392514bd38d9ca1232028190ec93e3c677db8c6779e85d38b92d2173b1cc1/files/audits/AUD-PLAN-001.md",
+            "sha256": "b5665c4e9c86f8d10b04522b6be3fcef99a61c1c7c9487d0176cceeb1023d3f5"
+          }
+        },
+        {
+          "operation_id": "OP-ADOPT-001",
+          "state": "rejected",
+          "result": "require-review",
+          "result_ref": {
+            "id": "AUD-ADOPT-001",
+            "immutable_ref": "design/snapshots/SN-036c3904c01c70798592c484abfc41670d730336c8971b53b059d72e55992c7a/files/audits/AUD-ADOPT-001.md",
+            "sha256": "a49b3bbd46fe9a2a4e2cc33dbb6a77bcff62584487015b3494425674c90f42f3"
+          }
+        },
+        {
+          "operation_id": "OP-ADOPT-002",
+          "state": "committed",
+          "result": "applied",
+          "result_ref": {
+            "id": "AUD-ADOPT-002",
+            "immutable_ref": "design/snapshots/SN-b8b093d9d560411450d3dfb284154696b239d7713edf544fcc8c25d58a2bfad7/files/audits/AUD-ADOPT-002.md",
+            "sha256": "f3f94c7cb416631da6b6c5df52c4f6e40dd240ccf631a378370e06511a39efa2"
+          }
+        }
+      ],
+      "result_ref": {
+        "id": "AUD-ADOPT-002",
+        "immutable_ref": "design/snapshots/SN-b8b093d9d560411450d3dfb284154696b239d7713edf544fcc8c25d58a2bfad7/files/audits/AUD-ADOPT-002.md",
+        "sha256": "f3f94c7cb416631da6b6c5df52c4f6e40dd240ccf631a378370e06511a39efa2"
+      }
+    }
+  },
+  "pending_changes": [],
   "blocked_scopes": [
     {
       "scope": [
@@ -623,7 +471,7 @@
         "SIT-01",
         "SYS-LOG"
       ],
-      "state": "active",
+      "state": "released",
       "finding_id": "F-CLOUD-ADOPT-001",
       "audit_ref": {
         "id": "AUD-ADOPT-001",
@@ -636,7 +484,28 @@
         "TRIAL-005"
       ],
       "release_condition": "独立再監査がAuth 500/429等の一時障害と真の認証拒否を区別し、cookie/前回表示保持と認証切れ消去の証拠を確認する。",
-      "correction_scope": "Supabase応答分類・対応するsession/UIエラー表示・回帰検証。意味定義/評価/配備範囲は変更しない。"
+      "correction_scope": "Supabase応答分類・対応するsession/UIエラー表示・回帰検証。意味定義/評価/配備範囲は変更しない。",
+      "released_at": "2026-10-03T11:15:31.443708+00:00",
+      "release_result_ref": {
+        "id": "AUD-ADOPT-002",
+        "immutable_ref": "design/snapshots/SN-b8b093d9d560411450d3dfb284154696b239d7713edf544fcc8c25d58a2bfad7/files/audits/AUD-ADOPT-002.md",
+        "sha256": "f3f94c7cb416631da6b6c5df52c4f6e40dd240ccf631a378370e06511a39efa2"
+      },
+      "successor_request_id": "AR-ADOPT-002",
+      "phase": "implementation",
+      "release_reason": "独立再監査が一時障害のcookie/旧表示保持・復旧と真の失効時消去を確認。",
+      "evidence_refs": [
+        {
+          "id": "evidence/AUD-ADOPT-002-fit-browser.json",
+          "immutable_ref": "design/snapshots/SN-b8b093d9d560411450d3dfb284154696b239d7713edf544fcc8c25d58a2bfad7/files/evidence/AUD-ADOPT-002-fit-browser.json",
+          "sha256": "a98ba241290f87d4b0fd51527fe4be3a52cef1047ca31b1948f244275841412d"
+        },
+        {
+          "id": "evidence/AUD-ADOPT-002-fit-server.mjs",
+          "immutable_ref": "design/snapshots/SN-b8b093d9d560411450d3dfb284154696b239d7713edf544fcc8c25d58a2bfad7/files/evidence/AUD-ADOPT-002-fit-server.mjs",
+          "sha256": "62002d1c841ff2bbc6a7b51546bcbaf564624b40166e198e5fde37201c771b42"
+        }
+      ]
     }
   ],
   "budget_accounts": {
@@ -691,7 +560,7 @@
           "activities": [
             "audit"
           ],
-          "cumulative_used": 2
+          "cumulative_used": 3
         },
         "record_batches": {
           "unit": "administrative-batch",
@@ -699,7 +568,7 @@
           "activities": [
             "record"
           ],
-          "cumulative_used": 4
+          "cumulative_used": 5
         }
       }
     }
@@ -1423,7 +1292,7 @@
         "semantic_revision": 1
       },
       "checked_at": "2026-10-03T10:59:22.198997+00:00",
-      "state": "reserved",
+      "state": "settled",
       "decision_owner": "record",
       "limits": {
         "external_spend": 0,
@@ -1461,19 +1330,584 @@
           "decision": "allow"
         }
       },
-      "basis": "Local tools and existing session only; no paid external API or purchases. Platform token cost is unmeasured and not represented as zero."
+      "basis": "Local tools and existing session only; no paid external API or purchases. Platform token cost is unmeasured and not represented as zero.",
+      "settled_at": "2026-10-03T11:15:31.443748+00:00",
+      "evidence_ref": {
+        "id": "AUD-ADOPT-002",
+        "immutable_ref": "design/snapshots/SN-b8b093d9d560411450d3dfb284154696b239d7713edf544fcc8c25d58a2bfad7/files/audits/AUD-ADOPT-002.md",
+        "sha256": "f3f94c7cb416631da6b6c5df52c4f6e40dd240ccf631a378370e06511a39efa2"
+      }
+    },
+    "EXEC-RECORD-005": {
+      "activity": "record",
+      "operation_id": "AR-ADOPT-002",
+      "scope": [
+        "CTX-LOG",
+        "FIT-01",
+        "SIT-01",
+        "SYS-LOG"
+      ],
+      "corrective_finding": "F-CLOUD-ADOPT-001",
+      "account_refs": [
+        "LOCAL-01"
+      ],
+      "definition_ref": {
+        "id": "BUDGET-01",
+        "immutable_ref": "design/snapshots/SN-93aa04c2045e9a8d9427752b0e72563365d6a8911c6c54fa472c697ebd2b76c4/files/experiments/budget-definition.md",
+        "sha256": "6eae3ab9ea2c13170219f30fd66b5a5795e102a737e6670da62e7e601f644406",
+        "semantic_revision": 1
+      },
+      "checked_at": "2026-10-03T11:15:30.577917+00:00",
+      "state": "settled",
+      "decision_owner": "record",
+      "limits": {
+        "external_spend": 0,
+        "trials": 0,
+        "audits": 0,
+        "record_batches": 1
+      },
+      "checks": {
+        "external_spend": {
+          "used": 0,
+          "outstanding": 0,
+          "next": 0,
+          "limit": 0,
+          "decision": "allow"
+        },
+        "trials": {
+          "used": 5,
+          "outstanding": 0,
+          "next": 0,
+          "limit": 6,
+          "decision": "allow"
+        },
+        "audits": {
+          "used": 2,
+          "outstanding": 1,
+          "next": 0,
+          "limit": 6,
+          "decision": "allow"
+        },
+        "record_batches": {
+          "used": 4,
+          "outstanding": 0,
+          "next": 1,
+          "limit": 80,
+          "decision": "allow"
+        }
+      },
+      "basis": "Local tools and existing session only; no paid external API or purchases. Platform token cost is unmeasured and not represented as zero.",
+      "settled_at": "2026-10-03T11:15:31.637721+00:00",
+      "evidence_ref": {
+        "id": "AUD-ADOPT-002-RECORD-ACCEPTED",
+        "immutable_ref": "design/snapshots/SN-b1284207bc4df31dc1febd284de6292a9c444bc4b6182e29f6685a3c7696aaad/files/evidence/AUD-ADOPT-002-record-accepted.md",
+        "sha256": "f89649460e6e4ee033fde0e4cecb1d408404fc5146119da8249358e0098603eb"
+      }
     }
   },
   "recovery_records": {},
-  "observed_at": "2026-10-03T10:59:22.597359+00:00",
+  "observed_at": "2026-10-03T11:15:31.637734+00:00",
   "display": {
     "plan": "独立監査合格",
-    "trial": "TRIAL-005 自動29件合格、FIT未確認（TRIAL-004失敗を保存）",
-    "audit": "重大指摘1件・独立再監査待ち",
-    "adoption": "採用保留",
-    "cycle": "独立再監査待ち・未完了",
-    "human_evaluation": "未確認",
-    "next": "Claude Opus 5.5がAR-ADOPT-002を独立再監査する。実ブラウザFITは未確認。"
+    "trial": "TRIAL-005自動29件合格・独立監査FIT 9項目確認（過去の失敗と未確認記録を保持）",
+    "audit": "独立再監査合格・major/blocker 0・minor 1未解消",
+    "adoption": "ローカル技術的試験のみ採用",
+    "cycle": "ローカル技術的試験サイクル完了・cycle_closed ack・周期監査は理由付きskip",
+    "human_evaluation": "HUMAN-01 未確認",
+    "next": "F-CLOUD-ADOPT-002と既存4件を次計画へ。配備・4実環境・本人評価などは未確認。",
+    "production_deployment": "DEPLOY-01 未確認",
+    "source_environments": "SOURCES-01 未確認",
+    "native_download": "未確認",
+    "other_follow_up": "実Authエラー本文・他ブラウザ・長期運用・クラウドキュー持続性は未確認",
+    "project_complete": "未完了（配備・4実環境・本人評価等は未確認）"
+  },
+  "resolved_changes": [
+    {
+      "change_id": "CHANGE-001",
+      "affected_scope": [
+        "CTX-LOG",
+        "FIT-01",
+        "SIT-01",
+        "SYS-LOG"
+      ],
+      "phase": "implementation",
+      "baseline_refs": {
+        "CTX-LOG": "initial",
+        "FIT-01": "initial",
+        "SIT-01": "initial",
+        "SYS-LOG": "initial"
+      },
+      "first_changed_at": "2026-10-02T18:43:31.407735+00:00",
+      "operation_id": "OP-ADOPT-001",
+      "old_version": null,
+      "new_version": {
+        "id": "IMPL-003",
+        "snapshot_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2",
+        "files": [
+          {
+            "id": "api/events.js",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/api/events.js",
+            "sha256": "97a1731cfb5d647315cc2c6a33f638486180820275aad3c8d71f8126e87567e8"
+          },
+          {
+            "id": "api/health.js",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/api/health.js",
+            "sha256": "97a1731cfb5d647315cc2c6a33f638486180820275aad3c8d71f8126e87567e8"
+          },
+          {
+            "id": "api/session.js",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/api/session.js",
+            "sha256": "97a1731cfb5d647315cc2c6a33f638486180820275aad3c8d71f8126e87567e8"
+          },
+          {
+            "id": "cli/logbook.py",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/cli/logbook.py",
+            "sha256": "7e52fba9c73240dd0100d5ffb0796b72b93fb9cdb076c7beaa3fb8190f448682"
+          },
+          {
+            "id": "dev/fixture-store.mjs",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/dev/fixture-store.mjs",
+            "sha256": "c2673d0ce9867552bfa369b593e2679b9c09267be7a0bd0fd553e0e02280f0bd"
+          },
+          {
+            "id": "lib/schema.mjs",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/lib/schema.mjs",
+            "sha256": "db18c8098ace4501d8f58d5008afd80f1f3687a228aa2c94c5f7e200bfd625f9"
+          },
+          {
+            "id": "lib/service.mjs",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/lib/service.mjs",
+            "sha256": "6e550cd5136e02750ed45d8d761ed4a4479de0cd95208c26be01781eeee95851"
+          },
+          {
+            "id": "lib/supabase.mjs",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/lib/supabase.mjs",
+            "sha256": "d82ee069f287d063702e3524c369ed500b1d1b71026515403be6085994b78dc1"
+          },
+          {
+            "id": "public/app.js",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/public/app.js",
+            "sha256": "95d09ae920d049f8c45779d44ac7253a4e71bb33c08b0d112b1d282421dab1a9"
+          },
+          {
+            "id": "public/index.html",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/public/index.html",
+            "sha256": "7f523a5bc31620ff908e328c866874c9be5d371b178630a758498890ee56eb37"
+          },
+          {
+            "id": "public/styles.css",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/public/styles.css",
+            "sha256": "71f24000802dac2d9a419548190790cb38480ee20f94ab39def7fa423481641a"
+          },
+          {
+            "id": "scripts/dev.mjs",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/scripts/dev.mjs",
+            "sha256": "f728fed42994d6f034d40d34ca0ee819fee7abd7b8d43b9058cca45e2c0d1a87"
+          },
+          {
+            "id": "scripts/writer-key.mjs",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/scripts/writer-key.mjs",
+            "sha256": "d1a4bd044652e11bbb37c2e8e136eebf212be05361e84cb37d7320d30b4d2fc8"
+          },
+          {
+            "id": "supabase/migrations/202610030001_logbook.sql",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/supabase/migrations/202610030001_logbook.sql",
+            "sha256": "55c67bbbb1c80599c1049852d04b1298312d2f3cd3e48126e3f997621bd3bfaa"
+          },
+          {
+            "id": "tests/integration.test.mjs",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/tests/integration.test.mjs",
+            "sha256": "f15a603bd096889ec61c401a0c617948dd42da321d62d7eac20493263775dc02"
+          },
+          {
+            "id": "tests/service.test.mjs",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/tests/service.test.mjs",
+            "sha256": "95dba5725cb2e14a6bab71512c321fc0d386b521c17137d8e8ec46403dc72813"
+          },
+          {
+            "id": "README.md",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/README.md",
+            "sha256": "5816d7abedc45b79bfb5f677f7453e6e6fea4cf3cbf6fb9cc171194be5fe727a"
+          },
+          {
+            "id": "agent-instructions.md",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/agent-instructions.md",
+            "sha256": "17363ce8aa4bdfeda0bbed46320042065fe05e03576945128b54abc70c53f974"
+          },
+          {
+            "id": "package.json",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/package.json",
+            "sha256": "f1ace1b766ffdd7e85674db4a48a5c3269e75bd9243f2c1bd2b4b596fcd74a5c"
+          },
+          {
+            "id": "vercel.json",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/vercel.json",
+            "sha256": "aae1c40e107f781a55e1360e1fc4b277989b5871912d009ee25fefd9edd14daf"
+          },
+          {
+            "id": ".env.example",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/.env.example",
+            "sha256": "352910f4de835d3d62697760de4b0cf7b87368c8251bd3c99e13891587f9073f"
+          },
+          {
+            "id": ".gitignore",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/.gitignore",
+            "sha256": "8eddc449ef8e80bcb420c47db10931c282b08111728c0560cfd3a297ff4bf75b"
+          },
+          {
+            "id": ".gitattributes",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/.gitattributes",
+            "sha256": "bd9663d71ffce4f030fba3bf7285472e2fab87ce8f71d180d20c14060d0c42a1"
+          }
+        ]
+      },
+      "joint_condition": "CLI→API→保存adapter→所有者認証読取→画面を同じsubjectで確認。SQLの安全性は独立レビュー、実DBは未確認。",
+      "reason": "固定計画のローカル技術的試験採用。配備採用ではない。",
+      "resolution": "audited-on-adoption",
+      "result_ref": {
+        "id": "AUD-ADOPT-002",
+        "immutable_ref": "design/snapshots/SN-b8b093d9d560411450d3dfb284154696b239d7713edf544fcc8c25d58a2bfad7/files/audits/AUD-ADOPT-002.md",
+        "sha256": "f3f94c7cb416631da6b6c5df52c4f6e40dd240ccf631a378370e06511a39efa2"
+      },
+      "adopted_bundle": {
+        "id": "BUNDLE-001",
+        "immutable_ref": "design/snapshots/SN-fab1cd198c39ee2f406f70567117e5d71122b58da0ad97f93dc54eb969e868f3/files/design/candidates/OP-ADOPT-002/bundle.json",
+        "sha256": "90c0dd3433cddb50240a8c1df5f8db70e5e9f11d82f9837caa6a6b6c6cef3742"
+      },
+      "resolved_at": "2026-10-03T11:15:31.443681+00:00"
+    },
+    {
+      "change_id": "CHANGE-002",
+      "affected_scope": [
+        "CTX-LOG",
+        "FIT-01",
+        "SIT-01",
+        "SYS-LOG"
+      ],
+      "phase": "implementation",
+      "baseline_refs": {
+        "CTX-LOG": "initial",
+        "FIT-01": "initial",
+        "SIT-01": "initial",
+        "SYS-LOG": "initial"
+      },
+      "first_changed_at": "2026-10-03T10:59:22.165704+00:00",
+      "operation_id": "OP-ADOPT-002",
+      "old_version": {
+        "id": "IMPL-003",
+        "snapshot_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2",
+        "files": [
+          {
+            "id": "api/events.js",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/api/events.js",
+            "sha256": "97a1731cfb5d647315cc2c6a33f638486180820275aad3c8d71f8126e87567e8"
+          },
+          {
+            "id": "api/health.js",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/api/health.js",
+            "sha256": "97a1731cfb5d647315cc2c6a33f638486180820275aad3c8d71f8126e87567e8"
+          },
+          {
+            "id": "api/session.js",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/api/session.js",
+            "sha256": "97a1731cfb5d647315cc2c6a33f638486180820275aad3c8d71f8126e87567e8"
+          },
+          {
+            "id": "cli/logbook.py",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/cli/logbook.py",
+            "sha256": "7e52fba9c73240dd0100d5ffb0796b72b93fb9cdb076c7beaa3fb8190f448682"
+          },
+          {
+            "id": "dev/fixture-store.mjs",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/dev/fixture-store.mjs",
+            "sha256": "c2673d0ce9867552bfa369b593e2679b9c09267be7a0bd0fd553e0e02280f0bd"
+          },
+          {
+            "id": "lib/schema.mjs",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/lib/schema.mjs",
+            "sha256": "db18c8098ace4501d8f58d5008afd80f1f3687a228aa2c94c5f7e200bfd625f9"
+          },
+          {
+            "id": "lib/service.mjs",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/lib/service.mjs",
+            "sha256": "6e550cd5136e02750ed45d8d761ed4a4479de0cd95208c26be01781eeee95851"
+          },
+          {
+            "id": "lib/supabase.mjs",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/lib/supabase.mjs",
+            "sha256": "d82ee069f287d063702e3524c369ed500b1d1b71026515403be6085994b78dc1"
+          },
+          {
+            "id": "public/app.js",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/public/app.js",
+            "sha256": "95d09ae920d049f8c45779d44ac7253a4e71bb33c08b0d112b1d282421dab1a9"
+          },
+          {
+            "id": "public/index.html",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/public/index.html",
+            "sha256": "7f523a5bc31620ff908e328c866874c9be5d371b178630a758498890ee56eb37"
+          },
+          {
+            "id": "public/styles.css",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/public/styles.css",
+            "sha256": "71f24000802dac2d9a419548190790cb38480ee20f94ab39def7fa423481641a"
+          },
+          {
+            "id": "scripts/dev.mjs",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/scripts/dev.mjs",
+            "sha256": "f728fed42994d6f034d40d34ca0ee819fee7abd7b8d43b9058cca45e2c0d1a87"
+          },
+          {
+            "id": "scripts/writer-key.mjs",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/scripts/writer-key.mjs",
+            "sha256": "d1a4bd044652e11bbb37c2e8e136eebf212be05361e84cb37d7320d30b4d2fc8"
+          },
+          {
+            "id": "supabase/migrations/202610030001_logbook.sql",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/supabase/migrations/202610030001_logbook.sql",
+            "sha256": "55c67bbbb1c80599c1049852d04b1298312d2f3cd3e48126e3f997621bd3bfaa"
+          },
+          {
+            "id": "tests/integration.test.mjs",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/tests/integration.test.mjs",
+            "sha256": "f15a603bd096889ec61c401a0c617948dd42da321d62d7eac20493263775dc02"
+          },
+          {
+            "id": "tests/service.test.mjs",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/tests/service.test.mjs",
+            "sha256": "95dba5725cb2e14a6bab71512c321fc0d386b521c17137d8e8ec46403dc72813"
+          },
+          {
+            "id": "README.md",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/README.md",
+            "sha256": "5816d7abedc45b79bfb5f677f7453e6e6fea4cf3cbf6fb9cc171194be5fe727a"
+          },
+          {
+            "id": "agent-instructions.md",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/agent-instructions.md",
+            "sha256": "17363ce8aa4bdfeda0bbed46320042065fe05e03576945128b54abc70c53f974"
+          },
+          {
+            "id": "package.json",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/package.json",
+            "sha256": "f1ace1b766ffdd7e85674db4a48a5c3269e75bd9243f2c1bd2b4b596fcd74a5c"
+          },
+          {
+            "id": "vercel.json",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/vercel.json",
+            "sha256": "aae1c40e107f781a55e1360e1fc4b277989b5871912d009ee25fefd9edd14daf"
+          },
+          {
+            "id": ".env.example",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/.env.example",
+            "sha256": "352910f4de835d3d62697760de4b0cf7b87368c8251bd3c99e13891587f9073f"
+          },
+          {
+            "id": ".gitignore",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/.gitignore",
+            "sha256": "8eddc449ef8e80bcb420c47db10931c282b08111728c0560cfd3a297ff4bf75b"
+          },
+          {
+            "id": ".gitattributes",
+            "immutable_ref": "design/snapshots/SN-4a0165ebc7c4484743bb628cf217aadd7bcbdc91d52cdddfd511bd1db042aae2/files/.gitattributes",
+            "sha256": "bd9663d71ffce4f030fba3bf7285472e2fab87ce8f71d180d20c14060d0c42a1"
+          }
+        ]
+      },
+      "new_version": {
+        "id": "IMPL-005",
+        "snapshot_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b",
+        "files": [
+          {
+            "id": "api/events.js",
+            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/api/events.js",
+            "sha256": "97a1731cfb5d647315cc2c6a33f638486180820275aad3c8d71f8126e87567e8"
+          },
+          {
+            "id": "api/health.js",
+            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/api/health.js",
+            "sha256": "97a1731cfb5d647315cc2c6a33f638486180820275aad3c8d71f8126e87567e8"
+          },
+          {
+            "id": "api/session.js",
+            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/api/session.js",
+            "sha256": "97a1731cfb5d647315cc2c6a33f638486180820275aad3c8d71f8126e87567e8"
+          },
+          {
+            "id": "cli/logbook.py",
+            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/cli/logbook.py",
+            "sha256": "7e52fba9c73240dd0100d5ffb0796b72b93fb9cdb076c7beaa3fb8190f448682"
+          },
+          {
+            "id": "dev/fixture-store.mjs",
+            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/dev/fixture-store.mjs",
+            "sha256": "c2673d0ce9867552bfa369b593e2679b9c09267be7a0bd0fd553e0e02280f0bd"
+          },
+          {
+            "id": "lib/schema.mjs",
+            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/lib/schema.mjs",
+            "sha256": "db18c8098ace4501d8f58d5008afd80f1f3687a228aa2c94c5f7e200bfd625f9"
+          },
+          {
+            "id": "lib/service.mjs",
+            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/lib/service.mjs",
+            "sha256": "7c9606f48cf2944babde983dee4ed339c6c935cfb4328f841168ee4c5c796f6c"
+          },
+          {
+            "id": "lib/supabase.mjs",
+            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/lib/supabase.mjs",
+            "sha256": "43dac404d5ade374f2bbe21081f471be5ef6a658558de18e4e0c98c941597d45"
+          },
+          {
+            "id": "public/app.js",
+            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/public/app.js",
+            "sha256": "812c016e15c340754ee585dbc78b2a5c499ade6461699eb15618160491329b50"
+          },
+          {
+            "id": "public/index.html",
+            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/public/index.html",
+            "sha256": "7f523a5bc31620ff908e328c866874c9be5d371b178630a758498890ee56eb37"
+          },
+          {
+            "id": "public/styles.css",
+            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/public/styles.css",
+            "sha256": "71f24000802dac2d9a419548190790cb38480ee20f94ab39def7fa423481641a"
+          },
+          {
+            "id": "scripts/dev.mjs",
+            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/scripts/dev.mjs",
+            "sha256": "f728fed42994d6f034d40d34ca0ee819fee7abd7b8d43b9058cca45e2c0d1a87"
+          },
+          {
+            "id": "scripts/writer-key.mjs",
+            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/scripts/writer-key.mjs",
+            "sha256": "d1a4bd044652e11bbb37c2e8e136eebf212be05361e84cb37d7320d30b4d2fc8"
+          },
+          {
+            "id": "supabase/migrations/202610030001_logbook.sql",
+            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/supabase/migrations/202610030001_logbook.sql",
+            "sha256": "55c67bbbb1c80599c1049852d04b1298312d2f3cd3e48126e3f997621bd3bfaa"
+          },
+          {
+            "id": "tests/auth-recovery.test.mjs",
+            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/tests/auth-recovery.test.mjs",
+            "sha256": "7d91c411eea8ed95802615d55a3753c5a11a762af4bbd117e143f03ee25c04fe"
+          },
+          {
+            "id": "tests/integration.test.mjs",
+            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/tests/integration.test.mjs",
+            "sha256": "f15a603bd096889ec61c401a0c617948dd42da321d62d7eac20493263775dc02"
+          },
+          {
+            "id": "tests/service.test.mjs",
+            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/tests/service.test.mjs",
+            "sha256": "95dba5725cb2e14a6bab71512c321fc0d386b521c17137d8e8ec46403dc72813"
+          },
+          {
+            "id": "README.md",
+            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/README.md",
+            "sha256": "5816d7abedc45b79bfb5f677f7453e6e6fea4cf3cbf6fb9cc171194be5fe727a"
+          },
+          {
+            "id": "agent-instructions.md",
+            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/agent-instructions.md",
+            "sha256": "17363ce8aa4bdfeda0bbed46320042065fe05e03576945128b54abc70c53f974"
+          },
+          {
+            "id": "package.json",
+            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/package.json",
+            "sha256": "f1ace1b766ffdd7e85674db4a48a5c3269e75bd9243f2c1bd2b4b596fcd74a5c"
+          },
+          {
+            "id": "vercel.json",
+            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/vercel.json",
+            "sha256": "aae1c40e107f781a55e1360e1fc4b277989b5871912d009ee25fefd9edd14daf"
+          },
+          {
+            "id": ".env.example",
+            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/.env.example",
+            "sha256": "352910f4de835d3d62697760de4b0cf7b87368c8251bd3c99e13891587f9073f"
+          },
+          {
+            "id": ".gitignore",
+            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/.gitignore",
+            "sha256": "8eddc449ef8e80bcb420c47db10931c282b08111728c0560cfd3a297ff4bf75b"
+          },
+          {
+            "id": ".gitattributes",
+            "immutable_ref": "design/snapshots/SN-60f3c2f3c64f6056df6636c55ad0bc509abc707990ab062d03bd3c753b95544b/files/.gitattributes",
+            "sha256": "bd9663d71ffce4f030fba3bf7285472e2fab87ce8f71d180d20c14060d0c42a1"
+          }
+        ]
+      },
+      "joint_condition": "Auth adapter/session/cookie/UIを一体で再確認。FIT未確認を維持。",
+      "reason": "F-CLOUD-ADOPT-001の修正。CHANGE-001とinitialからの累積差分を保持。",
+      "resolution": "audited-on-adoption",
+      "result_ref": {
+        "id": "AUD-ADOPT-002",
+        "immutable_ref": "design/snapshots/SN-b8b093d9d560411450d3dfb284154696b239d7713edf544fcc8c25d58a2bfad7/files/audits/AUD-ADOPT-002.md",
+        "sha256": "f3f94c7cb416631da6b6c5df52c4f6e40dd240ccf631a378370e06511a39efa2"
+      },
+      "adopted_bundle": {
+        "id": "BUNDLE-001",
+        "immutable_ref": "design/snapshots/SN-fab1cd198c39ee2f406f70567117e5d71122b58da0ad97f93dc54eb969e868f3/files/design/candidates/OP-ADOPT-002/bundle.json",
+        "sha256": "90c0dd3433cddb50240a8c1df5f8db70e5e9f11d82f9837caa6a6b6c6cef3742"
+      },
+      "resolved_at": "2026-10-03T11:15:31.443693+00:00"
+    }
+  ],
+  "open_findings": [
+    {
+      "finding_id": "F-CLOUD-ADOPT-002",
+      "severity": "minor",
+      "state": "open",
+      "owner": "SYS-LOG実装担当（Codex）",
+      "result_ref": {
+        "id": "AUD-ADOPT-002",
+        "immutable_ref": "design/snapshots/SN-b8b093d9d560411450d3dfb284154696b239d7713edf544fcc8c25d58a2bfad7/files/audits/AUD-ADOPT-002.md",
+        "sha256": "f3f94c7cb416631da6b6c5df52c4f6e40dd240ccf631a378370e06511a39efa2"
+      },
+      "next_plan_candidates_ref": {
+        "id": "C-001-NEXT-PLAN-CANDIDATES",
+        "immutable_ref": "design/snapshots/SN-b1284207bc4df31dc1febd284de6292a9c444bc4b6182e29f6685a3c7696aaad/files/evidence/C-001-next-plan-candidates.md",
+        "sha256": "b0f3afb8a5b8424e1b29a1e1662bc90f2dbe62db36587db26658a498d820c6cf"
+      },
+      "release_condition": "起動時障害の再試行案内/操作とcookie消去可能なログアウト、未知の400/401/403継続時の方針を次計画で実装・検証。",
+      "blocks_local_adoption": false
+    }
+  ],
+  "unverified": [
+    "DEPLOY-01: 実Supabase DB/Auth/RLS/RPC、Vercel HTTPS、Secure cookieは未確認。Authエラー分類は偽transportと自動テストでのみ確認。",
+    "SOURCES-01: 4実環境からの送信は未確認。",
+    "HUMAN-01: 本人評価は未確認。",
+    "native download完了、他ブラウザ、長期運用、クラウドキュー持続性は未確認。"
+  ],
+  "next_plan_candidates_ref": {
+    "id": "C-001-NEXT-PLAN-CANDIDATES",
+    "immutable_ref": "design/snapshots/SN-b1284207bc4df31dc1febd284de6292a9c444bc4b6182e29f6685a3c7696aaad/files/evidence/C-001-next-plan-candidates.md",
+    "sha256": "b0f3afb8a5b8424e1b29a1e1662bc90f2dbe62db36587db26658a498d820c6cf"
+  },
+  "cycle_status": {
+    "cycle_id": "C-001",
+    "state": "complete",
+    "closed_at": "2026-10-03T11:15:31.515218+00:00",
+    "closure_id": "OP-CLOSE-001",
+    "periodic": "reasoned-skip",
+    "adoption_scope": "local-technical-trial-only",
+    "human_evaluation": "unverified",
+    "production_deployment": "unverified",
+    "source_environments": "unverified",
+    "native_download": "unverified",
+    "open_minor_ids": [
+      "F-CLOUD-ADOPT-002"
+    ],
+    "project_complete": false,
+    "unverified": [
+      "DEPLOY-01: 実Supabase DB/Auth/RLS/RPC、Vercel HTTPS、Secure cookieは未確認。Authエラー分類は偽transportと自動テストでのみ確認。",
+      "SOURCES-01: 4実環境からの送信は未確認。",
+      "HUMAN-01: 本人評価は未確認。",
+      "native download完了、他ブラウザ、長期運用、クラウドキュー持続性は未確認。"
+    ]
   }
 }
 ---
