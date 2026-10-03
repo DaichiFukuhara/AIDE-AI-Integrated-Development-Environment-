@@ -1,0 +1,30 @@
+{
+  "observed_at": "2026-10-03T11:00:10.331843+00:00",
+  "preserved_existing_file_count": 145,
+  "existing_changed_files": [],
+  "verified_request_reference_count": 253,
+  "utf8_japanese_files_checked": 122,
+  "state_revision": 39,
+  "current_bundle": null,
+  "blocked_scope": "active",
+  "audit_execution": "reserved, not executed",
+  "budget_used": {
+    "external_spend": 0,
+    "trials": 5,
+    "audits": 2,
+    "record_batches": 4
+  },
+  "trial_004": {
+    "tests": 29,
+    "pass": 26,
+    "fail": 3,
+    "exit_code": 1
+  },
+  "trial_005": {
+    "tests": 29,
+    "pass": 29,
+    "fail": 0,
+    "exit_code": 0
+  },
+  "FIT-01": "unverified"
+}

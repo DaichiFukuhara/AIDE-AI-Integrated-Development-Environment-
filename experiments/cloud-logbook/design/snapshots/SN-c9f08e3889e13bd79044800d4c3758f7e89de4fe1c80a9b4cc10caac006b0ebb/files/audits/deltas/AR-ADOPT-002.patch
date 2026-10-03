@@ -1,0 +1,185 @@
+--- IMPL-003/lib/service.mjs
++++ IMPL-005/lib/service.mjs
+@@ -18,7 +18,7 @@
+     try{if(ck.lb_access){try{return {token:ck.lb_access,user:await store.user(ck.lb_access)};}catch(e){if(e.status!==401)throw e;}}
+       if(!ck.lb_refresh)throw new Fault(401,'login_required');
+       const session=await store.refresh(ck.lb_refresh);const user=await store.user(session.access_token);sessionCookies(session,headers);return {token:session.access_token,user};
+-    }catch(e){if(e.status===401)sessionCookies(null,headers);throw e;}
++    }catch(e){if(e instanceof Fault&&e.status===401)sessionCookies(null,headers);throw e;}
+   }
+   return async function handle(req){const headers=new Headers({'Content-Type':'application/json; charset=utf-8','Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff','Vary':'Cookie'});
+     try{const url=new URL(req.url);const path=url.pathname;
+--- IMPL-003/lib/supabase.mjs
++++ IMPL-005/lib/supabase.mjs
+@@ -2,7 +2,20 @@
+ export function supabase(config, transport=fetch) {
+   async function call(path,key,token,body,method='POST') {
+     let r;try{r=await transport(config.url+path,{method,headers:{apikey:key,Authorization:'Bearer '+token,'Content-Type':'application/json'},...(body===undefined?{}:{body:JSON.stringify(body)}),redirect:'error',signal:AbortSignal.timeout(10000)});}catch{throw new Fault(503,'storage_unavailable');}
+-    if(!r.ok){if(r.status===401||r.status===403||path.startsWith('/auth/'))throw new Fault(401,'authentication_failed');throw new Fault(503,'storage_unavailable');}
++    if(!r.ok){
++      if(path.startsWith('/auth/')){
++        // Only a recognized credential/session rejection may invalidate the cookie.
++        if([400,401,403].includes(r.status)){
++          let error;try{error=await r.json();}catch{}
++          const code=error?.error_code||error?.code||error?.error;
++          const message=error?.msg||error?.message||error?.error_description||'';
++          const rejected=['invalid_grant','invalid_credentials','invalid_token','bad_jwt','session_not_found','session_expired','refresh_token_not_found','refresh_token_already_used','user_not_found','user_banned'].includes(code)
++            || /invalid (?:jwt|refresh token|login credentials)|jwt (?:expired|is expired)|refresh token (?:not found|has already been used)/i.test(message);
++          if(rejected)throw new Fault(401,'authentication_failed');
++        }
++      }else if(r.status===401||r.status===403)throw new Fault(401,'authentication_failed');
++      throw new Fault(503,'storage_unavailable');
++    }
+     if(r.status===204)return null;try{return await r.json();}catch{throw new Fault(503,'storage_unavailable');}
+   }
+   return {
+--- IMPL-003/public/app.js
++++ IMPL-005/public/app.js
+@@ -14,7 +14,7 @@
+     const content=element('div');const button=element('button',e.title,'event-title');button.addEventListener('click',()=>showDetail(row));const tags=element('div',undefined,'tags');for(const t of [e.phase,e.kind,e.outcome])tags.append(element('span',t,'tag '+(t==='pass'?'pass':t==='fail'?'fail':'')));content.append(button,tags,element('p',e.body,'event-body'));if(e.next){const n=element('div',undefined,'next');n.append(element('strong','NEXT →'),element('span',e.next));content.append(n);}item.append(context,content);$('events').append(item);}}
+ async function load(more=false){if(busy)return;busy=true;const generation=epoch;for(const id of ['refresh','more'])$(id).disabled=true;status('ログを取得しています…');const query=more?activeQuery:new URLSearchParams([...new FormData($('filters')).entries()].filter(([,v])=>v)).toString();
+   try{const data=await api('/api/events?'+query+(more?'&before='+encodeURIComponent(next):''));if(generation!==epoch)return;rows=more?[...rows,...data.events]:data.events;activeQuery=query;next=data.next;render();status('保存先から取得しました。');}
+-  catch(e){if(generation!==epoch)return;if(e.status===401){clear();status('セッションが切れました。ログインしてください。',true);}else status(e.message+(rows.length?' 前回取得したログを表示しています。更新されていません。':''),true);}
++  catch(e){if(generation!==epoch)return;if(e.status===401){clear();status('セッションが切れました。ログインしてください。',true);}else status(e.message+' 未更新。'+(rows.length?' 前回取得したログを表示しています。':''),true);}
+   finally{busy=false;for(const id of ['refresh','more'])$(id).disabled=false;}}
+ function clearExport(){$('export').close();$('export-text').value='';$('export-download').removeAttribute('href');if(exportURL)URL.revokeObjectURL(exportURL);exportURL=null;}
+ function exportRows(format){const events=rows.map(r=>r.event);let text;if(format==='json')text=JSON.stringify({exportedAt:new Date().toISOString(),scope:'loaded-events-only',count:events.length,events},null,2);else text='# 作業ログ\n\n取得済み '+events.length+'件（全件とは限りません）。\n\n'+events.map(e=>`## ${e.title}\n\n${e.time} / ${e.source} / ${e.project} / ${e.run}\n\n${e.body}\n\n理由: ${e.reason}\n\n次: ${e.next}\n\n根拠: ${e.evidence.join(', ')}\n\n結果: ${e.outcome}\n\nID: ${e.id}`).join('\n\n---\n\n');clearExport();exportURL=URL.createObjectURL(new Blob([text],{type:format==='json'?'application/json':'text/markdown;charset=utf-8'}));$('export-download').href=exportURL;$('export-download').download='logbook-loaded.'+(format==='json'?'json':'md');$('export-text').value=text;$('export').showModal();}
+@@ -22,4 +22,4 @@
+ $('logout').addEventListener('click',async()=>{clear();try{await api('/api/session',{method:'DELETE'});status('ログアウトしました。');}catch(e){status(e.message+' 画面の記録は消去しました。',true);}});
+ $('filters').addEventListener('submit',e=>{e.preventDefault();load();});$('refresh').onclick=()=>load();$('more').onclick=()=>load(true);$('close-detail').onclick=()=>$('detail').close();$('export-json').onclick=()=>exportRows('json');$('export-md').onclick=()=>exportRows('md');
+ $('close-export').onclick=clearExport;$('export').addEventListener('cancel',clearExport);
+-(async()=>{try{const health=await api('/api/health');$('fixture').hidden=!health.fixture;try{const data=await api('/api/session');$('viewer').textContent=data.user.email;$('login').hidden=true;$('workspace').hidden=false;$('logout').hidden=false;await load();}catch(e){clear();status(e.status===401?'ログインして作業ログをひらいてください。':e.message,e.status!==401);}}catch(e){status(e.message,true);}})();
++(async()=>{try{const health=await api('/api/health');$('fixture').hidden=!health.fixture;try{const data=await api('/api/session');$('viewer').textContent=data.user.email;$('login').hidden=true;$('workspace').hidden=false;$('logout').hidden=false;await load();}catch(e){if(e.status===401){clear();status('ログインして作業ログをひらいてください。');}else status(e.message+' 未更新。',true);}}catch(e){status(e.message+' 未更新。',true);}})();
+--- IMPL-003/tests/auth-recovery.test.mjs
++++ IMPL-005/tests/auth-recovery.test.mjs
+@@ -0,0 +1,130 @@
++import {test} from 'node:test';
++import assert from 'node:assert/strict';
++import {readFile} from 'node:fs/promises';
++import vm from 'node:vm';
++import {supabase} from '../lib/supabase.mjs';
++import {createService} from '../lib/service.mjs';
++
++const source=await readFile(new URL('../public/app.js',import.meta.url),'utf8');
++const origin='http://127.0.0.1:4195';
++const row={sequence:'1',event:{id:'OLD',time:'2026-10-03T01:00:00Z',project:'aide',run:'auth',source:'codex-local',actor:'Test',phase:'implementation',kind:'action',title:'前回ログ',body:'保持する内容',reason:'障害回帰',evidence:[],next:'再取得',outcome:'recorded'}};
++
++// The actual adapter, service and UI run together; only transport and DOM are stubs.
++// This proves program behavior, not browser rendering or live Supabase Auth.
++function fixture(route,initialFault=null){
++  const state={fault:initialFault,listCalls:0,cookie:'lb_access=ACCESS; lb_refresh=REFRESH',responses:[],paths:[]};
++  const client=supabase({url:'https://stub.invalid',anon:'ANON',service:'SERVICE'},async(url)=>{
++    const user=url.includes('/auth/v1/user');
++    const refresh=url.includes('grant_type=refresh_token');
++    state.paths.push(user?'user':refresh?'refresh':'list');
++    if(route==='refresh'&&user&&url&&!state.refreshed)return Response.json({code:'bad_jwt'},{status:401});
++    if((route==='user'&&user)||(route==='refresh'&&refresh)){
++      const fault=state.fault;
++      if(fault==='network')throw new Error('PRIVATE_TRANSPORT_DETAIL');
++      if(fault)return Response.json(fault.body||{message:'PRIVATE_UPSTREAM_DETAIL'},{status:fault.status});
++    }
++    if(refresh){state.refreshed=true;return Response.json({access_token:'NEW_ACCESS',refresh_token:'NEW_REFRESH'});}
++    if(user)return Response.json({id:'owner',email:'reader@example.test'});
++    state.listCalls++;
++    return Response.json([{...row,sequence:String(state.listCalls),event:{...row.event,id:'ROW'+state.listCalls}}]);
++  });
++  const handle=createService({origin,writers:[]},client);
++  state.request=async(path)=>{
++    // Force the refresh fallback on each request when testing that route.
++    state.refreshed=false;
++    const response=await handle(new Request(origin+path,{headers:{Cookie:state.cookie}}));
++    const cookies=response.headers.getSetCookie();
++    state.responses.push({path,status:response.status,cookies});
++    for(const cookie of cookies){
++      const [name,value]=cookie.split(';')[0].split('=');
++      const jar=Object.fromEntries(state.cookie.split('; ').filter(Boolean).map(c=>c.split('=')));
++      if(cookie.includes('Max-Age=0'))delete jar[name];else jar[name]=value;
++      state.cookie=Object.entries(jar).map(([k,v])=>k+'='+v).join('; ');
++    }
++    return response;
++  };
++  return state;
++}
++
++async function ui(state){
++  const nodes=new Map();
++  const element=()=>({children:[],hidden:false,disabled:false,textContent:'',value:'',open:false,classList:{toggle(){}},append(...children){this.children.push(...children);},replaceChildren(...children){this.children=children;},addEventListener(){},removeAttribute(name){delete this[name];},showModal(){this.open=true;},close(){this.open=false;}});
++  const node=id=>{if(!nodes.has(id))nodes.set(id,element());return nodes.get(id);};
++  const context=vm.createContext({document:{getElementById:node,createElement:element},URL,URLSearchParams,Blob,AbortSignal,FormData:class{entries(){return [];}},fetch:path=>state.request(path)});
++  vm.runInContext(source+'\nglobalThis.probe={load,showDetail,exportRows,read:()=>({rows,next,activeQuery,epoch})};',context);
++  for(let i=0;i<10;i++)await new Promise(resolve=>setImmediate(resolve));
++  return {probe:context.probe,node};
++}
++
++for(const route of ['user','refresh']){
++  for(const fault of [{status:500},{status:429},'network']){
++    test(`${route}: ${typeof fault==='string'?fault:fault.status} retains cookies/UI and recovers`,async()=>{
++      const state=fixture(route),page=await ui(state);
++      assert.equal(page.probe.read().rows.length,1);
++      page.probe.showDetail(page.probe.read().rows[0]);page.probe.exportRows('json');
++      const before=JSON.stringify(page.probe.read());
++      const cookies=state.cookie,detail=page.node('detail-body').children,exported=page.node('export-text').value;
++      state.fault=fault;
++      const session=await state.request('/api/session');
++      assert.equal(session.status,503);assert.deepEqual(session.headers.getSetCookie(),[]);
++      assert.deepEqual(await session.json(),{error:'storage_unavailable'});
++      const calls=state.listCalls;
++      await page.probe.load();
++      assert.equal(state.responses.at(-1).status,503);
++      assert.deepEqual(state.responses.at(-1).cookies,[]);
++      assert.equal(state.cookie,cookies);assert.equal(state.listCalls,calls);
++      assert.equal(JSON.stringify(page.probe.read()),before);
++      assert.equal(page.node('detail-body').children,detail);
++      assert.equal(page.node('export-text').value,exported);
++      assert.equal(page.node('workspace').hidden,false);
++      assert.match(page.node('status').textContent,/未更新/);
++      assert.ok(!page.node('status').textContent.includes('PRIVATE'));
++      state.fault=null;await page.probe.load();
++      assert.equal(state.responses.at(-1).status,200);
++      assert.equal(page.probe.read().rows[0].event.id,'ROW'+(calls+1));
++      assert.equal(page.node('status').textContent,'保存先から取得しました。');
++    });
++  }
++  for(const fault of [{status:400,body:{error:'invalid_grant'}},{status:401,body:{code:'bad_jwt'}},{status:403,body:{message:'Invalid Refresh Token: Refresh Token Not Found'}}]){
++    test(`${route}: true rejection ${fault.status} clears cookies, rows, detail and export`,async()=>{
++      const state=fixture(route),page=await ui(state);
++      page.probe.showDetail(page.probe.read().rows[0]);page.probe.exportRows('json');
++      // Without refresh, a rejected access token cannot be silently renewed.
++      if(route==='user')state.cookie='lb_access=ACCESS';
++      state.fault=fault;await page.probe.load();
++      const response=state.responses.at(-1);
++      assert.equal(response.status,401);assert.equal(response.cookies.length,2);
++      assert.ok(response.cookies.every(c=>c.includes('Max-Age=0')));
++      assert.equal(state.cookie,'');assert.equal(page.probe.read().rows.length,0);
++      assert.equal(page.node('workspace').hidden,true);assert.equal(page.node('login').hidden,false);
++      assert.equal(page.node('detail').open,false);assert.equal(page.node('detail-body').children.length,0);
++      assert.equal(page.node('export').open,false);assert.equal(page.node('export-text').value,'');
++      assert.equal(page.node('viewer').textContent,'');
++      assert.match(page.node('status').textContent,/セッションが切れました/);
++    });
++  }
++  for(const status of [400,401,403]){
++    test(`${route}: unrecognized ${status} does not invalidate a session`,async()=>{
++      const state=fixture(route,{status,body:{code:'unexpected_auth_failure'}});
++      const response=await state.request('/api/events');
++      assert.equal(response.status,503);assert.deepEqual(response.headers.getSetCookie(),[]);
++      assert.equal(state.cookie,'lb_access=ACCESS; lb_refresh=REFRESH');
++    });
++  }
++  test(`${route}: startup outage is unupdated and can retry with the same session`,async()=>{
++    const state=fixture(route,{status:500}),page=await ui(state);
++    assert.match(page.node('status').textContent,/未更新/);
++    assert.equal(page.probe.read().epoch,0);
++    assert.ok(state.cookie.includes('lb_refresh=REFRESH'));
++    state.fault=null;
++    const response=await state.request('/api/session');assert.equal(response.status,200);
++    await page.probe.load();assert.equal(page.probe.read().rows.length,1);
++  });
++}
++
++test('expired access token with a valid refresh token still renews and reads',async()=>{
++  const state=fixture('refresh');const response=await state.request('/api/events');
++  assert.equal(response.status,200);assert.equal(response.headers.getSetCookie().length,2);
++  assert.ok(response.headers.getSetCookie().every(c=>!c.includes('Max-Age=0')));
++  assert.ok(state.paths.includes('refresh'));assert.equal((await response.json()).events.length,1);
++});

@@ -33,13 +33,20 @@
   },
   "review_mode": "normal",
   "recovery_ref": null,
-  "revision": 1,
-  "state": "requested",
+  "revision": 2,
+  "state": "rejected",
   "payload_hash": "b5d44f83737b591d55f2270de00b7b95088552e6db0f1eb311bce35416da8996",
   "base_revision": 20,
-  "result_ref": null
+  "result_ref": {
+    "id": "AUD-ADOPT-001",
+    "immutable_ref": "design/snapshots/SN-036c3904c01c70798592c484abfc41670d730336c8971b53b059d72e55992c7a/files/audits/AUD-ADOPT-001.md",
+    "sha256": "a49b3bbd46fe9a2a4e2cc33dbb6a77bcff62584487015b3494425674c90f42f3"
+  },
+  "result": "require-review"
 }
 ---
 
 # ローカル技術的試験採用の提案
 TRIAL-001/002の失敗・未確認を残し、TRIAL-003の観測で提案。currentは独立監査受理までnull。本番配備と4実環境、本人評価は未確認。
+
+独立監査のF-CLOUD-ADOPT-001を受理。採用せず修正待ち。失敗対象と結果を保持する。

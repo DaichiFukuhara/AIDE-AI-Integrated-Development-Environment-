@@ -1,0 +1,25 @@
+{
+  "id": "AUD-ADOPT-002-FIT",
+  "audit_id": "AUD-ADOPT-002",
+  "observer": "Claude Opus 5.5 (external independent auditor)",
+  "observed_at": "2026-10-03T11:00:00Z",
+  "implementation": "IMPL-005",
+  "worktree_matches_impl_005": true,
+  "harness": "evidence/AUD-ADOPT-002-fit-server.mjs",
+  "boundary": "Fixed public/index.html, styles.css, app.js, lib/service.mjs and lib/supabase.mjs served at http://127.0.0.1:4196 in the Claude desktop built-in browser (Chromium). Only the supabase adapter transport is an in-process fake of Supabase Auth/PostgREST with switchable faults. Not live Supabase Auth, not Vercel, not HTTPS/Secure cookies.",
+  "method": "Login through the real form; faults switched via GET /__fault; the page's own refresh button and dialogs were driven by in-page click() calls; DOM state read after each step. Cookie retention is evidenced by the next request succeeding without re-login (cookies are HttpOnly and not readable from the page).",
+  "automated_tests_rerun": {"command": "npm test (TMP/TEMP inside .local/tmp)", "tests": 29, "pass": 29, "fail": 0},
+  "checks": [
+    {"id": "transient-user-500", "pass": true, "during": "status='保存先へ接続できません。 未更新。 前回取得したログを表示しています。', rows/detail kept, workspace shown, viewer kept", "recovery": "next refresh 200, new row, no re-login"},
+    {"id": "transient-user-429", "pass": true, "during": "same as above", "recovery": "200 without re-login"},
+    {"id": "transient-user-network", "pass": true, "during": "same as above", "recovery": "200 without re-login"},
+    {"id": "transient-refresh-500", "pass": true, "during": "access treated as expired, refresh endpoint 500 -> 503, display kept", "recovery": "200 without re-login"},
+    {"id": "transient-refresh-429", "pass": true, "during": "same as above; direct GET /api/events -> 503 {error:storage_unavailable}", "recovery": "200 without re-login"},
+    {"id": "transient-refresh-network", "pass": true, "during": "same as above", "recovery": "200 without re-login"},
+    {"id": "startup-outage-refresh-500", "pass": true, "during": "page reload during fault: status '保存先へ接続できません。 未更新。' (error style); login form and workspace both hidden; no retry or logout control", "recovery": "page reload after fault cleared -> workspace with rows, same session"},
+    {"id": "true-rejection-user-and-refresh", "pass": true, "detail": "user endpoint rejecting every token (bad_jwt) after a successful refresh -> 401, cleared to login screen"},
+    {"id": "true-rejection-refresh-invalid-grant", "pass": true, "detail": "detail dialog had been rendered (17 nodes) -> after refresh 'reject': rows 0, detail-body empty, workspace hidden, login shown, viewer cleared, status 'セッションが切れました。ログインしてください。'; GET /api/session afterwards 401 (cookies cleared)", "note": "export dialog was closed by the auditor before the refresh, so export clearing on true rejection was not separately observed in the browser; covered by tests/auth-recovery.test.mjs"}
+  ],
+  "result": "pass",
+  "not_verified": ["live Supabase Auth error bodies", "Secure cookie over HTTPS", "other browsers", "native download completion"]
+}

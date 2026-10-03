@@ -1,0 +1,16 @@
+{
+  "result": "structural-pass",
+  "subject_hash": "4879824e8ef7935568ade85401bcfd7f311d126a53c00ee83660ec71d3d8263b",
+  "scope": [
+    "CTX-LOG",
+    "FIT-01",
+    "SIT-01",
+    "SYS-LOG"
+  ],
+  "phase": "implementation",
+  "checked_at": "2026-10-03T10:59:21.985009+00:00",
+  "verified_reference_count": 64,
+  "verified_snapshot_count": 7,
+  "pair_and_chain_check": "pass",
+  "limit": "Identity and structure only. Acceptance sufficiency remains independent reviewer responsibility."
+}

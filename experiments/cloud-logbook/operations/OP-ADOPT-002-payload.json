@@ -1,0 +1,41 @@
+{
+  "operation_id": "OP-ADOPT-002",
+  "kind": "adoption",
+  "experiment_id": "E-001",
+  "plan_revision": 1,
+  "cycle_id": "C-001",
+  "scope": [
+    "CTX-LOG",
+    "FIT-01",
+    "SIT-01",
+    "SYS-LOG"
+  ],
+  "base_bundle": null,
+  "phase": "implementation",
+  "criteria_version": 1,
+  "subject_ref": {
+    "id": "ADOPT-002",
+    "immutable_ref": "design/snapshots/SN-c9f08e3889e13bd79044800d4c3758f7e89de4fe1c80a9b4cc10caac006b0ebb/files/audits/subjects/ADOPT-002.json",
+    "sha256": "87771dbcf17f7410cec77e947fd85e5defa6076a4ec52f76138618627110851c"
+  },
+  "subject_hash": "4879824e8ef7935568ade85401bcfd7f311d126a53c00ee83660ec71d3d8263b",
+  "delegation_ref": {
+    "id": "DELEGATION-01",
+    "immutable_ref": "design/snapshots/SN-93aa04c2045e9a8d9427752b0e72563365d6a8911c6c54fa472c697ebd2b76c4/files/operations/delegation.md",
+    "sha256": "391c97b9a2e3c17dd871740b80991832d713002c97d8207d7c5b9fe59c772d45",
+    "semantic_revision": 1
+  },
+  "change_ids": [
+    "CHANGE-001",
+    "CHANGE-002"
+  ],
+  "baseline_refs": {
+    "CTX-LOG": "initial",
+    "FIT-01": "initial",
+    "SIT-01": "initial",
+    "SYS-LOG": "initial"
+  },
+  "review_mode": "normal",
+  "recovery_ref": null,
+  "previous_operation_id": "OP-ADOPT-001"
+}

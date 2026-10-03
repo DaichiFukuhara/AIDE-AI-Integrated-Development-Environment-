@@ -1,0 +1,13 @@
+{
+  "implementation": "IMPL-005",
+  "observed_at": "2026-10-03T10:56:31.389036+00:00",
+  "result": "unverified",
+  "FIT-01": "未確認",
+  "reason": "許可範囲内のブラウザ制御手順は利用できず、実ブラウザを実行していない。外部のskill設定は読んでいない。",
+  "automated_ui_boundary": "実app.jsをNode VMとDOM stubで実行。実ブラウザの描画・操作・cookie処理の証明ではない。",
+  "required_checks": [
+    "user/refresh両経路で500・429・通信例外を発生させ、旧ログ・詳細・出力とcookieを保持し「未更新」を表示する。",
+    "障害解除後に更新操作で新しいログを取得する。初回session確認時の障害は再読み込み後の復旧を確認する。",
+    "真のinvalid grant/JWT/refresh token失効ではcookie・一覧・詳細・出力・閲覧者表示を消去しログイン画面へ戻る。"
+  ]
+}
