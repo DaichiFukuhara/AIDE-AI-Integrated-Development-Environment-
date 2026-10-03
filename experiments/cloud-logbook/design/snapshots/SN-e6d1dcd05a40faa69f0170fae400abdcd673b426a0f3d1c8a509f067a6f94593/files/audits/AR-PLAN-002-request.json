@@ -1,0 +1,163 @@
+{
+  "audit_request_id": "AR-PLAN-002",
+  "origin_operation_id": "OP-PLAN-002",
+  "kind": "plan",
+  "scope": [
+    "CTX-LOG",
+    "FIT-01",
+    "SIT-01",
+    "SYS-LOG"
+  ],
+  "phase": "plan",
+  "criteria_version": 2,
+  "subject_ref": {
+    "id": "PLAN-002",
+    "immutable_ref": "design/snapshots/SN-115d95e4eae365644ee92c14d5aa9ca379adfbec14655c5fd47d7ccc9a767237/files/audits/subjects/PLAN-002.json",
+    "sha256": "159a16b0aed24780144a13a0d93806bbd48fb8bbdb699e0c1f0a4b0f84dd26f0"
+  },
+  "subject_hash": "d9835c76e2a240afe310b0c80e2e7387c312477d082b192d23b043ab09fd2308",
+  "precheck_ref": {
+    "id": "PRECHECK-PLAN-002",
+    "immutable_ref": "design/snapshots/SN-115d95e4eae365644ee92c14d5aa9ca379adfbec14655c5fd47d7ccc9a767237/files/evidence/precheck-plan-002.json",
+    "sha256": "c938c7cd21c87e596ecfd4cba05a3e05a228568f3fa31c50c7c433cb6e4f66e4"
+  },
+  "precheck_note_ref": {
+    "id": "PRECHECK-PLAN-002-NOTE",
+    "immutable_ref": "design/snapshots/SN-115d95e4eae365644ee92c14d5aa9ca379adfbec14655c5fd47d7ccc9a767237/files/evidence/precheck-plan-002.md",
+    "sha256": "9a8d87614086ea17022a9802122a8c823fdceb26fabcbb5f39c6f05225e110d1"
+  },
+  "baseline_refs": {
+    "CTX-LOG": {
+      "audit_request_id": "AR-PLAN-001",
+      "subject_ref": {
+        "id": "PLAN-001",
+        "immutable_ref": "design/snapshots/SN-156f567a982e8062ea128ebee3febff4987104f4bf178754865ab7dff0ac52f5/files/audits/subjects/PLAN-001.json",
+        "sha256": "8ed8fe5ca962656994d5cae889367a5d0989de5f961b01000a8a37cd430cdeda"
+      },
+      "subject_hash": "f87f44efbd5f5def45d4a83459cf6582ce192dc98a6fb335c4ce81de2097fdbb",
+      "result_ref": {
+        "id": "AUD-PLAN-001",
+        "immutable_ref": "design/snapshots/SN-61d392514bd38d9ca1232028190ec93e3c677db8c6779e85d38b92d2173b1cc1/files/audits/AUD-PLAN-001.md",
+        "sha256": "b5665c4e9c86f8d10b04522b6be3fcef99a61c1c7c9487d0176cceeb1023d3f5"
+      },
+      "criteria_version": 1,
+      "phase": "plan",
+      "reuse_as_pass": false
+    },
+    "FIT-01": {
+      "audit_request_id": "AR-PLAN-001",
+      "subject_ref": {
+        "id": "PLAN-001",
+        "immutable_ref": "design/snapshots/SN-156f567a982e8062ea128ebee3febff4987104f4bf178754865ab7dff0ac52f5/files/audits/subjects/PLAN-001.json",
+        "sha256": "8ed8fe5ca962656994d5cae889367a5d0989de5f961b01000a8a37cd430cdeda"
+      },
+      "subject_hash": "f87f44efbd5f5def45d4a83459cf6582ce192dc98a6fb335c4ce81de2097fdbb",
+      "result_ref": {
+        "id": "AUD-PLAN-001",
+        "immutable_ref": "design/snapshots/SN-61d392514bd38d9ca1232028190ec93e3c677db8c6779e85d38b92d2173b1cc1/files/audits/AUD-PLAN-001.md",
+        "sha256": "b5665c4e9c86f8d10b04522b6be3fcef99a61c1c7c9487d0176cceeb1023d3f5"
+      },
+      "criteria_version": 1,
+      "phase": "plan",
+      "reuse_as_pass": false
+    },
+    "SIT-01": {
+      "audit_request_id": "AR-PLAN-001",
+      "subject_ref": {
+        "id": "PLAN-001",
+        "immutable_ref": "design/snapshots/SN-156f567a982e8062ea128ebee3febff4987104f4bf178754865ab7dff0ac52f5/files/audits/subjects/PLAN-001.json",
+        "sha256": "8ed8fe5ca962656994d5cae889367a5d0989de5f961b01000a8a37cd430cdeda"
+      },
+      "subject_hash": "f87f44efbd5f5def45d4a83459cf6582ce192dc98a6fb335c4ce81de2097fdbb",
+      "result_ref": {
+        "id": "AUD-PLAN-001",
+        "immutable_ref": "design/snapshots/SN-61d392514bd38d9ca1232028190ec93e3c677db8c6779e85d38b92d2173b1cc1/files/audits/AUD-PLAN-001.md",
+        "sha256": "b5665c4e9c86f8d10b04522b6be3fcef99a61c1c7c9487d0176cceeb1023d3f5"
+      },
+      "criteria_version": 1,
+      "phase": "plan",
+      "reuse_as_pass": false
+    },
+    "SYS-LOG": {
+      "audit_request_id": "AR-PLAN-001",
+      "subject_ref": {
+        "id": "PLAN-001",
+        "immutable_ref": "design/snapshots/SN-156f567a982e8062ea128ebee3febff4987104f4bf178754865ab7dff0ac52f5/files/audits/subjects/PLAN-001.json",
+        "sha256": "8ed8fe5ca962656994d5cae889367a5d0989de5f961b01000a8a37cd430cdeda"
+      },
+      "subject_hash": "f87f44efbd5f5def45d4a83459cf6582ce192dc98a6fb335c4ce81de2097fdbb",
+      "result_ref": {
+        "id": "AUD-PLAN-001",
+        "immutable_ref": "design/snapshots/SN-61d392514bd38d9ca1232028190ec93e3c677db8c6779e85d38b92d2173b1cc1/files/audits/AUD-PLAN-001.md",
+        "sha256": "b5665c4e9c86f8d10b04522b6be3fcef99a61c1c7c9487d0176cceeb1023d3f5"
+      },
+      "criteria_version": 1,
+      "phase": "plan",
+      "reuse_as_pass": false
+    }
+  },
+  "baseline_compatibility": "v1 plan and IMPL-005 are comparison only; auto/privacy/nonblocking meaning change cannot inherit a pass",
+  "cumulative_diff_ref": {
+    "id": "PLAN-DELTA-002",
+    "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/change.json",
+    "sha256": "4b0cd07c737b044b77af7f0f5caf1ba9f9813c72286c6be859bb44096220069f",
+    "semantic_revision": 1
+  },
+  "review_delta_ref": {
+    "id": "PLAN-DELTA-002",
+    "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/change.json",
+    "sha256": "4b0cd07c737b044b77af7f0f5caf1ba9f9813c72286c6be859bb44096220069f",
+    "semantic_revision": 1
+  },
+  "change_ids": [],
+  "change_ids_reason": "Plan candidate only; no adopted implementation change or unaudited implementation delta",
+  "execution_id": "EXEC-AUDIT-PLAN-002",
+  "budget_account_refs": [
+    "LOCAL-01",
+    "LOCAL-E002"
+  ],
+  "budget_check_ref": "design/state.md#EXEC-AUDIT-PLAN-002",
+  "budget_definition_ref": {
+    "id": "BUDGET-02",
+    "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/experiments/budget-definition-002.md",
+    "sha256": "a2bd9872ce8d029979c7dffaf7ce164fcc49992c8d71853a1efa87a593ab84f7",
+    "semantic_revision": 1
+  },
+  "delegation_ref": {
+    "id": "DELEGATION-02",
+    "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/operations/delegation-002.md",
+    "sha256": "ef9f016a14248e206e3942b588861c900f5ead281d54ae46923019242170a146",
+    "semantic_revision": 1
+  },
+  "review_mode": "normal",
+  "recovery_ref": null,
+  "previous_audit_ref": null,
+  "previous_subject_ref": null,
+  "comparison_implementation_audit_ref": {
+    "id": "AUD-ADOPT-002",
+    "immutable_ref": "design/snapshots/SN-b8b093d9d560411450d3dfb284154696b239d7713edf544fcc8c25d58a2bfad7/files/audits/AUD-ADOPT-002.md",
+    "sha256": "f3f94c7cb416631da6b6c5df52c4f6e40dd240ccf631a378370e06511a39efa2"
+  },
+  "open_finding_ids": [
+    "F-CLOUD-ADOPT-002"
+  ],
+  "finding_disposition": "NEXT-01 deferred; remains open minor, not resolved by this plan",
+  "required_user_confirmations": [
+    "UC-01",
+    "UC-02",
+    "UC-03"
+  ],
+  "reviewer": "Claude Opus 5.5 (external independent audit)",
+  "review_focus": [
+    "event granularity and real-device assumptions",
+    "excluded content/allowlist/mask safety",
+    "v1 schema compatibility and manual/auto classification",
+    "foreground nonblocking and durable queue",
+    "run/id/limits/replay",
+    "project-only settings and token env-only",
+    "UT/SIT/FIT mapping, actual Claude session evidence, parent and child budget, user confirmation gate"
+  ],
+  "requested_at": "2026-10-03T11:40:09.946725+00:00",
+  "observed_at": "2026-10-03T11:40:09.946745+00:00",
+  "delivery": "saved-pending; explicitly do not dispatch or execute in this turn"
+}

@@ -1,0 +1,142 @@
+{
+  "id": "E002-PLAN-VERIFICATION",
+  "phase": "plan",
+  "result": "pass-for-record-integrity-only",
+  "subject_hash": "d9835c76e2a240afe310b0c80e2e7387c312477d082b192d23b043ab09fd2308",
+  "state_revision": 45,
+  "precheck_result": "structural-pass",
+  "protected_existing_file_count": 314,
+  "protected_existing_files": "all-unchanged",
+  "current_bundle": "BUNDLE-001",
+  "baseline_implementation": "IMPL-005",
+  "C-001": "complete-preserved",
+  "C-002": "plan-audit-pending",
+  "audit_request": "audits/AR-PLAN-002-request.json",
+  "audit_execution": "reserved-not-started",
+  "audit_delivery": "pending-not-dispatched",
+  "new_implementation": "none",
+  "audit_result": "none",
+  "git_operations": "none",
+  "external_network": "none",
+  "request_reference_count": 64,
+  "verified_snapshot_count": 10,
+  "utf8_question_mark_and_replacement_character_check": "pass",
+  "budget_accounts": {
+    "LOCAL-01": {
+      "external_spend": {
+        "used": 0,
+        "limit": 0
+      },
+      "trials": {
+        "used": 5,
+        "limit": 6
+      },
+      "audits": {
+        "used": 3,
+        "limit": 6
+      },
+      "record_batches": {
+        "used": 6,
+        "limit": 80
+      }
+    },
+    "LOCAL-E002": {
+      "external_spend": {
+        "used": 0,
+        "limit": 0
+      },
+      "trials": {
+        "used": 0,
+        "limit": 1
+      },
+      "audits": {
+        "used": 0,
+        "limit": 2
+      },
+      "record_batches": {
+        "used": 1,
+        "limit": 6
+      }
+    }
+  },
+  "audit_reserved_limits": {
+    "external_spend": 0,
+    "trials": 0,
+    "audits": 1,
+    "record_batches": 0
+  },
+  "required_user_confirmations": [
+    "UC-01",
+    "UC-02",
+    "UC-03"
+  ],
+  "new_snapshot_folders": [
+    "design/snapshots/SN-115d95e4eae365644ee92c14d5aa9ca379adfbec14655c5fd47d7ccc9a767237",
+    "design/snapshots/SN-156f567a982e8062ea128ebee3febff4987104f4bf178754865ab7dff0ac52f5",
+    "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822",
+    "design/snapshots/SN-e6d1dcd05a40faa69f0170fae400abdcd673b426a0f3d1c8a509f067a6f94593"
+  ],
+  "created_files": [
+    "audits/AR-PLAN-002-request.json",
+    "audits/subjects/PLAN-002.json",
+    "design/candidates/OP-PLAN-002/AP-FILE-r.md",
+    "design/candidates/OP-PLAN-002/AP-FILE.md",
+    "design/candidates/OP-PLAN-002/DEF-LOG-01-r.md",
+    "design/candidates/OP-PLAN-002/DEF-LOG-01.md",
+    "design/candidates/OP-PLAN-002/G-LOG-r.md",
+    "design/candidates/OP-PLAN-002/G-LOG.md",
+    "design/candidates/OP-PLAN-002/SG-TRACE-r.md",
+    "design/candidates/OP-PLAN-002/SG-TRACE.md",
+    "design/candidates/OP-PLAN-002/SYS-LOG-r.md",
+    "design/candidates/OP-PLAN-002/SYS-LOG.md",
+    "design/candidates/OP-PLAN-002/change.json",
+    "design/snapshots/SN-115d95e4eae365644ee92c14d5aa9ca379adfbec14655c5fd47d7ccc9a767237/files/audits/subjects/PLAN-002.json",
+    "design/snapshots/SN-115d95e4eae365644ee92c14d5aa9ca379adfbec14655c5fd47d7ccc9a767237/files/evidence/precheck-plan-002.json",
+    "design/snapshots/SN-115d95e4eae365644ee92c14d5aa9ca379adfbec14655c5fd47d7ccc9a767237/files/evidence/precheck-plan-002.md",
+    "design/snapshots/SN-115d95e4eae365644ee92c14d5aa9ca379adfbec14655c5fd47d7ccc9a767237/files/operations/OP-PLAN-002-payload.json",
+    "design/snapshots/SN-115d95e4eae365644ee92c14d5aa9ca379adfbec14655c5fd47d7ccc9a767237/files/operations/OP-PLAN-002.md",
+    "design/snapshots/SN-115d95e4eae365644ee92c14d5aa9ca379adfbec14655c5fd47d7ccc9a767237/manifest.json",
+    "design/snapshots/SN-156f567a982e8062ea128ebee3febff4987104f4bf178754865ab7dff0ac52f5/files/audits/subjects/PLAN-001.json",
+    "design/snapshots/SN-156f567a982e8062ea128ebee3febff4987104f4bf178754865ab7dff0ac52f5/manifest.json",
+    "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/AP-FILE-r.md",
+    "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/AP-FILE.md",
+    "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/DEF-LOG-01-r.md",
+    "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/DEF-LOG-01.md",
+    "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/G-LOG-r.md",
+    "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/G-LOG.md",
+    "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/SG-TRACE-r.md",
+    "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/SG-TRACE.md",
+    "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/SYS-LOG-r.md",
+    "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/SYS-LOG.md",
+    "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/change.json",
+    "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/experiments/E-002-plan.md",
+    "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/experiments/budget-definition-002.md",
+    "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/operations/delegation-002.md",
+    "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/operations/intake-002.md",
+    "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/manifest.json",
+    "design/snapshots/SN-e6d1dcd05a40faa69f0170fae400abdcd673b426a0f3d1c8a509f067a6f94593/files/audits/AR-PLAN-002-request.json",
+    "design/snapshots/SN-e6d1dcd05a40faa69f0170fae400abdcd673b426a0f3d1c8a509f067a6f94593/files/experiments/E-002.md",
+    "design/snapshots/SN-e6d1dcd05a40faa69f0170fae400abdcd673b426a0f3d1c8a509f067a6f94593/manifest.json",
+    "evidence/E-002-plan-handoff.md",
+    "evidence/E-002-plan-verification.json",
+    "evidence/precheck-plan-002.json",
+    "evidence/precheck-plan-002.md",
+    "experiments/E-002-plan.md",
+    "experiments/E-002.md",
+    "experiments/budget-definition-002.md",
+    "operations/OP-PLAN-002-payload.json",
+    "operations/OP-PLAN-002.md",
+    "operations/delegation-002.md",
+    "operations/intake-002.md"
+  ],
+  "changed_files": [
+    "design/state.md"
+  ],
+  "temporary_administrative_files": [
+    ".local/tmp/plan-002-before.json",
+    ".local/tmp/prepare-plan-002.py"
+  ],
+  "preparation_issue": "Windows path-length failure while freezing nested candidate paths; fixed by short candidate filenames, no existing snapshot changed.",
+  "limit": "Structural and record-integrity verification only; plan semantic audit and product UT/SIT/FIT have not run.",
+  "revision": 1
+}

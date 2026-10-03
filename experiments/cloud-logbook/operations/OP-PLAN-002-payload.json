@@ -1,0 +1,50 @@
+{
+  "operation_id": "OP-PLAN-002",
+  "kind": "plan",
+  "experiment_id": "E-002",
+  "plan_revision": 1,
+  "cycle_id": "C-002",
+  "scope": [
+    "CTX-LOG",
+    "FIT-01",
+    "SIT-01",
+    "SYS-LOG"
+  ],
+  "base_bundle": {
+    "id": "BUNDLE-001",
+    "immutable_ref": "design/snapshots/SN-fab1cd198c39ee2f406f70567117e5d71122b58da0ad97f93dc54eb969e868f3/files/design/candidates/OP-ADOPT-002/bundle.json",
+    "sha256": "90c0dd3433cddb50240a8c1df5f8db70e5e9f11d82f9837caa6a6b6c6cef3742"
+  },
+  "base_revision": 43,
+  "phase": "plan",
+  "criteria_version": 2,
+  "subject_ref": "audits/subjects/PLAN-002.json",
+  "subject_hash": "d9835c76e2a240afe310b0c80e2e7387c312477d082b192d23b043ab09fd2308",
+  "delegation_ref": {
+    "id": "DELEGATION-02",
+    "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/operations/delegation-002.md",
+    "sha256": "ef9f016a14248e206e3942b588861c900f5ead281d54ae46923019242170a146",
+    "semantic_revision": 1
+  },
+  "budget_account_refs": [
+    "LOCAL-01",
+    "LOCAL-E002"
+  ],
+  "review_delta_ref": {
+    "id": "PLAN-DELTA-002",
+    "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/change.json",
+    "sha256": "4b0cd07c737b044b77af7f0f5caf1ba9f9813c72286c6be859bb44096220069f",
+    "semantic_revision": 1
+  },
+  "change_ids": [],
+  "change_refs": [
+    {
+      "id": "PLAN-DELTA-002",
+      "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/change.json",
+      "sha256": "4b0cd07c737b044b77af7f0f5caf1ba9f9813c72286c6be859bb44096220069f",
+      "semantic_revision": 1
+    }
+  ],
+  "review_mode": "normal",
+  "recovery_ref": null
+}

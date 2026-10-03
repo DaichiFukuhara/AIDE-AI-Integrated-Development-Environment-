@@ -1,7 +1,7 @@
 ---
 {
   "project_id": "CLOUD-LOGBOOK",
-  "revision": 42,
+  "revision": 45,
   "timezone": "Asia/Tokyo",
   "scope": [
     "CTX-LOG",
@@ -341,6 +341,38 @@
         "immutable_ref": "design/snapshots/SN-73bc16eb013796497a3ff3d3974cee92e02ee91d01fb5e2b16675300bc1f1b66/files/operations/OP-CLOSE-001-payload.json",
         "sha256": "a47695a9fa811ea917d7089ff10e1f4cf0cadddf20796818d78228aab3860073"
       }
+    },
+    "OP-PLAN-002": {
+      "payload_hash": "e0d167958e173f37f3995199a759fb258b9da66b7852e4b22b87bfa8c76512ef",
+      "payload_ref": {
+        "id": "OP-PLAN-002-PAYLOAD",
+        "immutable_ref": "design/snapshots/SN-115d95e4eae365644ee92c14d5aa9ca379adfbec14655c5fd47d7ccc9a767237/files/operations/OP-PLAN-002-payload.json",
+        "sha256": "f757932030b50ef7b1eba2d21b421e826e75bf88cfda2266b1514addd515c366"
+      },
+      "kind": "plan",
+      "subject_hash": "d9835c76e2a240afe310b0c80e2e7387c312477d082b192d23b043ab09fd2308",
+      "scope": [
+        "CTX-LOG",
+        "FIT-01",
+        "SIT-01",
+        "SYS-LOG"
+      ],
+      "phase": "plan",
+      "criteria_version": 2,
+      "state": "requested",
+      "result": null,
+      "bundle": null,
+      "audit_request_id": "AR-PLAN-002",
+      "subject_ref": {
+        "id": "PLAN-002",
+        "immutable_ref": "design/snapshots/SN-115d95e4eae365644ee92c14d5aa9ca379adfbec14655c5fd47d7ccc9a767237/files/audits/subjects/PLAN-002.json",
+        "sha256": "159a16b0aed24780144a13a0d93806bbd48fb8bbdb699e0c1f0a4b0f84dd26f0"
+      },
+      "precheck_ref": {
+        "id": "PRECHECK-PLAN-002",
+        "immutable_ref": "design/snapshots/SN-115d95e4eae365644ee92c14d5aa9ca379adfbec14655c5fd47d7ccc9a767237/files/evidence/precheck-plan-002.json",
+        "sha256": "c938c7cd21c87e596ecfd4cba05a3e05a228568f3fa31c50c7c433cb6e4f66e4"
+      }
     }
   },
   "tombstones": {},
@@ -403,6 +435,25 @@
       },
       "target": "record",
       "state": "acknowledged"
+    },
+    {
+      "message_id": "AR-PLAN-002",
+      "kind": "S-AUDIT-INPUT",
+      "payload_ref": {
+        "id": "AR-PLAN-002",
+        "immutable_ref": "design/snapshots/SN-e6d1dcd05a40faa69f0170fae400abdcd673b426a0f3d1c8a509f067a6f94593/files/audits/AR-PLAN-002-request.json",
+        "sha256": "fd86ee56ebe6672d402cf9981bac993de70e4ae13536665c5e60a8b3823f9379"
+      },
+      "target": "Claude Opus 5.5 (external independent audit)",
+      "state": "pending",
+      "delivery_status": "not-dispatched",
+      "execution_id": "EXEC-AUDIT-PLAN-002",
+      "account_refs": [
+        "LOCAL-01",
+        "LOCAL-E002"
+      ],
+      "execution_started": false,
+      "hold_reason": "User-requested stop after request creation and reservation"
     }
   ],
   "received_notifications": {
@@ -462,7 +513,35 @@
       }
     }
   },
-  "pending_changes": [],
+  "pending_changes": [
+    {
+      "id": "PLAN-DELTA-002",
+      "operation_id": "OP-PLAN-002",
+      "phase": "plan",
+      "state": "ready",
+      "affected_scope": [
+        "CTX-LOG",
+        "FIT-01",
+        "SIT-01",
+        "SYS-LOG"
+      ],
+      "change_ref": {
+        "id": "PLAN-DELTA-002",
+        "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/design/candidates/OP-PLAN-002/change.json",
+        "sha256": "4b0cd07c737b044b77af7f0f5caf1ba9f9813c72286c6be859bb44096220069f",
+        "semantic_revision": 1
+      },
+      "consumer_closure": [
+        "DEF-LOG-01",
+        "G-LOG",
+        "SG-TRACE",
+        "AP-FILE",
+        "SYS-LOG",
+        "E-002"
+      ],
+      "current_changed": false
+    }
+  ],
   "blocked_scopes": [
     {
       "scope": [
@@ -568,7 +647,72 @@
           "activities": [
             "record"
           ],
-          "cumulative_used": 5
+          "cumulative_used": 6
+        }
+      }
+    },
+    "LOCAL-E002": {
+      "owner": "learning",
+      "definition_ref": {
+        "id": "BUDGET-02",
+        "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/experiments/budget-definition-002.md",
+        "sha256": "a2bd9872ce8d029979c7dffaf7ce164fcc49992c8d71853a1efa87a593ab84f7",
+        "semantic_revision": 1
+      },
+      "delegation_ref": {
+        "id": "DELEGATION-02",
+        "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/operations/delegation-002.md",
+        "sha256": "ef9f016a14248e206e3942b588861c900f5ead281d54ae46923019242170a146",
+        "semantic_revision": 1
+      },
+      "scope": [
+        "CTX-LOG",
+        "FIT-01",
+        "SIT-01",
+        "SYS-LOG"
+      ],
+      "activities": [
+        "trial",
+        "audit",
+        "record"
+      ],
+      "parent_account_refs": [
+        "LOCAL-01"
+      ],
+      "limits": {
+        "external_spend": {
+          "unit": "JPY-new-external-purchases",
+          "limit": 0,
+          "activities": [
+            "trial",
+            "audit",
+            "record"
+          ],
+          "cumulative_used": 0
+        },
+        "trials": {
+          "unit": "verification-round",
+          "limit": 1,
+          "activities": [
+            "trial"
+          ],
+          "cumulative_used": 0
+        },
+        "audits": {
+          "unit": "independent-review-execution",
+          "limit": 2,
+          "activities": [
+            "audit"
+          ],
+          "cumulative_used": 0
+        },
+        "record_batches": {
+          "unit": "administrative-batch",
+          "limit": 6,
+          "activities": [
+            "record"
+          ],
+          "cumulative_used": 1
         }
       }
     }
@@ -1403,18 +1547,236 @@
         "immutable_ref": "design/snapshots/SN-b1284207bc4df31dc1febd284de6292a9c444bc4b6182e29f6685a3c7696aaad/files/evidence/AUD-ADOPT-002-record-accepted.md",
         "sha256": "f89649460e6e4ee033fde0e4cecb1d408404fc5146119da8249358e0098603eb"
       }
+    },
+    "EXEC-RECORD-006": {
+      "activity": "record",
+      "operation_id": "OP-PLAN-002",
+      "scope": [
+        "CTX-LOG",
+        "FIT-01",
+        "SIT-01",
+        "SYS-LOG"
+      ],
+      "corrective_finding": null,
+      "account_refs": [
+        "LOCAL-01",
+        "LOCAL-E002"
+      ],
+      "definition_ref": {
+        "id": "BUDGET-01",
+        "immutable_ref": "design/snapshots/SN-93aa04c2045e9a8d9427752b0e72563365d6a8911c6c54fa472c697ebd2b76c4/files/experiments/budget-definition.md",
+        "sha256": "6eae3ab9ea2c13170219f30fd66b5a5795e102a737e6670da62e7e601f644406",
+        "semantic_revision": 1
+      },
+      "checked_at": "2026-10-03T11:27:29.424644+00:00",
+      "state": "settled",
+      "decision_owner": "record",
+      "limits": {
+        "external_spend": 0,
+        "trials": 0,
+        "audits": 0,
+        "record_batches": 1
+      },
+      "checks": {
+        "external_spend": {
+          "used": 0,
+          "outstanding": 0,
+          "next": 0,
+          "limit": 0,
+          "decision": "allow"
+        },
+        "trials": {
+          "used": 5,
+          "outstanding": 0,
+          "next": 0,
+          "limit": 6,
+          "decision": "allow"
+        },
+        "audits": {
+          "used": 3,
+          "outstanding": 0,
+          "next": 0,
+          "limit": 6,
+          "decision": "allow"
+        },
+        "record_batches": {
+          "used": 5,
+          "outstanding": 0,
+          "next": 1,
+          "limit": 80,
+          "decision": "allow"
+        }
+      },
+      "basis": "Local tools and existing session only; no paid external API or purchases. Platform token cost is unmeasured and not represented as zero.",
+      "definition_refs": {
+        "LOCAL-01": {
+          "id": "BUDGET-01",
+          "immutable_ref": "design/snapshots/SN-93aa04c2045e9a8d9427752b0e72563365d6a8911c6c54fa472c697ebd2b76c4/files/experiments/budget-definition.md",
+          "sha256": "6eae3ab9ea2c13170219f30fd66b5a5795e102a737e6670da62e7e601f644406",
+          "semantic_revision": 1
+        },
+        "LOCAL-E002": {
+          "id": "BUDGET-02",
+          "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/experiments/budget-definition-002.md",
+          "sha256": "a2bd9872ce8d029979c7dffaf7ce164fcc49992c8d71853a1efa87a593ab84f7",
+          "semantic_revision": 1
+        }
+      },
+      "delegation_refs": {
+        "LOCAL-01": {
+          "id": "DELEGATION-01",
+          "immutable_ref": "design/snapshots/SN-93aa04c2045e9a8d9427752b0e72563365d6a8911c6c54fa472c697ebd2b76c4/files/operations/delegation.md",
+          "sha256": "391c97b9a2e3c17dd871740b80991832d713002c97d8207d7c5b9fe59c772d45",
+          "semantic_revision": 1
+        },
+        "LOCAL-E002": {
+          "id": "DELEGATION-02",
+          "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/operations/delegation-002.md",
+          "sha256": "ef9f016a14248e206e3942b588861c900f5ead281d54ae46923019242170a146",
+          "semantic_revision": 1
+        }
+      },
+      "settled_at": "2026-10-03T11:40:09.784668+00:00",
+      "evidence_ref": {
+        "id": "PRECHECK-PLAN-002",
+        "immutable_ref": "design/snapshots/SN-115d95e4eae365644ee92c14d5aa9ca379adfbec14655c5fd47d7ccc9a767237/files/evidence/precheck-plan-002.json",
+        "sha256": "c938c7cd21c87e596ecfd4cba05a3e05a228568f3fa31c50c7c433cb6e4f66e4"
+      },
+      "child_allocation_basis": "Inherited LOCAL-01 remaining capacity; BUDGET-02 fixes child limits."
+    },
+    "EXEC-AUDIT-PLAN-002": {
+      "activity": "audit",
+      "operation_id": "AR-PLAN-002",
+      "scope": [
+        "CTX-LOG",
+        "FIT-01",
+        "SIT-01",
+        "SYS-LOG"
+      ],
+      "account_refs": [
+        "LOCAL-01",
+        "LOCAL-E002"
+      ],
+      "definition_ref": {
+        "id": "BUDGET-02",
+        "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/experiments/budget-definition-002.md",
+        "sha256": "a2bd9872ce8d029979c7dffaf7ce164fcc49992c8d71853a1efa87a593ab84f7",
+        "semantic_revision": 1
+      },
+      "definition_refs": {
+        "LOCAL-01": {
+          "id": "BUDGET-01",
+          "immutable_ref": "design/snapshots/SN-93aa04c2045e9a8d9427752b0e72563365d6a8911c6c54fa472c697ebd2b76c4/files/experiments/budget-definition.md",
+          "sha256": "6eae3ab9ea2c13170219f30fd66b5a5795e102a737e6670da62e7e601f644406",
+          "semantic_revision": 1
+        },
+        "LOCAL-E002": {
+          "id": "BUDGET-02",
+          "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/experiments/budget-definition-002.md",
+          "sha256": "a2bd9872ce8d029979c7dffaf7ce164fcc49992c8d71853a1efa87a593ab84f7",
+          "semantic_revision": 1
+        }
+      },
+      "delegation_refs": {
+        "LOCAL-01": {
+          "id": "DELEGATION-01",
+          "immutable_ref": "design/snapshots/SN-93aa04c2045e9a8d9427752b0e72563365d6a8911c6c54fa472c697ebd2b76c4/files/operations/delegation.md",
+          "sha256": "391c97b9a2e3c17dd871740b80991832d713002c97d8207d7c5b9fe59c772d45",
+          "semantic_revision": 1
+        },
+        "LOCAL-E002": {
+          "id": "DELEGATION-02",
+          "immutable_ref": "design/snapshots/SN-8fc75a13cfa0cc07e2a453e4eca38ee7f4ef240c4d322f3e82059bd987f81822/files/operations/delegation-002.md",
+          "sha256": "ef9f016a14248e206e3942b588861c900f5ead281d54ae46923019242170a146",
+          "semantic_revision": 1
+        }
+      },
+      "checked_at": "2026-10-03T11:40:09.784765+00:00",
+      "state": "reserved",
+      "decision_owner": "record",
+      "limits": {
+        "external_spend": 0,
+        "trials": 0,
+        "audits": 1,
+        "record_batches": 0
+      },
+      "checks": {
+        "LOCAL-01": {
+          "external_spend": {
+            "used": 0,
+            "outstanding": 0,
+            "next": 0,
+            "limit": 0,
+            "decision": "allow-reservation-only"
+          },
+          "trials": {
+            "used": 5,
+            "outstanding": 0,
+            "next": 0,
+            "limit": 6,
+            "decision": "allow-reservation-only"
+          },
+          "audits": {
+            "used": 3,
+            "outstanding": 0,
+            "next": 1,
+            "limit": 6,
+            "decision": "allow-reservation-only"
+          },
+          "record_batches": {
+            "used": 6,
+            "outstanding": 0,
+            "next": 0,
+            "limit": 80,
+            "decision": "allow-reservation-only"
+          }
+        },
+        "LOCAL-E002": {
+          "external_spend": {
+            "used": 0,
+            "outstanding": 0,
+            "next": 0,
+            "limit": 0,
+            "decision": "allow-reservation-only"
+          },
+          "trials": {
+            "used": 0,
+            "outstanding": 0,
+            "next": 0,
+            "limit": 1,
+            "decision": "allow-reservation-only"
+          },
+          "audits": {
+            "used": 0,
+            "outstanding": 0,
+            "next": 1,
+            "limit": 2,
+            "decision": "allow-reservation-only"
+          },
+          "record_batches": {
+            "used": 1,
+            "outstanding": 0,
+            "next": 0,
+            "limit": 6,
+            "decision": "allow-reservation-only"
+          }
+        }
+      },
+      "basis": "User explicitly requests one external independent plan review reservation; no dispatch or execution. No new paid purchases. Existing platform costs unknown and reviewer must confirm execution capacity before start.",
+      "execution_started": false,
+      "dispatch_allowed_this_turn": false
     }
   },
   "recovery_records": {},
-  "observed_at": "2026-10-03T11:15:31.637734+00:00",
+  "observed_at": "2026-10-03T11:40:10.048786+00:00",
   "display": {
-    "plan": "独立監査合格",
-    "trial": "TRIAL-005自動29件合格・独立監査FIT 9項目確認（過去の失敗と未確認記録を保持）",
-    "audit": "独立再監査合格・major/blocker 0・minor 1未解消",
+    "plan": "E-002 構造確認済み・独立計画監査待ち",
+    "trial": "E-002 未実行（C-001の既存証拠は保持）",
+    "audit": "AR-PLAN-002 予約済み・未送信・未実施",
     "adoption": "ローカル技術的試験のみ採用",
-    "cycle": "ローカル技術的試験サイクル完了・cycle_closed ack・周期監査は理由付きskip",
+    "cycle": "C-001 完了を保持 / C-002 計画監査待ち・未完了",
     "human_evaluation": "HUMAN-01 未確認",
-    "next": "F-CLOUD-ADOPT-002と既存4件を次計画へ。配備・4実環境・本人評価などは未確認。",
+    "next": "Claude Opus 5.5 がAR-PLAN-002の固定入力を外部独立監査。UC-01〜03の確認と実装依頼まで製品/hook/設定は作成しない。",
     "production_deployment": "DEPLOY-01 未確認",
     "source_environments": "SOURCES-01 未確認",
     "native_download": "未確認",
@@ -1907,6 +2269,44 @@
       "SOURCES-01: 4実環境からの送信は未確認。",
       "HUMAN-01: 本人評価は未確認。",
       "native download完了、他ブラウザ、長期運用、クラウドキュー持続性は未確認。"
+    ]
+  },
+  "cycle_history": {
+    "C-001": {
+      "cycle_id": "C-001",
+      "state": "complete",
+      "closed_at": "2026-10-03T11:15:31.515218+00:00",
+      "closure_id": "OP-CLOSE-001",
+      "periodic": "reasoned-skip",
+      "adoption_scope": "local-technical-trial-only",
+      "human_evaluation": "unverified",
+      "production_deployment": "unverified",
+      "source_environments": "unverified",
+      "native_download": "unverified",
+      "open_minor_ids": [
+        "F-CLOUD-ADOPT-002"
+      ],
+      "project_complete": false,
+      "unverified": [
+        "DEPLOY-01: 実Supabase DB/Auth/RLS/RPC、Vercel HTTPS、Secure cookieは未確認。Authエラー分類は偽transportと自動テストでのみ確認。",
+        "SOURCES-01: 4実環境からの送信は未確認。",
+        "HUMAN-01: 本人評価は未確認。",
+        "native download完了、他ブラウザ、長期運用、クラウドキュー持続性は未確認。"
+      ]
+    }
+  },
+  "active_cycle_status": {
+    "cycle_id": "C-002",
+    "experiment_id": "E-002",
+    "state": "plan-audit-pending",
+    "operation_id": "OP-PLAN-002",
+    "audit_request_id": "AR-PLAN-002",
+    "implementation_started": false,
+    "plan_checked": false,
+    "required_user_confirmations": [
+      "UC-01",
+      "UC-02",
+      "UC-03"
     ]
   }
 }

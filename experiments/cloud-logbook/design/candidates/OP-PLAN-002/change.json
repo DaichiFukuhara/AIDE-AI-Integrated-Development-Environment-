@@ -1,0 +1,135 @@
+{
+  "id": "PLAN-DELTA-002",
+  "revision": 1,
+  "semantic_revision": 1,
+  "phase": "plan",
+  "operation_id": "OP-PLAN-002",
+  "base_bundle": {
+    "id": "BUNDLE-001",
+    "immutable_ref": "design/snapshots/SN-fab1cd198c39ee2f406f70567117e5d71122b58da0ad97f93dc54eb969e868f3/files/design/candidates/OP-ADOPT-002/bundle.json",
+    "sha256": "90c0dd3433cddb50240a8c1df5f8db70e5e9f11d82f9837caa6a6b6c6cef3742"
+  },
+  "old_spec_refs": [
+    {
+      "id": "G-LOG",
+      "immutable_ref": "design/snapshots/SN-93aa04c2045e9a8d9427752b0e72563365d6a8911c6c54fa472c697ebd2b76c4/files/design/master.md",
+      "sha256": "a29e568f7cccfd4939338b94ad9f6174479d3a1ee06278403920e1c0343278dc",
+      "semantic_revision": 1
+    },
+    {
+      "id": "SG-TRACE",
+      "immutable_ref": "design/snapshots/SN-93aa04c2045e9a8d9427752b0e72563365d6a8911c6c54fa472c697ebd2b76c4/files/design/goals/trace/design.md",
+      "sha256": "8678d0b82ae089bf2fdbcc80f0680b349174cf92500f3e821b73b5c71030aa70",
+      "semantic_revision": 1
+    },
+    {
+      "id": "AP-FILE",
+      "immutable_ref": "design/snapshots/SN-93aa04c2045e9a8d9427752b0e72563365d6a8911c6c54fa472c697ebd2b76c4/files/design/goals/trace/approaches/file/design.md",
+      "sha256": "94d316a91d46fbe5206e2cc6f84f8141e5844a3bddf20f3633a49dfcfd328a2b",
+      "semantic_revision": 1
+    },
+    {
+      "id": "SYS-LOG",
+      "immutable_ref": "design/snapshots/SN-93aa04c2045e9a8d9427752b0e72563365d6a8911c6c54fa472c697ebd2b76c4/files/design/domains/log/systems/console/design.md",
+      "sha256": "efec22804f60abd1d03fc815ef8dafec6329939e0d1bc26892e88c9b45bcd283",
+      "semantic_revision": 1
+    },
+    {
+      "id": "G-LOG-rationale",
+      "immutable_ref": "design/snapshots/SN-93aa04c2045e9a8d9427752b0e72563365d6a8911c6c54fa472c697ebd2b76c4/files/design/rationale.md",
+      "sha256": "be21f5ccde1b685705d1b4a8c186ac61a17bacd0e46349982220ccddd59cce2b",
+      "semantic_revision": 1
+    },
+    {
+      "id": "SG-TRACE-rationale",
+      "immutable_ref": "design/snapshots/SN-93aa04c2045e9a8d9427752b0e72563365d6a8911c6c54fa472c697ebd2b76c4/files/design/goals/trace/rationale.md",
+      "sha256": "2bccdf8c10e5f6bef65ab684c52335e1054dc3f9899259b754e0b91c15f32d85",
+      "semantic_revision": 1
+    },
+    {
+      "id": "AP-FILE-rationale",
+      "immutable_ref": "design/snapshots/SN-93aa04c2045e9a8d9427752b0e72563365d6a8911c6c54fa472c697ebd2b76c4/files/design/goals/trace/approaches/file/rationale.md",
+      "sha256": "3e383a55bf2915113234ea348193860db68cc5fbfb614a48ff0a0bf464290088",
+      "semantic_revision": 1
+    },
+    {
+      "id": "SYS-LOG-rationale",
+      "immutable_ref": "design/snapshots/SN-93aa04c2045e9a8d9427752b0e72563365d6a8911c6c54fa472c697ebd2b76c4/files/design/domains/log/systems/console/rationale.md",
+      "sha256": "9381cedf0825e4ca0b24d706131805d6e184f1c8570642b4d64417e670e68521",
+      "semantic_revision": 1
+    }
+  ],
+  "old_model_definition_refs": [
+    {
+      "id": "DEF-LOG-01",
+      "immutable_ref": "design/snapshots/SN-93aa04c2045e9a8d9427752b0e72563365d6a8911c6c54fa472c697ebd2b76c4/files/design/domains/log/design.md",
+      "sha256": "8428b8239c44ea3c928bb919c0b8dd9c6676f4ef0421e2824ad314372b17d23b",
+      "semantic_revision": 1,
+      "domain_id": "D-LOG",
+      "context_id": "CTX-LOG",
+      "canonical_owner": "SYS-LOG",
+      "dependencies": []
+    },
+    {
+      "id": "DEF-LOG-01-rationale",
+      "immutable_ref": "design/snapshots/SN-93aa04c2045e9a8d9427752b0e72563365d6a8911c6c54fa472c697ebd2b76c4/files/design/domains/log/rationale.md",
+      "sha256": "a4dad2de8671663238e632c0a69fb6f18b44793791f43dabfe103313066e66dc",
+      "semantic_revision": 1,
+      "domain_id": "D-LOG",
+      "context_id": "CTX-LOG",
+      "canonical_owner": "SYS-LOG",
+      "dependencies": []
+    }
+  ],
+  "affected_scope": [
+    "CTX-LOG",
+    "FIT-01",
+    "SIT-01",
+    "SYS-LOG"
+  ],
+  "changed_definition": {
+    "id": "DEF-LOG-01",
+    "old_semantic_revision": 1,
+    "new_semantic_revision": 2
+  },
+  "consumer_closure": [
+    "DEF-LOG-01",
+    "G-LOG",
+    "SG-TRACE",
+    "AP-FILE",
+    "SYS-LOG",
+    "E-002"
+  ],
+  "implementation_dependencies": [
+    "CLI",
+    "API/validateEvent",
+    "SQL/RPC/RLS",
+    "UI",
+    "new hook/worker boundary"
+  ],
+  "old_consumers_preserved": [
+    "E-001",
+    "BUNDLE-001",
+    "AR-PLAN-001",
+    "AR-ADOPT-002"
+  ],
+  "classification": "meaning-change-requires-independent-plan-audit; not daily-pass",
+  "joint_condition": "allowlist/privacy, non-blocking capture, fixed event identity, queue/CLI/API/UI compatibility",
+  "delta": [
+    "DEF-LOG-01 and four-level candidate references v1 -> v2; adopted v1 unchanged",
+    "Claude-local hooks metadata observation; auto/manual reserved actor/title/body convention",
+    "queue-only foreground; bounded background sends; stable IDs and quantity/retention limits",
+    "EVAL-002 maps UT-AUTO to SYS-LOG, SIT-AUTO/REG to SIT-01, FIT-AUTO/UI/HUMAN to FIT-01; criteria_version=2",
+    "SQL/14 fields unchanged; live refresh and other NEXT candidates remain deferred"
+  ],
+  "stale_policy": "Existing v1 results remain historical guarantees of v1; never valid for the v2 candidate. No other pending candidates at intake.",
+  "baseline_unverified": [
+    "DEPLOY-01: 実Supabase DB/Auth/RLS/RPC、Vercel HTTPS、Secure cookieは未確認。Authエラー分類は偽transportと自動テストでのみ確認。",
+    "SOURCES-01: 4実環境からの送信は未確認。",
+    "HUMAN-01: 本人評価は未確認。",
+    "native download完了、他ブラウザ、長期運用、クラウドキュー持続性は未確認。"
+  ],
+  "open_finding_ids": [
+    "F-CLOUD-ADOPT-002"
+  ]
+}
